@@ -11,7 +11,7 @@ use spidev::SpiModeFlags;
 use std::io;
 use std::io::Write;
 use std::io::BufWriter;
-use rand::prelude::*;
+// use rand::prelude::*;
 
 use std::time::{Instant};
 
@@ -53,15 +53,36 @@ fn run_leds() -> io::Result<()> {
 
     let mut base: f32 = 0.0;
 
+    let num_rainbow = 5;
+    let degs_per_led = 360.0 / (num_rainbow as f32);
+
+    // initial blankout
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
+    for _ in 0..25 {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+    }
+
     for _ in 0..9000 {
+
+    let now_secs = start_time.elapsed().as_secs();
+
     send_led(&mut led_stream, 0, 0, 0, 0)?;
 
-    send_led(&mut led_stream, 255, 1,1,1)?;
+    for _ in 0..4 {
+      if now_secs % 2 == 0 {
+        send_led(&mut led_stream, 255, 128, 32, 0)?;
+      } else {
+        send_led(&mut led_stream, 255, 0, 0, 0)?;
+      }
+    }
 
-    for led in 0..22 {
+    send_led(&mut led_stream, 255, 0, 0, 0)?;
+
+
+    for led in 0..num_rainbow {
     // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
   
-    let hue: f32 = (base + 16.36 * (led as f32)) % 360.0;
+    let hue: f32 = (base + degs_per_led * (led as f32)) % 360.0;
  
     let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
  
@@ -77,7 +98,16 @@ fn run_leds() -> io::Result<()> {
 
     }
 
-    send_led(&mut led_stream, 255, 1,1,1)?;
+    send_led(&mut led_stream, 255, 0, 0, 0)?;
+
+    for _ in 0..4 {
+      if now_secs % 2 == 1 {
+        send_led(&mut led_stream, 255, 128, 32, 0)?;
+      } else {
+        send_led(&mut led_stream, 255, 0, 0, 0)?;
+      }
+    }
+
 
     // may need to pad more if many LEDs but this is enough for one side
     // of the wheel
