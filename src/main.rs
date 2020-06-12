@@ -63,7 +63,7 @@ fn run_leds() -> io::Result<()> {
   
     let hue: f32 = (base + 16.36 * (led as f32)) % 360.0;
  
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
  
     let srgb = Srgb::from(hsv);
 
