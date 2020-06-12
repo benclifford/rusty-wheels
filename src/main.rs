@@ -53,7 +53,7 @@ fn run_leds() -> io::Result<()> {
 
     let mut base: f32 = 0.0;
 
-    let num_rainbow = 5;
+    let num_rainbow = 8;
     let degs_per_led = 360.0 / (num_rainbow as f32);
 
     // initial blankout
@@ -68,7 +68,7 @@ fn run_leds() -> io::Result<()> {
 
     send_led(&mut led_stream, 0, 0, 0, 0)?;
 
-    for _ in 0..4 {
+    for _ in 0..3 {
       if now_secs % 2 == 0 {
         send_led(&mut led_stream, 255, 128, 32, 0)?;
       } else {
@@ -80,27 +80,27 @@ fn run_leds() -> io::Result<()> {
 
 
     for led in 0..num_rainbow {
-    // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
+      // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
   
-    let hue: f32 = (base + degs_per_led * (led as f32)) % 360.0;
+      let hue: f32 = (base + degs_per_led * (led as f32)) % 360.0;
  
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
+      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
  
-    let srgb = Srgb::from(hsv);
+      let srgb = Srgb::from(hsv);
 
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+      let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
 
-    let [red, green, blue] = pixels;
+      let [red, green, blue] = pixels;
  
-    send_led(&mut led_stream, 255, red, green, blue)?;
+      send_led(&mut led_stream, 255, red, green, blue)?;
 
-    base += 0.003;
+      base += 0.008;
 
     }
 
     send_led(&mut led_stream, 255, 0, 0, 0)?;
 
-    for _ in 0..4 {
+    for _ in 0..3 {
       if now_secs % 2 == 1 {
         send_led(&mut led_stream, 255, 128, 32, 0)?;
       } else {

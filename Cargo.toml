@@ -8,4 +8,4 @@ edition = "2018"
 spidev = {git = "https://github.com/rust-embedded/rust-spidev"}
 rand = "0.7.3"
 palette = "0.5.0"
-gpio = "0.4.1"
+sysfs_gpio = "0.5"
