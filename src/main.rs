@@ -23,7 +23,7 @@ fn create_spi() -> io::Result<Spidev> {
     Ok(spi)
 }
 
-fn send_frame(w: &mut Write, m: u8, r: u8, g: u8, b: u8) -> io::Result<usize> {
+fn send_led(w: &mut Write, m: u8, r: u8, g: u8, b: u8) -> io::Result<usize> {
     w.write(&[m, b, g, r])
 }
 
@@ -47,17 +47,17 @@ fn run_leds() -> io::Result<()> {
     let start_time = Instant::now();
 
     for _ in 0..9000 {
-    send_frame(&mut led_stream, 0, 0, 0, 0)?;
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
 
     for _ in 0..8 {
-      send_frame(&mut led_stream, 255, 32, 0, 0)?;
-      send_frame(&mut led_stream, 255, 0, 32, 0)?;
-      send_frame(&mut led_stream, 255, 0, 0, 255)?;
+      send_led(&mut led_stream, 255, 32, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 32, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 255)?;
     }
 
     // may need to pad more if many LEDs but this is enough for one side
     // of the wheel
-    send_frame(&mut led_stream, 0, 0, 0, 0)?;
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
     led_stream.flush()?;
     }
     let duration_secs = start_time.elapsed().as_secs();
