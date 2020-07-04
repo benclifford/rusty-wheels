@@ -90,6 +90,8 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
+    let mut loop_counter = 0;
+
     loop {
 
 
@@ -157,11 +159,36 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       }
     }
 
+    send_led(&mut led_stream, 255, 0, 0, 0)?;
+
+    send_led(&mut led_stream, 255, 0, 0, 255)?; // permanently on
+
+    send_led(&mut led_stream, 255, 0, 0, 0)?;
+
+    let counter_phase  = loop_counter % 6;
+    if counter_phase == 0 {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 255, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 255, 0)?;
+    } else if counter_phase == 3 {
+      send_led(&mut led_stream, 255, 128, 0, 128)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 128, 0, 128)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+    } else {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+    }
 
     // may need to pad more if many LEDs but this is enough for one side
     // of the wheel
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     led_stream.flush()?;
+
+    loop_counter = loop_counter + 1;
     }
     let duration_secs = start_time.elapsed().as_secs();
 
