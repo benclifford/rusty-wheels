@@ -90,7 +90,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
-    for _ in 0..9000 {
+    loop {
 
 
     match poller.poll(0) { 
