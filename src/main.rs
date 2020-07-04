@@ -104,6 +104,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       _ => ()
     };
 
+    let now_millis = start_time.elapsed().as_millis();
     let now_secs = start_time.elapsed().as_secs();
 
     let spin_length = spin_start_time - last_spin_start_time;
@@ -112,12 +113,22 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     send_led(&mut led_stream, 0, 0, 0, 0)?;
 
-    for _ in 0..3 {
-      if now_secs % 2 == 0 {
-        send_led(&mut led_stream, 255, 128, 32, 0)?;
+    if now_secs % 2 == 0 {
+      if (now_millis / 100) % 2 == 0 {
+        send_led(&mut led_stream, 255, 32, 8, 0)?;
       } else {
         send_led(&mut led_stream, 255, 0, 0, 0)?;
       }
+      send_led(&mut led_stream, 255, 128, 32, 0)?;
+      if (now_millis / 100) % 2 == 1 {
+        send_led(&mut led_stream, 255, 32, 8, 0)?;
+      } else {
+        send_led(&mut led_stream, 255, 0, 0, 0)?;
+      }
+    } else {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
     send_led(&mut led_stream, 255, 0, 0, 0)?;
@@ -134,7 +145,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       }
  
       // println!("hue is {}", hue);
-      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
+      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
  
       let srgb = Srgb::from(hsv);
  
@@ -150,13 +161,22 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     send_led(&mut led_stream, 255, 0, 0, 0)?;
 
-
-    for _ in 0..3 {
-      if now_secs % 2 == 1 {
-        send_led(&mut led_stream, 255, 128, 32, 0)?;
+    if now_secs % 2 == 1 {
+      if (now_millis / 100) % 2 == 0 {
+        send_led(&mut led_stream, 255, 32, 8, 0)?;
       } else {
         send_led(&mut led_stream, 255, 0, 0, 0)?;
       }
+      send_led(&mut led_stream, 255, 128, 32, 0)?;
+      if (now_millis / 100) % 2 == 1 {
+        send_led(&mut led_stream, 255, 32, 8, 0)?;
+      } else {
+        send_led(&mut led_stream, 255, 0, 0, 0)?;
+      }
+    } else {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
     send_led(&mut led_stream, 255, 0, 0, 0)?;
@@ -170,9 +190,9 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
       send_led(&mut led_stream, 255, 0, 255, 0)?;
       send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 255, 0)?;
+      send_led(&mut led_stream, 255, 0, 64, 0)?;
     } else if counter_phase == 3 {
-      send_led(&mut led_stream, 255, 128, 0, 128)?;
+      send_led(&mut led_stream, 255, 32, 0, 32)?;
       send_led(&mut led_stream, 255, 0, 0, 0)?;
       send_led(&mut led_stream, 255, 128, 0, 128)?;
       send_led(&mut led_stream, 255, 0, 0, 0)?;
