@@ -90,7 +90,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
-    let mut loop_counter = 0;
+    let mut loop_counter: u32 = 0;
 
     loop {
 
@@ -183,8 +183,30 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
+    let back_led = loop_counter % 24;
+
+    let spin_back_led: u32 = (spin_pos * 24.0) as u32;
+
+    for l in 0..23 {
+      let g;
+      if l == back_led {
+        g = 255
+      } else {
+        g = 0
+      }
+      let r;
+      if l == spin_back_led {
+        r = 255
+      } else {
+        r = 0
+      }
+      send_led(&mut led_stream, 255, r, g, r)?;
+    }
+
     // may need to pad more if many LEDs but this is enough for one side
     // of the wheel
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     led_stream.flush()?;
 
