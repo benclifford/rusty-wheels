@@ -109,9 +109,55 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     let spin_length = spin_start_time - last_spin_start_time;
 
+    // initialise LED stream
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
+
+    if spin_start_time.elapsed().as_millis() > 2000 || spin_start_time.elapsed().as_millis() == 0 { 
+      // stopped mode
+      let flicker = (now_millis / 50) % 2 == 0;
+      let topside = now_secs % 2 == 0;
+      for side in 0..2 {
+        for led in 0..3 {
+          send_led(&mut led_stream, 255, 16, 0, 0)?;
+        }
+        if topside ^ (side == 0){
+          for led in 3..8 {
+            if flicker {
+              send_led(&mut led_stream, 255, 4, 4, 0)?;
+            } else { 
+              send_led(&mut led_stream, 255, 0, 0, 0)?;
+            }
+          }
+          for led in 8..16 {
+            if flicker {
+              send_led(&mut led_stream, 255, 128, 64, 0)?;
+            } else { 
+             send_led(&mut led_stream, 255, 0, 0, 0)?;
+            }
+          }
+          for led in 16..20 {
+            if flicker {
+              send_led(&mut led_stream, 255, 4, 4, 0)?;
+            } else { 
+             send_led(&mut led_stream, 255, 0, 0, 0)?;
+            }
+          }
+        } else {
+          for led in 3..20 {
+            send_led(&mut led_stream, 255, 0, 0, 0)?;
+          }
+
+        }
+        for led in 20..23 {
+          send_led(&mut led_stream, 255, 16, 0, 0)?;
+        }
+      }
+
+
+    } else {
+
     let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
 
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
 
     if now_secs % 2 == 0 {
       if (now_millis / 100) % 2 == 0 {
@@ -228,8 +274,10 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     send_led(&mut led_stream, 0, 0, 0, 0)?;
-    led_stream.flush()?;
 
+    }
+
+    led_stream.flush()?;
     loop_counter = loop_counter + 1;
     }
     let duration_secs = start_time.elapsed().as_secs();
