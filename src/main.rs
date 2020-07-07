@@ -116,28 +116,28 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 { 
       // stopped mode
-      let flicker = (now_millis / 50) % 2 == 0;
+      let flicker = (now_millis / 25) % 4 == 0;
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
         for led in 0..3 {
           send_led(&mut led_stream, 255, 16, 0, 0)?;
         }
         if topside ^ (side == 0){
-          for led in 3..8 {
+          for led in 3..9 {
             if flicker {
               send_led(&mut led_stream, 255, 4, 4, 0)?;
             } else { 
               send_led(&mut led_stream, 255, 0, 0, 0)?;
             }
           }
-          for led in 8..16 {
+          for led in 9..15 {
             if flicker {
               send_led(&mut led_stream, 255, 128, 64, 0)?;
             } else { 
              send_led(&mut led_stream, 255, 0, 0, 0)?;
             }
           }
-          for led in 16..20 {
+          for led in 15..20 {
             if flicker {
               send_led(&mut led_stream, 255, 4, 4, 0)?;
             } else { 
