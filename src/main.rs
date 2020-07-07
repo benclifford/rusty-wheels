@@ -112,7 +112,9 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
     // initialise LED stream
     send_led(&mut led_stream, 0, 0, 0, 0)?;
 
-    if spin_start_time.elapsed().as_millis() > 2000 || spin_start_time.elapsed().as_millis() == 0 { 
+    let mode_duration = cmp::max(spin_start_time.elapsed(), spin_length);
+
+    if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 { 
       // stopped mode
       let flicker = (now_millis / 50) % 2 == 0;
       let topside = now_secs % 2 == 0;
