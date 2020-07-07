@@ -81,7 +81,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     let mut base: f32 = 0.0;
 
-    let num_rainbow = 8;
+    let num_rainbow = 16;
     let degs_per_led = 360.0 / (num_rainbow as f32);
 
     // initial blankout
@@ -161,27 +161,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
     let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
 
 
-    if now_secs % 2 == 0 {
-      if (now_millis / 100) % 2 == 0 {
-        send_led(&mut led_stream, 255, 32, 8, 0)?;
-      } else {
-        send_led(&mut led_stream, 255, 0, 0, 0)?;
-      }
-      send_led(&mut led_stream, 255, 128, 32, 0)?;
-      if (now_millis / 100) % 2 == 1 {
-        send_led(&mut led_stream, 255, 32, 8, 0)?;
-      } else {
-        send_led(&mut led_stream, 255, 0, 0, 0)?;
-      }
-    } else {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-    }
-
-    send_led(&mut led_stream, 255, 0, 0, 0)?;
-
-
     for led in 0..num_rainbow {
       // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
   
@@ -205,26 +184,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
       base += 0.008;
 
-    }
-
-    send_led(&mut led_stream, 255, 0, 0, 0)?;
-
-    if now_secs % 2 == 1 {
-      if (now_millis / 100) % 2 == 0 {
-        send_led(&mut led_stream, 255, 32, 8, 0)?;
-      } else {
-        send_led(&mut led_stream, 255, 0, 0, 0)?;
-      }
-      send_led(&mut led_stream, 255, 128, 32, 0)?;
-      if (now_millis / 100) % 2 == 1 {
-        send_led(&mut led_stream, 255, 32, 8, 0)?;
-      } else {
-        send_led(&mut led_stream, 255, 0, 0, 0)?;
-      }
-    } else {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
     send_led(&mut led_stream, 255, 0, 0, 0)?;
