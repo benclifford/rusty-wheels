@@ -119,39 +119,37 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       let flicker = (now_millis / 25) % 4 == 0;
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
-        for led in 0..3 {
-          send_led(&mut led_stream, 255, 16, 0, 0)?;
+        for led in 0..6 {
+          send_led(&mut led_stream, 255, 0, 0, 0)?;
+        }
+        for led in 6..8 {
+          send_led(&mut led_stream, 255, 128, 0, 0)?;
+        }
+        for led in 8..10 {
+          send_led(&mut led_stream, 255, 0, 0, 0)?;
         }
         if topside ^ (side == 0){
-          for led in 3..9 {
-            if flicker {
-              send_led(&mut led_stream, 255, 4, 4, 0)?;
-            } else { 
-              send_led(&mut led_stream, 255, 0, 0, 0)?;
-            }
-          }
-          for led in 9..15 {
+          for led in 10..13 {
             if flicker {
               send_led(&mut led_stream, 255, 128, 64, 0)?;
             } else { 
              send_led(&mut led_stream, 255, 0, 0, 0)?;
             }
           }
-          for led in 15..20 {
-            if flicker {
-              send_led(&mut led_stream, 255, 4, 4, 0)?;
-            } else { 
-             send_led(&mut led_stream, 255, 0, 0, 0)?;
-            }
-          }
+
         } else {
-          for led in 3..20 {
+          for led in 10..13 {
             send_led(&mut led_stream, 255, 0, 0, 0)?;
           }
-
         }
-        for led in 20..23 {
-          send_led(&mut led_stream, 255, 16, 0, 0)?;
+        for led in 13..15 {
+          send_led(&mut led_stream, 255, 0, 0, 0)?;
+        }
+        for led in 15..17 {
+          send_led(&mut led_stream, 255, 128, 0, 0)?;
+        }
+        for led in 17..23 {
+          send_led(&mut led_stream, 255, 0, 0, 0)?;
         }
       }
 
