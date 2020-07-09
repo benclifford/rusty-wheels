@@ -81,9 +81,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
     let mut base: f32 = 0.0;
 
-    let num_rainbow = 16;
-    let degs_per_led = 360.0 / (num_rainbow as f32);
-
     // initial blankout
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     for _ in 0..25 {
@@ -159,10 +156,13 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
     let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
 
 
-    for led in 0..num_rainbow {
+    for led in 0..8 {
+      send_led(&mut led_stream, 255, 0, 0, 0)?;
+    }
+
+    for led in 8..16 {
       // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
   
-      // let hue: f32 = (base + degs_per_led * (led as f32)) % 360.0;
       let mut hue = spin_pos * 360.0;
 
       if hue > 360.0 {
@@ -208,9 +208,9 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
-    let back_led = loop_counter % 24;
+    let back_led = loop_counter % 23;
 
-    let spin_back_led: u32 = (spin_pos * 24.0) as u32;
+    let spin_back_led: u32 = (spin_pos * 23.0) as u32;
 
     for l in 0..23 {
       let g;
