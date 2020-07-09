@@ -208,7 +208,9 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
 
-    let back_led = loop_counter % 23;
+    // this should range from 0..23 over the period of 1 second, which is
+    // around the right time for one wheel spin
+    let back_led: u32 = ((now_millis % 1000) * 23 / 1000) as u32;
 
     let spin_back_led: u32 = (spin_pos * 23.0) as u32;
 
