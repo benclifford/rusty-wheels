@@ -52,18 +52,18 @@ fn main() {
 }
 
 fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Error> {
+    println!("Configuring magnet");
     let pin = Pin::new(27);
     pin.export()?;
-    println!("X1");
     pin.set_direction(Direction::In)?;
     pin.set_edge(Edge::RisingEdge)?;
     let mut poller: sysfs_gpio::PinPoller = pin.get_poller()?;
-    println!("X3.1");
+    println!("Making first pin poll");
     match poller.poll(0)? { 
-      Some(value) => println!("POLL {}", value),
+      Some(value) => println!("Poll got first value {} - ignoring", value),
       None => ()
     }
-    println!("X2");
+    println!("Done configuring magnet");
 
   Ok(poller)
 }
