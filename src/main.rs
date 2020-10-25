@@ -4,6 +4,8 @@ use palette::Hsv;
 use palette::Srgb;
 use palette::encoding::pixel::Pixel;
 
+use signal_hook::flag;
+
 use spidev::Spidev;
 use spidev::SpidevOptions;
 use spidev::SpiModeFlags;
@@ -12,6 +14,8 @@ use std::cmp;
 use std::io;
 use std::io::Write;
 use std::io::BufWriter;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 // use rand::prelude::*;
 
 use std::time::{Duration, Instant};
@@ -54,7 +58,9 @@ fn main() {
       Err(e) => panic!("LED setup returned an error: {}", e)
     };
 
-    match run_leds(poller, led_stream) {
+    let shutdown_flag = Arc::new(AtomicBool::new(false));
+
+    match run_leds(poller, led_stream, shutdown_flag) {
       Ok(_) => println!("runleds finished ok"),
       Err(e) => println!("runleds returned an error: {}", e)
     }
@@ -79,7 +85,7 @@ fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Erro
   Ok(poller)
 }
 
-fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>) -> io::Result<()> {
+fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>, shutdown_flag: Arc<AtomicBool>) -> io::Result<()> {
 
     let start_time = Instant::now();
 
@@ -95,8 +101,10 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
 
     let mut loop_counter: u32 = 0;
 
-    loop {
+    flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
+    flag::register(signal_hook::SIGINT, Arc::clone(&shutdown_flag))?;
 
+    while !(Arc::clone(&shutdown_flag).load(Ordering::Relaxed)) {
 
     match poller.poll(0) { 
       Ok(Some(value)) => {
@@ -125,10 +133,10 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     led_stream.flush()?;
     loop_counter = loop_counter + 1;
     }
-    // let duration_secs = start_time.elapsed().as_secs();
-    // println!("Duration {} seconds", duration_secs);
-    // println!("ending");
-    // Ok(())
+    let duration_secs = start_time.elapsed().as_secs();
+    println!("Duration {} seconds", duration_secs);
+    println!("ending");
+    Ok(())
 }
 
 
