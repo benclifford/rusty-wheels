@@ -49,7 +49,12 @@ fn main() {
       Err(e) => panic!("magnet setup returned an error: {}", e)
     };
 
-    match run_leds(poller) {
+    let mut led_stream = match setup_leds() {
+      Ok(leds) => leds,
+      Err(e) => panic!("LED setup returned an error: {}", e)
+    };
+
+    match run_leds(poller, led_stream) {
       Ok(_) => println!("runleds finished ok"),
       Err(e) => println!("runleds returned an error: {}", e)
     }
@@ -74,10 +79,7 @@ fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Erro
   Ok(poller)
 }
 
-fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
-
-
-    let mut led_stream = setup_leds()?;
+fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>) -> io::Result<()> {
 
     let start_time = Instant::now();
 
