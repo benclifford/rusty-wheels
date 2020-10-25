@@ -137,7 +137,7 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
         for led in 0..6 {
-          send_led(led_stream, 255, 0, 0, 0)?;
+          send_led(led_stream, 255, 8, 0, 0)?;
         }
         for led in 6..8 {
           send_led(led_stream, 255, 128, 0, 0)?;
@@ -166,7 +166,7 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
           send_led(led_stream, 255, 128, 0, 0)?;
         }
         for led in 17..23 {
-          send_led(led_stream, 255, 0, 0, 0)?;
+          send_led(led_stream, 255, 8, 0, 0)?;
         }
       }
 
