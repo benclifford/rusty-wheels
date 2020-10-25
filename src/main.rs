@@ -16,6 +16,7 @@ use std::io::Write;
 use std::io::BufWriter;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread;
 // use rand::prelude::*;
 
 use std::time::{Duration, Instant};
@@ -135,6 +136,23 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     }
     let duration_secs = start_time.elapsed().as_secs();
     println!("Duration {} seconds", duration_secs);
+
+    // run a shutdown effect
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
+    for _ in 0..48 {
+      send_led(&mut led_stream, 255, 1,1,1)?;
+    }
+    led_stream.flush()?;
+
+    thread::sleep(Duration::from_millis(250));
+
+    send_led(&mut led_stream, 0, 0, 0, 0)?;
+    for _ in 0..48 {
+      send_led(&mut led_stream, 255, 0,0,0)?;
+    }
+    led_stream.flush()?;
+
+
     println!("ending");
     Ok(())
 }
