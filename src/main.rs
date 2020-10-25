@@ -14,7 +14,7 @@ use std::io::Write;
 use std::io::BufWriter;
 // use rand::prelude::*;
 
-use std::time::{Instant};
+use std::time::{Duration, Instant};
 
 use sysfs_gpio::{Direction, Edge, Pin};
 
@@ -122,101 +122,15 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
       render_stopped_mode(&mut led_stream, now_millis, now_secs)?;
     } else {
-
-    let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
-
-
-    for led in 0..8 {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      render_dual_side(&mut led_stream, now_millis, now_secs, loop_counter, spin_start_time, spin_length, &mut base)?;
     }
-
-    for led in 8..16 {
-      // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
-  
-      let mut hue = spin_pos * 360.0;
-
-      if hue > 360.0 {
-        hue = 360.0;
-      }
- 
-      // println!("hue is {}", hue);
-      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
- 
-      let srgb = Srgb::from(hsv);
- 
-      let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-      let [red, green, blue] = pixels;
- 
-      send_led(&mut led_stream, 255, red, green, blue)?;
-
-      base += 0.008;
-
-    }
-
-    send_led(&mut led_stream, 255, 0, 0, 0)?;
-
-    send_led(&mut led_stream, 255, 0, 0, 255)?; // permanently on
-
-    send_led(&mut led_stream, 255, 0, 0, 0)?;
-
-    let counter_phase  = loop_counter % 6;
-    if counter_phase == 0 {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 255, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 64, 0)?;
-    } else if counter_phase == 3 {
-      send_led(&mut led_stream, 255, 32, 0, 32)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 128, 0, 128)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-    } else {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
-    }
-
-    // this should range from 0..23 over the period of 1 second, which is
-    // around the right time for one wheel spin
-    let back_led: u32 = ((now_millis % 1000) * 23 / 1000) as u32;
-
-    let spin_back_led: u32 = (spin_pos * 23.0) as u32;
-
-    for l in 0..23 {
-      let g;
-      if l == back_led {
-        g = 255
-      } else {
-        g = 0
-      }
-      let r;
-      if l == spin_back_led {
-        r = 255
-      } else {
-        r = 0
-      }
-      send_led(&mut led_stream, 255, r, g, r)?;
-    }
-
-    // may need to pad more if many LEDs but this is enough for one side
-    // of the wheel
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-
-    }
-
     led_stream.flush()?;
     loop_counter = loop_counter + 1;
     }
-    let duration_secs = start_time.elapsed().as_secs();
-
-    println!("Duration {} seconds", duration_secs);
-
-    println!("ending");
-    Ok(())
+    // let duration_secs = start_time.elapsed().as_secs();
+    // println!("Duration {} seconds", duration_secs);
+    // println!("ending");
+    // Ok(())
 }
 
 
@@ -260,5 +174,94 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
 
     Ok(())
 }
+
+
+fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loop_counter: u32, spin_start_time: Instant, spin_length: Duration, base: &mut f32) -> io::Result<()> {
+    let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
+
+
+    for led in 0..8 {
+      send_led(led_stream, 255, 0, 0, 0)?;
+    }
+
+    for led in 8..16 {
+      // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
+  
+      let mut hue = spin_pos * 360.0;
+
+      if hue > 360.0 {
+        hue = 360.0;
+      }
+ 
+      // println!("hue is {}", hue);
+      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
+ 
+      let srgb = Srgb::from(hsv);
+ 
+      let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+      let [red, green, blue] = pixels;
+ 
+      send_led(led_stream, 255, red, green, blue)?;
+
+      *base += 0.008;
+
+    }
+
+    send_led(led_stream, 255, 0, 0, 0)?;
+
+    send_led(led_stream, 255, 0, 0, 255)?; // permanently on
+
+    send_led(led_stream, 255, 0, 0, 0)?;
+
+    let counter_phase  = loop_counter % 6;
+    if counter_phase == 0 {
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 0, 255, 0)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 0, 64, 0)?;
+    } else if counter_phase == 3 {
+      send_led(led_stream, 255, 32, 0, 32)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 128, 0, 128)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+    } else {
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+      send_led(led_stream, 255, 0, 0, 0)?;
+    }
+
+    // this should range from 0..23 over the period of 1 second, which is
+    // around the right time for one wheel spin
+    let back_led: u32 = ((now_millis % 1000) * 23 / 1000) as u32;
+
+    let spin_back_led: u32 = (spin_pos * 23.0) as u32;
+
+    for l in 0..23 {
+      let g;
+      if l == back_led {
+        g = 255
+      } else {
+        g = 0
+      }
+      let r;
+      if l == spin_back_led {
+        r = 255
+      } else {
+        r = 0
+      }
+      send_led(led_stream, 255, r, g, r)?;
+    }
+
+    // may need to pad more if many LEDs but this is enough for one side
+    // of the wheel
+    send_led(led_stream, 0, 0, 0, 0)?;
+    send_led(led_stream, 0, 0, 0, 0)?;
+    send_led(led_stream, 0, 0, 0, 0)?;
+
+    Ok(())
+    }
+
 
 
