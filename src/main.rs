@@ -86,8 +86,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     let mut spin_start_time = start_time;
     let mut last_spin_start_time = start_time;
 
-    let mut base: f32 = 0.0;
-
     // initial blankout
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     for _ in 0..25 {
@@ -122,7 +120,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
       render_stopped_mode(&mut led_stream, now_millis, now_secs)?;
     } else {
-      render_dual_side(&mut led_stream, now_millis, now_secs, loop_counter, spin_start_time, spin_length, &mut base)?;
+      render_dual_side(&mut led_stream, now_millis, now_secs, loop_counter, spin_start_time, spin_length)?;
     }
     led_stream.flush()?;
     loop_counter = loop_counter + 1;
@@ -176,7 +174,7 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
 }
 
 
-fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loop_counter: u32, spin_start_time: Instant, spin_length: Duration, base: &mut f32) -> io::Result<()> {
+fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loop_counter: u32, spin_start_time: Instant, spin_length: Duration) -> io::Result<()> {
     let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
 
 
@@ -203,9 +201,6 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
       let [red, green, blue] = pixels;
  
       send_led(led_stream, 255, red, green, blue)?;
-
-      *base += 0.008;
-
     }
 
     send_led(led_stream, 255, 0, 0, 0)?;
