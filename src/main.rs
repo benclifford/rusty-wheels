@@ -49,7 +49,7 @@ fn main() {
       Err(e) => panic!("magnet setup returned an error: {}", e)
     };
 
-    let mut led_stream = match setup_leds() {
+    let led_stream = match setup_leds() {
       Ok(leds) => leds,
       Err(e) => panic!("LED setup returned an error: {}", e)
     };
@@ -119,46 +119,8 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
 
     let mode_duration = cmp::max(spin_start_time.elapsed(), spin_length);
 
-    if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 { 
-      // stopped mode
-      let flicker = (now_millis / 25) % 4 == 0;
-      let topside = now_secs % 2 == 0;
-      for side in 0..2 {
-        for led in 0..6 {
-          send_led(&mut led_stream, 255, 0, 0, 0)?;
-        }
-        for led in 6..8 {
-          send_led(&mut led_stream, 255, 128, 0, 0)?;
-        }
-        for led in 8..10 {
-          send_led(&mut led_stream, 255, 0, 0, 0)?;
-        }
-        if topside ^ (side == 0){
-          for led in 10..13 {
-            if flicker {
-              send_led(&mut led_stream, 255, 128, 64, 0)?;
-            } else { 
-             send_led(&mut led_stream, 255, 0, 0, 0)?;
-            }
-          }
-
-        } else {
-          for led in 10..13 {
-            send_led(&mut led_stream, 255, 0, 0, 0)?;
-          }
-        }
-        for led in 13..15 {
-          send_led(&mut led_stream, 255, 0, 0, 0)?;
-        }
-        for led in 15..17 {
-          send_led(&mut led_stream, 255, 128, 0, 0)?;
-        }
-        for led in 17..23 {
-          send_led(&mut led_stream, 255, 0, 0, 0)?;
-        }
-      }
-
-
+    if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
+      render_stopped_mode(&mut led_stream, now_millis, now_secs)?;
     } else {
 
     let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
@@ -256,3 +218,47 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     println!("ending");
     Ok(())
 }
+
+
+fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) -> io::Result<()> {
+      let flicker = (now_millis / 25) % 4 == 0;
+      let topside = now_secs % 2 == 0;
+      for side in 0..2 {
+        for led in 0..6 {
+          send_led(led_stream, 255, 0, 0, 0)?;
+        }
+        for led in 6..8 {
+          send_led(led_stream, 255, 128, 0, 0)?;
+        }
+        for led in 8..10 {
+          send_led(led_stream, 255, 0, 0, 0)?;
+        }
+        if topside ^ (side == 0){
+          for led in 10..13 {
+            if flicker {
+              send_led(led_stream, 255, 128, 64, 0)?;
+            } else { 
+             send_led(led_stream, 255, 0, 0, 0)?;
+            }
+          }
+
+        } else {
+          for led in 10..13 {
+            send_led(led_stream, 255, 0, 0, 0)?;
+          }
+        }
+        for led in 13..15 {
+          send_led(led_stream, 255, 0, 0, 0)?;
+        }
+        for led in 15..17 {
+          send_led(led_stream, 255, 128, 0, 0)?;
+        }
+        for led in 17..23 {
+          send_led(led_stream, 255, 0, 0, 0)?;
+        }
+      }
+
+    Ok(())
+}
+
+
