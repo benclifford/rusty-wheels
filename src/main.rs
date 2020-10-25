@@ -93,6 +93,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     for _ in 0..25 {
       send_led(&mut led_stream, 255, 0, 0, 0)?;
     }
+    led_stream.flush()?;
 
     let mut loop_counter: u32 = 0;
 
