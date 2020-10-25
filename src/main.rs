@@ -148,7 +148,7 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
         if topside ^ (side == 0){
           for led in 10..13 {
             if flicker {
-              send_led(led_stream, 255, 128, 64, 0)?;
+              send_led(led_stream, 255, 255, 255, 0)?;
             } else { 
              send_led(led_stream, 255, 0, 0, 0)?;
             }
