@@ -18,6 +18,12 @@ use std::time::{Instant};
 
 use sysfs_gpio::{Direction, Edge, Pin};
 
+fn setup_leds() -> io::Result<BufWriter<Spidev>> {
+    println!("Configuring LEDs");
+    let spi = create_spi()?;
+    Ok(BufWriter::new(spi))
+}
+
 fn create_spi() -> io::Result<Spidev> {
     let mut spi = Spidev::open("/dev/spidev0.0")?;
 
@@ -70,9 +76,8 @@ fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Erro
 
 fn run_leds(mut poller: sysfs_gpio::PinPoller) -> io::Result<()> {
 
-    let spi = create_spi()?;
 
-    let mut led_stream = BufWriter::new(spi);
+    let mut led_stream = setup_leds()?;
 
     let start_time = Instant::now();
 
