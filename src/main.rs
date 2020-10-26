@@ -63,9 +63,14 @@ fn main() {
       Err(e) => panic!("LED setup returned an error: {}", e)
     };
 
+    let wheel_leds = WheelLEDs {
+        led_stream: led_stream,
+        leds: [(0,0,0); 46]
+    };
+
     let shutdown_flag = Arc::new(AtomicBool::new(false));
 
-    match run_leds(poller, led_stream, shutdown_flag) {
+    match run_leds(poller, wheel_leds, shutdown_flag) {
       Ok(_) => println!("runleds finished ok"),
       Err(e) => println!("runleds returned an error: {}", e)
     }
@@ -90,19 +95,19 @@ fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Erro
   Ok(poller)
 }
 
-fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>, shutdown_flag: Arc<AtomicBool>) -> io::Result<()> {
+fn run_leds(mut poller: sysfs_gpio::PinPoller, mut wheel_leds: WheelLEDs, shutdown_flag: Arc<AtomicBool>) -> io::Result<()> {
 
     let start_time = Instant::now();
 
     let mut spin_start_time = start_time;
     let mut last_spin_start_time = start_time;
 
-    // initial blankout
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-    for _ in 0..25 {
-      send_rgb(&mut led_stream, (0,0,0))?;
+    for side in 0..2 {
+        for led in 0..23 {
+            wheel_leds.set(side, led, (0,0,0));
+        }
     }
-    led_stream.flush()?;
+    wheel_leds.show()?;
 
     let mut loop_counter: u32 = 0;
 
@@ -122,9 +127,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
 
     let spin_length = spin_start_time - last_spin_start_time;
 
-    // initialise LED stream
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-
     let mode_duration = cmp::max(spin_start_time.elapsed(), spin_length);
 
     let framestate = FrameState {
@@ -134,31 +136,35 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     };
 
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
-      render_stopped_mode(&mut led_stream, &framestate)?;
+      render_stopped_mode(&mut wheel_leds, &framestate)?;
     } else {
-      render_live_mode(&mut led_stream, &framestate)?;
+      render_live_mode(&mut wheel_leds, &framestate)?;
     }
-    led_stream.flush()?;
+
+    wheel_leds.show()?;
+
     loop_counter = loop_counter + 1;
     }
     let duration_secs = start_time.elapsed().as_secs();
     println!("Duration {} seconds", duration_secs);
 
     // run a shutdown effect
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-    for _ in 0..48 {
-      send_rgb(&mut led_stream, (1,1,1))?;
+
+    for side in 0..2 {
+        for led in 0..23 {
+            wheel_leds.set(side, led, (1,1,1));
+        }
     }
-    led_stream.flush()?;
+    wheel_leds.show()?;
 
     thread::sleep(Duration::from_millis(250));
 
-    send_led(&mut led_stream, 0, 0, 0, 0)?;
-    for _ in 0..48 {
-      send_rgb(&mut led_stream, (0,0,0))?;
+    for side in 0..2 {
+        for led in 0..23 {
+            wheel_leds.set(side, led, (0,0,0));
+        }
     }
-    led_stream.flush()?;
-
+    wheel_leds.show()?;
 
     println!("ending");
     Ok(())
@@ -180,43 +186,97 @@ struct FrameState {
   spin_pos: f32
 }
 
-fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+
+/// WheelLEDs provides some kind of array-like access to setting individual
+/// LEDs which can then be dumped out in one frame.
+/// It provides a mutable collection of RGB tuples, one entry for each LED,
+/// structure in two dimensions by radial position and side
+/// and a way to dump that array onto the physical LED array.
+
+struct WheelLEDs {
+    led_stream: BufWriter<Spidev>,
+
+    /// The LEDs are stored in this array in the order that they should
+    /// be sent down the SPI channel.
+    leds: [(u8, u8, u8); 46]
+}
+
+impl WheelLEDs {
+
+    /// set a pixel, side 0 or 1, pixel 0 ... 22
+    /// pixel number starts at the centre of the wheel, on both
+    /// sides.
+    fn set(&mut self, side: usize, pixel: usize, rgb: (u8, u8, u8)) {
+        if side == 0 {
+            self.leds[pixel] = rgb;
+        } else {
+            self.leds[23 + (22-pixel)] = rgb
+        }
+    }
+
+    /// Writes the stored LED values to the physical strip over SPI
+    fn show(&mut self) -> io::Result<()> {
+
+        // initialise LED strip to recieve values from the start
+        send_led(&mut self.led_stream, 0, 0, 0, 0)?;
+
+        for led in 0..46 {
+          send_rgb(&mut self.led_stream, self.leds[led])?;
+        }
+
+        // padding for clocking purposes down-strip
+        send_led(&mut self.led_stream, 0, 0, 0, 0)?;
+        send_led(&mut self.led_stream, 0, 0, 0, 0)?;
+        send_led(&mut self.led_stream, 0, 0, 0, 0)?;
+        send_led(&mut self.led_stream, 0, 0, 0, 0)?;
+
+        self.led_stream.flush()?;
+
+        Ok(())
+    }
+}
+
+fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
       let now_millis = framestate.now.as_millis();
       let now_secs = framestate.now.as_secs();
       let flicker = (now_millis / 25) % 4 == 0;
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
-        for _led in 0..6 {
-          send_rgb(led_stream, (8, 0, 0))?;
+
+        for led in 0..6 {
+          wheel_leds.set(side, led, (8, 0, 0));
         }
-        for _led in 6..8 {
-          send_rgb(led_stream, (128, 0, 0))?;
+
+        for led in 6..8 {
+          wheel_leds.set(side, led, (128, 0, 0));
         }
-        for _led in 8..10 {
-          send_rgb(led_stream, (0, 0, 0))?;
+
+        for led in 8..10 {
+          wheel_leds.set(side, led, (0, 0, 0));
         }
+
         if topside ^ (side == 0){
-          for _led in 10..13 {
+          for led in 10..13 {
             if flicker {
-              send_rgb(led_stream, (255, 255, 0))?;
+              wheel_leds.set(side, led, (255, 255, 0));
             } else { 
-             send_rgb(led_stream, (0, 0, 0))?;
+              wheel_leds.set(side, led, (0, 0, 0));
             }
           }
 
         } else {
-          for _led in 10..13 {
-            send_rgb(led_stream, (0, 0, 0))?;
+          for led in 10..13 {
+            wheel_leds.set(side, led, (0, 0, 0));
           }
         }
-        for _led in 13..15 {
-          send_rgb(led_stream, (0, 0, 0))?;
+        for led in 13..15 {
+          wheel_leds.set(side, led, (0, 0, 0));
         }
-        for _led in 15..17 {
-          send_rgb(led_stream, (128, 0, 0))?;
+        for led in 15..17 {
+          wheel_leds.set(side, led, (128, 0, 0));
         }
-        for _led in 17..23 {
-          send_rgb(led_stream, (8, 0, 0))?;
+        for led in 17..23 {
+          wheel_leds.set(side, led, (8, 0, 0));
         }
       }
 
@@ -224,16 +284,10 @@ fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::R
 }
 
 
-fn render_live_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    render_side_1(led_stream, framestate)?;
-    render_side_2(led_stream, framestate)?;
-
-    // may need to pad more if many LEDs but this is enough for one side
-    // of the wheel
-    send_led(led_stream, 0, 0, 0, 0)?;
-    send_led(led_stream, 0, 0, 0, 0)?;
-    send_led(led_stream, 0, 0, 0, 0)?;
+    render_side_1(wheel_leds, framestate)?;
+    render_side_2(wheel_leds, framestate)?;
 
     Ok(())
 }
@@ -243,10 +297,10 @@ fn render_live_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Resu
 ///  * a constant blue LED
 ///  * green and purple LEDs that tick once per frame
 ///    to show the size of a rotational-pixel
-fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+fn render_side_1(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    for _led in 0..8 {
-      send_rgb(led_stream, (0, 0, 0))?;
+    for led in 0..8 {
+      wheel_leds.set(0, led, (0,0,0));
     }
 
     let mut hue = framestate.spin_pos * 360.0;
@@ -263,32 +317,32 @@ fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<
 
     let [red, green, blue] = pixels;
  
-    for _led in 8..16 {
-      send_rgb(led_stream, (red, green, blue))?;
+    for led in 8..16 {
+      wheel_leds.set(0, led, (red, green, blue));
     }
 
-    send_rgb(led_stream, (0, 0, 0))?;
+    wheel_leds.set(0, 16, (0,0,0));
 
-    send_rgb(led_stream, (0, 0, 255))?; // permanently on
+    wheel_leds.set(0, 17, (0,0,255));
 
-    send_rgb(led_stream, (0, 0, 0))?;
+    wheel_leds.set(0, 18, (0,0,0));
 
     let counter_phase  = framestate.loop_counter % 6;
     if counter_phase == 0 {
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (0, 255, 0))?;
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (0, 64, 0))?;
+      wheel_leds.set(0, 19, (0,0,0));
+      wheel_leds.set(0, 20, (0,255,0));
+      wheel_leds.set(0, 21, (0,0,0));
+      wheel_leds.set(0, 22, (0,64,0));
     } else if counter_phase == 3 {
-      send_rgb(led_stream, (32, 0, 32))?;
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (128, 0, 128))?;
-      send_rgb(led_stream, (0, 0, 0))?;
+      wheel_leds.set(0, 19, (32, 0, 32));
+      wheel_leds.set(0, 20, (0, 0, 0));
+      wheel_leds.set(0, 21, (128, 0, 128));
+      wheel_leds.set(0, 22, (0, 0, 0));
     } else {
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (0, 0, 0))?;
-      send_rgb(led_stream, (0, 0, 0))?;
+      wheel_leds.set(0, 19, (0, 0, 0));
+      wheel_leds.set(0, 20, (0, 0, 0));
+      wheel_leds.set(0, 21, (0, 0, 0));
+      wheel_leds.set(0, 22, (0, 0, 0));
     }
 
     Ok(())
@@ -298,15 +352,15 @@ fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<
 /// This renders the second side of the wheel two overlaid patterns:
 ///  * a green time-based line
 ///  * a magenta spin position line
-fn render_side_2(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+fn render_side_2(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
     let now_millis = framestate.now.as_millis();
 
     // this should range from 0..23 over the period of 1 second, which is
     // around the right time for one wheel spin
-    let back_led: u32 = ((now_millis % 1000) * 23 / 1000) as u32;
+    let back_led: usize = ((now_millis % 1000) * 23 / 1000) as usize;
 
-    let spin_back_led: u32 = (framestate.spin_pos * 23.0) as u32;
+    let spin_back_led: usize = (framestate.spin_pos * 23.0) as usize;
 
     for l in 0..23 {
       let g;
@@ -321,7 +375,7 @@ fn render_side_2(led_stream: &mut Write, framestate: &FrameState) -> io::Result<
       } else {
         r = 0
       }
-      send_rgb(led_stream, (r, g, r))?;
+      wheel_leds.set(1, l, (r, g, r));
     }
     Ok(())
     }
