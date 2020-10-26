@@ -164,11 +164,19 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     Ok(())
 }
 
-// This struct will contain useful info about the current state of the
-// universe for use by frame renderers
+/// A FrameState contains information about the position and timing of
+/// the bike wheel useful for rendering a frame.
 struct FrameState {
+  /// Duration since the executable started
   now: Duration,
+
+  /// A count of the number of frames rendered. This will increase by one
+  /// on each render, regardless of time or wheel rotation.
   loop_counter: u32,
+
+  /// An estimate of the current position of the wheel, ranging from 0 to
+  /// approximately 1. This might go above 1 if the bike is slowing down,
+  /// so code needs to accept that.
   spin_pos: f32
 }
 
