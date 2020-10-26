@@ -286,15 +286,20 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    let mode_phase: u64 = (framestate.now.as_secs() / 15) % 2;
+    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 2;
+    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 10) % 2;
 
-    if mode_phase == 0 {
-        render_side_rainbows(0, wheel_leds, framestate)?;
-        render_side_sliders(1,wheel_leds, framestate)?;
-    } else {
-        render_side_rainbows(1, wheel_leds, framestate)?;
-        render_side_sliders(0,wheel_leds, framestate)?;
-    }
+    match mode_phase_0 {
+        0 => render_side_rainbows(0, wheel_leds, framestate),
+        1 => render_side_sliders(0, wheel_leds, framestate),
+        _ => panic!("unknown mode phase 0")
+    }?;
+
+    match mode_phase_1 {
+        0 => render_side_rainbows(1, wheel_leds, framestate),
+        1 => render_side_sliders(1, wheel_leds, framestate),
+        _ => panic!("unknown mode phase 1")
+    }?;
 
     Ok(())
 }
