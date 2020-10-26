@@ -46,6 +46,11 @@ fn send_led(w: &mut Write, m: u8, r: u8, g: u8, b: u8) -> io::Result<usize> {
     w.write(&[m, b, g, r])
 }
 
+fn send_rgb(w: &mut Write, rgb: (u8, u8, u8)) -> io::Result<usize> {
+    let (r, g, b) = rgb;
+    send_led(w, 255, r, g, b)
+}
+
 fn main() {
     println!("Starting rusty-wheels");
 
@@ -96,7 +101,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     // initial blankout
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     for _ in 0..25 {
-      send_led(&mut led_stream, 255, 0, 0, 0)?;
+      send_rgb(&mut led_stream, (0,0,0))?;
     }
     led_stream.flush()?;
 
@@ -140,7 +145,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     // run a shutdown effect
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     for _ in 0..48 {
-      send_led(&mut led_stream, 255, 1,1,1)?;
+      send_rgb(&mut led_stream, (1,1,1))?;
     }
     led_stream.flush()?;
 
@@ -148,7 +153,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
 
     send_led(&mut led_stream, 0, 0, 0, 0)?;
     for _ in 0..48 {
-      send_led(&mut led_stream, 255, 0,0,0)?;
+      send_rgb(&mut led_stream, (0,0,0))?;
     }
     led_stream.flush()?;
 
@@ -163,36 +168,36 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
         for led in 0..6 {
-          send_led(led_stream, 255, 8, 0, 0)?;
+          send_rgb(led_stream, (8, 0, 0))?;
         }
         for led in 6..8 {
-          send_led(led_stream, 255, 128, 0, 0)?;
+          send_rgb(led_stream, (128, 0, 0))?;
         }
         for led in 8..10 {
-          send_led(led_stream, 255, 0, 0, 0)?;
+          send_rgb(led_stream, (0, 0, 0))?;
         }
         if topside ^ (side == 0){
           for led in 10..13 {
             if flicker {
-              send_led(led_stream, 255, 255, 255, 0)?;
+              send_rgb(led_stream, (255, 255, 0))?;
             } else { 
-             send_led(led_stream, 255, 0, 0, 0)?;
+             send_rgb(led_stream, (0, 0, 0))?;
             }
           }
 
         } else {
           for led in 10..13 {
-            send_led(led_stream, 255, 0, 0, 0)?;
+            send_rgb(led_stream, (0, 0, 0))?;
           }
         }
         for led in 13..15 {
-          send_led(led_stream, 255, 0, 0, 0)?;
+          send_rgb(led_stream, (0, 0, 0))?;
         }
         for led in 15..17 {
-          send_led(led_stream, 255, 128, 0, 0)?;
+          send_rgb(led_stream, (128, 0, 0))?;
         }
         for led in 17..23 {
-          send_led(led_stream, 255, 8, 0, 0)?;
+          send_rgb(led_stream, (8, 0, 0))?;
         }
       }
 
@@ -205,7 +210,7 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
 
 
     for led in 0..8 {
-      send_led(led_stream, 255, 0, 0, 0)?;
+      send_rgb(led_stream, (0, 0, 0))?;
     }
 
     for led in 8..16 {
@@ -226,31 +231,31 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
 
       let [red, green, blue] = pixels;
  
-      send_led(led_stream, 255, red, green, blue)?;
+      send_rgb(led_stream, (red, green, blue))?;
     }
 
-    send_led(led_stream, 255, 0, 0, 0)?;
+    send_rgb(led_stream, (0, 0, 0))?;
 
-    send_led(led_stream, 255, 0, 0, 255)?; // permanently on
+    send_rgb(led_stream, (0, 0, 255))?; // permanently on
 
-    send_led(led_stream, 255, 0, 0, 0)?;
+    send_rgb(led_stream, (0, 0, 0))?;
 
     let counter_phase  = loop_counter % 6;
     if counter_phase == 0 {
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 0, 255, 0)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 0, 64, 0)?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (0, 255, 0))?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (0, 64, 0))?;
     } else if counter_phase == 3 {
-      send_led(led_stream, 255, 32, 0, 32)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 128, 0, 128)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
+      send_rgb(led_stream, (32, 0, 32))?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (128, 0, 128))?;
+      send_rgb(led_stream, (0, 0, 0))?;
     } else {
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
-      send_led(led_stream, 255, 0, 0, 0)?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (0, 0, 0))?;
+      send_rgb(led_stream, (0, 0, 0))?;
     }
 
     // this should range from 0..23 over the period of 1 second, which is
@@ -272,7 +277,7 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
       } else {
         r = 0
       }
-      send_led(led_stream, 255, r, g, r)?;
+      send_rgb(led_stream, (r, g, r))?;
     }
 
     // may need to pad more if many LEDs but this is enough for one side
