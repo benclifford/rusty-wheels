@@ -120,9 +120,6 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
       _ => ()
     };
 
-    let now_millis = start_time.elapsed().as_millis();
-    let now_secs = start_time.elapsed().as_secs();
-
     let spin_length = spin_start_time - last_spin_start_time;
 
     // initialise LED stream
@@ -130,10 +127,16 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
 
     let mode_duration = cmp::max(spin_start_time.elapsed(), spin_length);
 
+    let framestate = FrameState {
+        now: start_time.elapsed(),
+        loop_counter: loop_counter,
+        spin_pos: (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32),
+    };
+
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
-      render_stopped_mode(&mut led_stream, now_millis, now_secs)?;
+      render_stopped_mode(&mut led_stream, &framestate)?;
     } else {
-      render_dual_side(&mut led_stream, now_millis, now_secs, loop_counter, spin_start_time, spin_length)?;
+      render_dual_side(&mut led_stream, &framestate)?;
     }
     led_stream.flush()?;
     loop_counter = loop_counter + 1;
@@ -161,8 +164,17 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     Ok(())
 }
 
+// This struct will contain useful info about the current state of the
+// universe for use by frame renderers
+struct FrameState {
+  now: Duration,
+  loop_counter: u32,
+  spin_pos: f32
+}
 
-fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) -> io::Result<()> {
+fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+      let now_millis = framestate.now.as_millis();
+      let now_secs = framestate.now.as_secs();
       let flicker = (now_millis / 25) % 4 == 0;
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
@@ -204,16 +216,28 @@ fn render_stopped_mode(led_stream: &mut Write, now_millis: u128, now_secs: u64) 
 }
 
 
-fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loop_counter: u32, spin_start_time: Instant, spin_length: Duration) -> io::Result<()> {
-    let spin_pos = (spin_start_time.elapsed().as_millis() as f32) / (cmp::max(1,spin_length.as_millis()) as f32);
+fn render_dual_side(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
+    render_side_1(led_stream, framestate)?;
+    render_side_2(led_stream, framestate)?;
+
+    // may need to pad more if many LEDs but this is enough for one side
+    // of the wheel
+    send_led(led_stream, 0, 0, 0, 0)?;
+    send_led(led_stream, 0, 0, 0, 0)?;
+    send_led(led_stream, 0, 0, 0, 0)?;
+
+    Ok(())
+}
+
+fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
     for led in 0..8 {
       send_rgb(led_stream, (0, 0, 0))?;
     }
 
     for led in 8..16 {
-      let mut hue = spin_pos * 360.0;
+      let mut hue = framestate.spin_pos * 360.0;
 
       if hue > 360.0 {
         hue = 360.0;
@@ -236,7 +260,7 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
 
     send_rgb(led_stream, (0, 0, 0))?;
 
-    let counter_phase  = loop_counter % 6;
+    let counter_phase  = framestate.loop_counter % 6;
     if counter_phase == 0 {
       send_rgb(led_stream, (0, 0, 0))?;
       send_rgb(led_stream, (0, 255, 0))?;
@@ -254,11 +278,18 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
       send_rgb(led_stream, (0, 0, 0))?;
     }
 
+    Ok(())
+}
+
+fn render_side_2(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+
+    let now_millis = framestate.now.as_millis();
+
     // this should range from 0..23 over the period of 1 second, which is
     // around the right time for one wheel spin
     let back_led: u32 = ((now_millis % 1000) * 23 / 1000) as u32;
 
-    let spin_back_led: u32 = (spin_pos * 23.0) as u32;
+    let spin_back_led: u32 = (framestate.spin_pos * 23.0) as u32;
 
     for l in 0..23 {
       let g;
@@ -275,13 +306,6 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
       }
       send_rgb(led_stream, (r, g, r))?;
     }
-
-    // may need to pad more if many LEDs but this is enough for one side
-    // of the wheel
-    send_led(led_stream, 0, 0, 0, 0)?;
-    send_led(led_stream, 0, 0, 0, 0)?;
-    send_led(led_stream, 0, 0, 0, 0)?;
-
     Ok(())
     }
 
