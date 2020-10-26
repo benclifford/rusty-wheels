@@ -286,18 +286,20 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 2;
-    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 10) % 2;
+    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 3;
+    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 10) % 3;
 
     match mode_phase_0 {
         0 => render_side_rainbows(0, wheel_leds, framestate),
         1 => render_side_sliders(0, wheel_leds, framestate),
+        2 => render_rgb_trio(0, wheel_leds, framestate),
         _ => panic!("unknown mode phase 0")
     }?;
 
     match mode_phase_1 {
         0 => render_side_rainbows(1, wheel_leds, framestate),
         1 => render_side_sliders(1, wheel_leds, framestate),
+        2 => render_rgb_trio(1, wheel_leds, framestate),
         _ => panic!("unknown mode phase 1")
     }?;
 
@@ -393,4 +395,28 @@ fn render_side_sliders(side: usize, wheel_leds: &mut WheelLEDs, framestate: &Fra
     }
 
 
+/// This renders three slices with black between them, each slice being one
+/// of red, green or blue
+fn render_rgb_trio(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    let colour: (u8, u8, u8);
 
+    if framestate.spin_pos < 0.16 {
+        colour = (255, 0, 0);
+    } else if framestate.spin_pos < 0.32 {
+        colour = (0, 0, 0);
+    } else if framestate.spin_pos < 0.48 {
+        colour = (0, 255, 0);
+    } else if framestate.spin_pos < 0.64 {
+        colour = (0, 0, 0);
+    } else if framestate.spin_pos < 0.80 {
+        colour = (0, 0, 255);
+    } else {
+        colour = (0, 0, 0);
+    }
+   
+    for led in 0..23 {
+        wheel_leds.set(side, led, colour);
+    }
+
+    Ok(())
+}
