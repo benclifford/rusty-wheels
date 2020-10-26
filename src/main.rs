@@ -110,7 +110,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
     flag::register(signal_hook::SIGINT, Arc::clone(&shutdown_flag))?;
 
-    while !(Arc::clone(&shutdown_flag).load(Ordering::Relaxed)) {
+    while !(shutdown_flag.load(Ordering::Relaxed)) {
 
     match poller.poll(0) { 
       Ok(Some(value)) => {
