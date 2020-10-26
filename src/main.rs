@@ -17,7 +17,6 @@ use std::io::BufWriter;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
-// use rand::prelude::*;
 
 use std::time::{Duration, Instant};
 
@@ -214,15 +213,12 @@ fn render_dual_side(led_stream: &mut Write, now_millis: u128, now_secs: u64, loo
     }
 
     for led in 8..16 {
-      // let hue = random::<u8>(); // TODO: needs to go 0..360, not 0..255
-  
       let mut hue = spin_pos * 360.0;
 
       if hue > 360.0 {
         hue = 360.0;
       }
  
-      // println!("hue is {}", hue);
       let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
  
       let srgb = Srgb::from(hsv);
