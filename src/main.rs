@@ -249,21 +249,21 @@ fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<
       send_rgb(led_stream, (0, 0, 0))?;
     }
 
+    let mut hue = framestate.spin_pos * 360.0;
+
+    if hue > 360.0 {
+      hue = 360.0;
+    }
+ 
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
+ 
+    let srgb = Srgb::from(hsv);
+ 
+    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+    let [red, green, blue] = pixels;
+ 
     for _led in 8..16 {
-      let mut hue = framestate.spin_pos * 360.0;
-
-      if hue > 360.0 {
-        hue = 360.0;
-      }
- 
-      let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
- 
-      let srgb = Srgb::from(hsv);
- 
-      let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-      let [red, green, blue] = pixels;
- 
       send_rgb(led_stream, (red, green, blue))?;
     }
 
