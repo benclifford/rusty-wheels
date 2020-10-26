@@ -238,6 +238,11 @@ fn render_live_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Resu
     Ok(())
 }
 
+/// This renders the first side of the wheel with:
+///  * an 8 pixel rainbow around the wheel
+///  * a constant blue LED
+///  * green and purple LEDs that tick once per frame
+///    to show the size of a rotational-pixel
 fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
     for _led in 0..8 {
@@ -289,6 +294,10 @@ fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<
     Ok(())
 }
 
+
+/// This renders the second side of the wheel two overlaid patterns:
+///  * a green time-based line
+///  * a magenta spin position line
 fn render_side_2(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
     let now_millis = framestate.now.as_millis();
