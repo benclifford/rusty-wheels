@@ -379,18 +379,25 @@ fn render_side_sliders(side: usize, wheel_leds: &mut WheelLEDs, framestate: &Fra
     let spin_back_led: usize = (framestate.spin_pos * 23.0) as usize;
 
     for l in 0..23 {
+
       let g;
       if l == back_led {
         g = 255
       } else {
         g = 0
       }
+
       let r;
       if l == spin_back_led {
+        r = 255
+      } else if l == (spin_back_led + 8) % 23 {
+        r = 255
+      } else if l == (spin_back_led + 16) % 23 {
         r = 255
       } else {
         r = 0
       }
+
       wheel_leds.set(side, l, (r, g, r));
     }
     Ok(())
