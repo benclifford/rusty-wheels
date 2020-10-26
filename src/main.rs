@@ -178,17 +178,17 @@ fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::R
       let flicker = (now_millis / 25) % 4 == 0;
       let topside = now_secs % 2 == 0;
       for side in 0..2 {
-        for led in 0..6 {
+        for _led in 0..6 {
           send_rgb(led_stream, (8, 0, 0))?;
         }
-        for led in 6..8 {
+        for _led in 6..8 {
           send_rgb(led_stream, (128, 0, 0))?;
         }
-        for led in 8..10 {
+        for _led in 8..10 {
           send_rgb(led_stream, (0, 0, 0))?;
         }
         if topside ^ (side == 0){
-          for led in 10..13 {
+          for _led in 10..13 {
             if flicker {
               send_rgb(led_stream, (255, 255, 0))?;
             } else { 
@@ -197,17 +197,17 @@ fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::R
           }
 
         } else {
-          for led in 10..13 {
+          for _led in 10..13 {
             send_rgb(led_stream, (0, 0, 0))?;
           }
         }
-        for led in 13..15 {
+        for _led in 13..15 {
           send_rgb(led_stream, (0, 0, 0))?;
         }
-        for led in 15..17 {
+        for _led in 15..17 {
           send_rgb(led_stream, (128, 0, 0))?;
         }
-        for led in 17..23 {
+        for _led in 17..23 {
           send_rgb(led_stream, (8, 0, 0))?;
         }
       }
@@ -232,11 +232,11 @@ fn render_dual_side(led_stream: &mut Write, framestate: &FrameState) -> io::Resu
 
 fn render_side_1(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
-    for led in 0..8 {
+    for _led in 0..8 {
       send_rgb(led_stream, (0, 0, 0))?;
     }
 
-    for led in 8..16 {
+    for _led in 8..16 {
       let mut hue = framestate.spin_pos * 360.0;
 
       if hue > 360.0 {
