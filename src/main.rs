@@ -286,13 +286,14 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 3;
-    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 10) % 3;
+    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 4;
+    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 2) % 4;
 
     match mode_phase_0 {
         0 => render_side_rainbows(0, wheel_leds, framestate),
         1 => render_side_sliders(0, wheel_leds, framestate),
         2 => render_rgb_trio(0, wheel_leds, framestate),
+        3 => render_centre_red(0, wheel_leds, framestate),
         _ => panic!("unknown mode phase 0")
     }?;
 
@@ -300,6 +301,7 @@ fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::
         0 => render_side_rainbows(1, wheel_leds, framestate),
         1 => render_side_sliders(1, wheel_leds, framestate),
         2 => render_rgb_trio(1, wheel_leds, framestate),
+        3 => render_centre_red(1, wheel_leds, framestate),
         _ => panic!("unknown mode phase 1")
     }?;
 
@@ -416,6 +418,24 @@ fn render_rgb_trio(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameSt
    
     for led in 0..23 {
         wheel_leds.set(side, led, colour);
+    }
+
+    Ok(())
+}
+
+// renders the middle pixels on each side bright red, with the
+// edges (outer and hubwards) fading down to black
+fn render_centre_red(side: usize, wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
+
+    // establish a blank canvas
+    for led in 0 .. 23 {
+        wheel_leds.set(side, led, (0,0,0));
+    }
+
+    for n in 0 .. 8 {
+        let colour = (1<<(7-n), 0, 0);
+        wheel_leds.set(side, 12 + n, colour);
+        wheel_leds.set(side, 11 - n, colour);
     }
 
     Ok(())
