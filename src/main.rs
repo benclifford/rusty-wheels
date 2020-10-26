@@ -286,8 +286,15 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    render_side_1(wheel_leds, framestate)?;
-    render_side_2(wheel_leds, framestate)?;
+    let mode_phase: u64 = (framestate.now.as_secs() / 15) % 2;
+
+    if mode_phase == 0 {
+        render_side_rainbows(0, wheel_leds, framestate)?;
+        render_side_sliders(1,wheel_leds, framestate)?;
+    } else {
+        render_side_rainbows(1, wheel_leds, framestate)?;
+        render_side_sliders(0,wheel_leds, framestate)?;
+    }
 
     Ok(())
 }
@@ -297,10 +304,10 @@ fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::
 ///  * a constant blue LED
 ///  * green and purple LEDs that tick once per frame
 ///    to show the size of a rotational-pixel
-fn render_side_1(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+fn render_side_rainbows(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
     for led in 0..8 {
-      wheel_leds.set(0, led, (0,0,0));
+      wheel_leds.set(side, led, (0,0,0));
     }
 
     let mut hue = framestate.spin_pos * 360.0;
@@ -318,31 +325,31 @@ fn render_side_1(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Res
     let [red, green, blue] = pixels;
  
     for led in 8..16 {
-      wheel_leds.set(0, led, (red, green, blue));
+      wheel_leds.set(side, led, (red, green, blue));
     }
 
-    wheel_leds.set(0, 16, (0,0,0));
+    wheel_leds.set(side, 16, (0,0,0));
 
-    wheel_leds.set(0, 17, (0,0,255));
+    wheel_leds.set(side, 17, (0,0,255));
 
-    wheel_leds.set(0, 18, (0,0,0));
+    wheel_leds.set(side, 18, (0,0,0));
 
     let counter_phase  = framestate.loop_counter % 6;
     if counter_phase == 0 {
-      wheel_leds.set(0, 19, (0,0,0));
-      wheel_leds.set(0, 20, (0,255,0));
-      wheel_leds.set(0, 21, (0,0,0));
-      wheel_leds.set(0, 22, (0,64,0));
+      wheel_leds.set(side, 19, (0,0,0));
+      wheel_leds.set(side, 20, (0,255,0));
+      wheel_leds.set(side, 21, (0,0,0));
+      wheel_leds.set(side, 22, (0,64,0));
     } else if counter_phase == 3 {
-      wheel_leds.set(0, 19, (32, 0, 32));
-      wheel_leds.set(0, 20, (0, 0, 0));
-      wheel_leds.set(0, 21, (128, 0, 128));
-      wheel_leds.set(0, 22, (0, 0, 0));
+      wheel_leds.set(side, 19, (32, 0, 32));
+      wheel_leds.set(side, 20, (0, 0, 0));
+      wheel_leds.set(side, 21, (128, 0, 128));
+      wheel_leds.set(side, 22, (0, 0, 0));
     } else {
-      wheel_leds.set(0, 19, (0, 0, 0));
-      wheel_leds.set(0, 20, (0, 0, 0));
-      wheel_leds.set(0, 21, (0, 0, 0));
-      wheel_leds.set(0, 22, (0, 0, 0));
+      wheel_leds.set(side, 19, (0, 0, 0));
+      wheel_leds.set(side, 20, (0, 0, 0));
+      wheel_leds.set(side, 21, (0, 0, 0));
+      wheel_leds.set(side, 22, (0, 0, 0));
     }
 
     Ok(())
@@ -352,7 +359,7 @@ fn render_side_1(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Res
 /// This renders the second side of the wheel two overlaid patterns:
 ///  * a green time-based line
 ///  * a magenta spin position line
-fn render_side_2(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+fn render_side_sliders(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
     let now_millis = framestate.now.as_millis();
 
@@ -375,7 +382,7 @@ fn render_side_2(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Res
       } else {
         r = 0
       }
-      wheel_leds.set(1, l, (r, g, r));
+      wheel_leds.set(side, l, (r, g, r));
     }
     Ok(())
     }
