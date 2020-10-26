@@ -136,7 +136,7 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut led_stream: BufWriter<Spidev>
     if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
       render_stopped_mode(&mut led_stream, &framestate)?;
     } else {
-      render_dual_side(&mut led_stream, &framestate)?;
+      render_live_mode(&mut led_stream, &framestate)?;
     }
     led_stream.flush()?;
     loop_counter = loop_counter + 1;
@@ -224,7 +224,7 @@ fn render_stopped_mode(led_stream: &mut Write, framestate: &FrameState) -> io::R
 }
 
 
-fn render_dual_side(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
+fn render_live_mode(led_stream: &mut Write, framestate: &FrameState) -> io::Result<()> {
 
     render_side_1(led_stream, framestate)?;
     render_side_2(led_stream, framestate)?;
