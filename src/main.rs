@@ -286,14 +286,15 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 4;
-    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 2) % 4;
+    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 5;
+    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 2) % 5;
 
     match mode_phase_0 {
         0 => render_side_rainbows(0, wheel_leds, framestate),
         1 => render_side_sliders(0, wheel_leds, framestate),
         2 => render_rgb_trio(0, wheel_leds, framestate),
         3 => render_centre_red(0, wheel_leds, framestate),
+        4 => render_rainbow_speckle(0, wheel_leds, framestate),
         _ => panic!("unknown mode phase 0")
     }?;
 
@@ -302,6 +303,7 @@ fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::
         1 => render_side_sliders(1, wheel_leds, framestate),
         2 => render_rgb_trio(1, wheel_leds, framestate),
         3 => render_centre_red(1, wheel_leds, framestate),
+        4 => render_rainbow_speckle(1, wheel_leds, framestate),
         _ => panic!("unknown mode phase 1")
     }?;
 
@@ -444,6 +446,44 @@ fn render_centre_red(side: usize, wheel_leds: &mut WheelLEDs, _framestate: &Fram
         wheel_leds.set(side, 12 + n, colour);
         wheel_leds.set(side, 11 - n, colour);
     }
+
+    Ok(())
+}
+
+fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0 .. 23 {
+        wheel_leds.set(side, led, (0,0,0));
+    }
+
+    let mut hue = framestate.spin_pos * 360.0;
+
+    if hue > 360.0 {
+      hue = 360.0;
+    }
+ 
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
+ 
+    let srgb = Srgb::from(hsv);
+ 
+    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+    let [red, green, blue] = pixels;
+
+    let colour = (red, green, blue);
+
+    let phase = framestate.loop_counter % 4;
+
+    if phase == 0 { 
+        for n in 0..6 {
+            wheel_leds.set(side, n * 4, colour);
+        }
+    } else if phase == 2 {
+        for n in 0..6 {
+            wheel_leds.set(side, n * 4 + 2, colour);
+        }
+    } 
+    // otherwise don't set any pixels
 
     Ok(())
 }
