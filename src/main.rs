@@ -409,23 +409,29 @@ fn render_side_sliders(side: usize, wheel_leds: &mut WheelLEDs, framestate: &Fra
 /// This renders three slices with black between them, each slice being one
 /// of red, green or blue
 fn render_rgb_trio(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-    let colour: (u8, u8, u8);
 
-    if framestate.spin_pos < 0.16 {
-        colour = (255, 0, 0);
-    } else if framestate.spin_pos < 0.32 {
-        colour = (0, 0, 0);
-    } else if framestate.spin_pos < 0.48 {
-        colour = (0, 255, 0);
-    } else if framestate.spin_pos < 0.64 {
-        colour = (0, 0, 0);
-    } else if framestate.spin_pos < 0.80 {
-        colour = (0, 0, 255);
-    } else {
-        colour = (0, 0, 0);
-    }
-   
     for led in 0..23 {
+
+        // led 0 should be dimmest
+        // led 22 the brightest
+        // this will exponentially scale up to 128 max
+        let brightness = 1 << (led / 3);
+        let colour: (u8, u8, u8);
+        
+        if framestate.spin_pos < 0.16 {
+            colour = (brightness, 0, 0);
+        } else if framestate.spin_pos < 0.32 {
+            colour = (0, 0, 0);
+        } else if framestate.spin_pos < 0.48 {
+            colour = (0, brightness, 0);
+        } else if framestate.spin_pos < 0.64 {
+            colour = (0, 0, 0);
+        } else if framestate.spin_pos < 0.80 {
+            colour = (0, 0, brightness);
+        } else {
+            colour = (0, 0, 0);
+        }
+   
         wheel_leds.set(side, led, colour);
     }
 
