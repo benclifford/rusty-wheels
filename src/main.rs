@@ -207,6 +207,8 @@ impl WheelLEDs {
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
     fn set(&mut self, side: usize, pixel: usize, rgb: (u8, u8, u8)) {
+        assert!(pixel <= 22, "pixel number too large");
+        assert!(side == 0 || side == 1, "side number invalid");
         if side == 0 {
             self.leds[pixel] = rgb;
         } else {
@@ -506,13 +508,15 @@ fn render_bitmap(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameStat
 
     // render approx 50 pixels in half the rotation
     // or 100 pixels per full rotation
-    let row1: u128 = 0b011111010001001110010001000000011110001110011110001110001110;
-    let row2: u128 = 0b010000010001010001010010000000001001010001010001000100010001;
-    let row3: u128 = 0b010000010001010000010100000000001001010001010001000100010000;
-    let row4: u128 = 0b011110010001010000011000000000001110010001011110000100001110;
-    let row5: u128 = 0b010000010001010000010100000000001001010001010100000100000001;
-    let row6: u128 = 0b010000010001010001010010000000001001010001010010000100010001;
-    let row7: u128 = 0b010000001110001110010001000000011110001110010001001110001110;
+    let row: [u128; 7] = [
+        0b011111010001001110010001000000011110001110011110001110001110,
+        0b010000010001010001010010000000001001010001010001000100010001,
+        0b010000010001010000010100000000001001010001010001000100010000,
+        0b011110010001010000011000000000001110010001011110000100001110,
+        0b010000010001010000010100000000001001010001010100000100000001,
+        0b010000010001010001010010000000001001010001010010000100010001,
+        0b010000001110001110010001000000011110001110010001001110001110
+        ];
 
     let mut pixel;
 
@@ -532,26 +536,16 @@ fn render_bitmap(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameStat
         pixel = 127-pixel;
     }
 
-    let r1: u8 = ((((row1 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 22, (r1, r1, r1));    
-
-    let r2: u8 = ((((row2 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 21, (r2, r2, r2));    
-
-    let r3: u8 = ((((row3 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 20, (r3, r3, r3));    
-
-    let r4: u8 = ((((row4 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 19, (r4, r4, r4));    
-
-    let r5: u8 = ((((row5 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 18, (r5, r5, r5));    
-
-    let r6: u8 = ((((row6 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 17, (r6, r6, r6));    
-
-    let r7: u8 = ((((row7 & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-    wheel_leds.set(side, 16, (r7, r7, r7));    
+    for n in 0..7 {
+        let r: u8 = ((((row[n] & (1 << pixel)) >> pixel) & 1) << 7) as u8;
+        let colour = match side {
+            0 => (r, 0, r), // magenta
+            1 => (0, r, r), // cyan
+            _ => panic!("impossible side number")
+        };
+        wheel_leds.set(side, 22-n, colour);    
+    }
 
     Ok(())
 }
+
