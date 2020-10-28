@@ -224,18 +224,10 @@ fn render_rainbows(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameSt
       wheel_leds.set(side, led, (0,0,0));
     }
 
-    let hue = (framestate.spin_pos * 360.0).min(360.0);
-
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
- 
-    let srgb = Srgb::from(hsv);
- 
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-    let [red, green, blue] = pixels;
+    let rainbow_colour = spinpos_to_rgb(framestate);
  
     for led in 8..16 {
-      wheel_leds.set(side, led, (red, green, blue));
+      wheel_leds.set(side, led, rainbow_colour);
     }
 
     wheel_leds.set(side, 16, (0,0,0));
@@ -355,11 +347,8 @@ fn render_centre_red(side: usize, wheel_leds: &mut WheelLEDs, _framestate: &Fram
     Ok(())
 }
 
-fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0 .. 23 {
-        wheel_leds.set(side, led, (0,0,0));
-    }
+/// Turns spin position into a saturated rainbow wheel
+fn spinpos_to_rgb(framestate: &FrameState) -> (u8, u8, u8) {
 
     let hue = (framestate.spin_pos * 360.0).min(360.0);
  
@@ -371,7 +360,16 @@ fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &
 
     let [red, green, blue] = pixels;
 
-    let colour = (red, green, blue);
+    (red, green, blue)
+}
+
+fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0 .. 23 {
+        wheel_leds.set(side, led, (0,0,0));
+    }
+
+    let colour = spinpos_to_rgb(framestate);
 
     let phase = framestate.loop_counter % 4;
 
