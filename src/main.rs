@@ -193,7 +193,8 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 6] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 7] = [
+    render_mod_speckle,
     render_rainbows,
     render_sliders,
     render_rgb_trio,
@@ -387,6 +388,18 @@ fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &
     Ok(())
 }
 
+fn render_mod_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    for led in 0..23 {
+        let m = framestate.loop_counter % (2+(22-led) as u32);
+        if m == 0 {
+            wheel_leds.set(side, led, (255,255,0));
+        } else {
+            wheel_leds.set(side, led, (0,0,0));
+        }
+    }
+
+    Ok(())
+}
 
 fn render_bitmap(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
@@ -437,4 +450,3 @@ fn render_bitmap(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameStat
 
     Ok(())
 }
-
