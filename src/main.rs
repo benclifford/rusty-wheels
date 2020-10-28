@@ -233,12 +233,8 @@ fn render_rainbows(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameSt
       wheel_leds.set(side, led, (0,0,0));
     }
 
-    let mut hue = framestate.spin_pos * 360.0;
+    let hue = (framestate.spin_pos * 360.0).min(360.0);
 
-    if hue > 360.0 {
-      hue = 360.0;
-    }
- 
     let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
  
     let srgb = Srgb::from(hsv);
@@ -374,11 +370,7 @@ fn render_rainbow_speckle(side: usize, wheel_leds: &mut WheelLEDs, framestate: &
         wheel_leds.set(side, led, (0,0,0));
     }
 
-    let mut hue = framestate.spin_pos * 360.0;
-
-    if hue > 360.0 {
-      hue = 360.0;
-    }
+    let hue = (framestate.spin_pos * 360.0).min(360.0);
  
     let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
  
