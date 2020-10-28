@@ -193,31 +193,22 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 6] = [
+    render_rainbows,
+    render_sliders,
+    render_rgb_trio,
+    render_centre_red,
+    render_rainbow_speckle,
+    render_bitmap
+    ];
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
 
-    let mode_phase_0: u64 = (framestate.now.as_secs() / 20) % 6;
-    let mode_phase_1: u64 = (framestate.now.as_secs() / 22 + 3) % 6;
+    let mode_phase_0: usize = ( (framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
+    let mode_phase_1: usize = ( (framestate.now.as_secs() / 25) % (MODES.len() as u64)) as usize;
 
-    match mode_phase_0 {
-        0 => render_rainbows(0, wheel_leds, framestate),
-        1 => render_sliders(0, wheel_leds, framestate),
-        2 => render_rgb_trio(0, wheel_leds, framestate),
-        3 => render_centre_red(0, wheel_leds, framestate),
-        4 => render_rainbow_speckle(0, wheel_leds, framestate),
-        5 => render_bitmap(0, wheel_leds, framestate),
-        _ => panic!("unknown mode phase 0")
-    }?;
-
-    match mode_phase_1 {
-        0 => render_rainbows(1, wheel_leds, framestate),
-        1 => render_sliders(1, wheel_leds, framestate),
-        2 => render_rgb_trio(1, wheel_leds, framestate),
-        3 => render_centre_red(1, wheel_leds, framestate),
-        4 => render_rainbow_speckle(1, wheel_leds, framestate),
-        5 => render_bitmap(1, wheel_leds, framestate),
-        _ => panic!("unknown mode phase 1")
-    }?;
+    (MODES[mode_phase_0])(0, wheel_leds, framestate)?;
+    (MODES[mode_phase_1])(1, wheel_leds, framestate)?;
 
     Ok(())
 }
