@@ -193,7 +193,8 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 7] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 8] = [
+    render_sine,
     render_mod_speckle,
     render_rainbows,
     render_sliders,
@@ -447,6 +448,26 @@ fn render_bitmap(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameStat
         };
         wheel_leds.set(side, 22-n, colour);    
     }
+
+    Ok(())
+}
+
+fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+
+    // establish a blank canvas
+    for led in 0 .. 23 {
+        wheel_leds.set(side, led, (0,0,0));
+    }
+
+    const TAU: f32 = 2.0 * 3.1415;
+
+    let phase = (framestate.spin_pos * TAU * 10.0).sin();
+
+    // beware of casting to unsigned when there could still be
+    // negatives around
+    let led = (16.0 + phase * 5.0) as usize;
+
+    wheel_leds.set(side, led, (0,255,0));
 
     Ok(())
 }
