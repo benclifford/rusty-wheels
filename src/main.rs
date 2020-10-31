@@ -495,7 +495,7 @@ fn render_sine_full(
     wheel_leds.set(side, led2, (255, 0, 0));
 
     let phase3 = (framestate.spin_pos * TAU * 3.0).sin();
-    let led3 = (5.0 + phase3 * 2.0) as usize;
+    let led3 = (3.0 + phase3 * 2.0) as usize;
     wheel_leds.set(side, led3, (0, 0, 255));
 
     Ok(())
