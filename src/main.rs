@@ -465,7 +465,7 @@ fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState)
 
     // beware of casting to unsigned when there could still be
     // negatives around
-    let led = (16.0 + phase * 5.0) as usize;
+    let led = (17.0 + phase * 5.0) as usize;
 
     wheel_leds.set(side, led, (0, 255, 0));
 
