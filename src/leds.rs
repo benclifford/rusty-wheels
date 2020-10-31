@@ -27,11 +27,11 @@ fn create_spi() -> io::Result<Spidev> {
     Ok(spi)
 }
 
-fn send_led(w: &mut Write, m: u8, r: u8, g: u8, b: u8) -> io::Result<usize> {
+fn send_led(w: &mut BufWriter<Spidev>, m: u8, r: u8, g: u8, b: u8) -> io::Result<usize> {
     w.write(&[m, b, g, r])
 }
 
-fn send_rgb(w: &mut Write, rgb: (u8, u8, u8)) -> io::Result<usize> {
+fn send_rgb(w: &mut BufWriter<Spidev>, rgb: (u8, u8, u8)) -> io::Result<usize> {
     let (r, g, b) = rgb;
     send_led(w, 255, r, g, b)
 }
