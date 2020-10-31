@@ -8,6 +8,7 @@ use palette::Srgb;
 use signal_hook::flag;
 
 use std::cmp;
+use std::f32::consts::TAU;
 use std::io;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -458,8 +459,6 @@ fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState)
     for led in 0..23 {
         wheel_leds.set(side, led, (0, 0, 0));
     }
-
-    const TAU: f32 = 2.0 * 3.1415;
 
     let phase = (framestate.spin_pos * TAU * 10.0).sin();
 
