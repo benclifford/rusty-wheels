@@ -18,6 +18,10 @@ use std::time::{Duration, Instant};
 use leds::WheelLEDs;
 use magnet::Magnet;
 
+/// The duration between magnet pulses that distinguishes between
+/// stopped mode and live mode.
+const STOP_TIME_MS: u128 = 2000;
+
 fn main() {
     println!("Starting rusty-wheels");
 
@@ -77,7 +81,7 @@ fn run_leds(
                 / (cmp::max(1, spin_length.as_millis()) as f32),
         };
 
-        if mode_duration.as_millis() > 2000 || mode_duration.as_millis() == 0 {
+        if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
             render_stopped_mode(&mut wheel_leds, &framestate)?;
         } else {
             render_live_mode(&mut wheel_leds, &framestate)?;
