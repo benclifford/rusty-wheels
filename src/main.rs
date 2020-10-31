@@ -82,7 +82,7 @@ fn run_leds(mut m: Magnet, mut wheel_leds: WheelLEDs, shutdown_flag: Arc<AtomicB
 
     wheel_leds.show()?;
 
-    loop_counter = loop_counter + 1;
+    loop_counter += 1;
     }
     let duration_secs = start_time.elapsed().as_secs();
     println!("Duration {} seconds", duration_secs);
