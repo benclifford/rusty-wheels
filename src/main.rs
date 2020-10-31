@@ -1,4 +1,5 @@
 mod leds;
+mod magnet;
 
 use palette::Hsv;
 use palette::Srgb;
@@ -14,15 +15,14 @@ use std::thread;
 
 use std::time::{Duration, Instant};
 
-use sysfs_gpio::{Direction, Edge, Pin};
-
 use leds::WheelLEDs;
+use magnet::Magnet;
 
 fn main() {
     println!("Starting rusty-wheels");
 
-    let poller = match setup_magnet() {
-      Ok(poller) => poller,
+    let magnet = match Magnet::new() {
+      Ok(m) => m,
       Err(e) => panic!("magnet setup returned an error: {}", e)
     };
 
@@ -30,7 +30,7 @@ fn main() {
 
     let shutdown_flag = Arc::new(AtomicBool::new(false));
 
-    match run_leds(poller, wheel_leds, shutdown_flag) {
+    match run_leds(magnet, wheel_leds, shutdown_flag) {
       Ok(_) => println!("runleds finished ok"),
       Err(e) => println!("runleds returned an error: {}", e)
     }
@@ -38,24 +38,7 @@ fn main() {
     println!("Ending rusty-wheels");
 }
 
-fn setup_magnet() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Error> {
-    println!("Configuring magnet");
-    let pin = Pin::new(27);
-    pin.export()?;
-    pin.set_direction(Direction::In)?;
-    pin.set_edge(Edge::RisingEdge)?;
-    let mut poller: sysfs_gpio::PinPoller = pin.get_poller()?;
-    println!("Making first pin poll");
-    match poller.poll(0)? { 
-      Some(value) => println!("Poll got first value {} - ignoring", value),
-      None => ()
-    }
-    println!("Done configuring magnet");
-
-  Ok(poller)
-}
-
-fn run_leds(mut poller: sysfs_gpio::PinPoller, mut wheel_leds: WheelLEDs, shutdown_flag: Arc<AtomicBool>) -> io::Result<()> {
+fn run_leds(mut m: Magnet, mut wheel_leds: WheelLEDs, shutdown_flag: Arc<AtomicBool>) -> io::Result<()> {
 
     let start_time = Instant::now();
 
@@ -76,13 +59,9 @@ fn run_leds(mut poller: sysfs_gpio::PinPoller, mut wheel_leds: WheelLEDs, shutdo
 
     while !(shutdown_flag.load(Ordering::Relaxed)) {
 
-    match poller.poll(0) { 
-      Ok(Some(value)) => {
-        println!("Poll got a value {}", value);
+    if m.pulsed() { 
         last_spin_start_time = spin_start_time;
         spin_start_time = Instant::now()
-      }
-      _ => ()
     };
 
     let spin_length = spin_start_time - last_spin_start_time;
