@@ -180,7 +180,8 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 12] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 13] = [
+    render_radial_stripes,
     render_graycode_rim,
     render_sine_full,
     render_sine,
@@ -577,6 +578,27 @@ fn render_graycode_rim(
         wheel_leds.set(side, 16, amber);
         wheel_leds.set(side, 15, amber);
         wheel_leds.set(side, 14, amber);
+    }
+
+    Ok(())
+}
+
+fn render_radial_stripes(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    let segment = (framestate.spin_pos * 32.0) as u8; // could go over 32 because spinpos can go over 1
+
+    if segment % 2 == 1 {
+        for led in 0..23 {
+            wheel_leds.set(side, led, (64, 64, 64));
+        }
     }
 
     Ok(())
