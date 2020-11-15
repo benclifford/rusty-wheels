@@ -605,7 +605,7 @@ fn render_radial_stripes(
     Ok(())
 }
 
-fn render_fade_spirals (
+fn render_fade_spirals(
     side: usize,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
@@ -613,9 +613,8 @@ fn render_fade_spirals (
     // establish a blank canvas
 
     let s1 = cmp::min(22, (23.0 * framestate.spin_pos) as i8);
-    let s2 = cmp::min(22, (23.0 * ( (framestate.spin_pos + 0.5) % 1.0)) as i8);
+    let s2 = cmp::min(22, (23.0 * ((framestate.spin_pos + 0.5) % 1.0)) as i8);
 
-    
     for led in 0..23 {
         let dist_s1 = (s1 - led).abs() as u8;
         let dist_s2 = (s2 - led).abs() as u8;
@@ -623,14 +622,14 @@ fn render_fade_spirals (
             if dist_s1 > 7 {
                 wheel_leds.set(side, led as usize, (0, 0, 0));
             } else {
-                let v  = (2 as u8).pow((7-dist_s1) as u32);
+                let v = (2 as u8).pow((7 - dist_s1) as u32);
                 wheel_leds.set(side, led as usize, (0, v, 0));
             }
-        } else { 
-             if dist_s2 > 7 {
+        } else {
+            if dist_s2 > 7 {
                 wheel_leds.set(side, led as usize, (0, 0, 0));
             } else {
-                let v  = (2 as u8).pow((7-dist_s2) as u32);
+                let v = (2 as u8).pow((7 - dist_s2) as u32);
                 wheel_leds.set(side, led as usize, (v, 0, v));
             }
         }
