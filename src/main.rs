@@ -180,7 +180,8 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 11] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 12] = [
+    render_graycode_rim,
     render_sine_full,
     render_sine,
     render_mod_speckle,
@@ -540,6 +541,43 @@ fn render_sine_full(
     let phase3 = (framestate.spin_pos * TAU * 3.0).sin();
     let led3 = (3.0 + phase3 * 2.0) as usize;
     wheel_leds.set(side, led3, (0, 0, 255));
+
+    Ok(())
+}
+
+fn render_graycode_rim(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    let segment = (framestate.spin_pos * 8.0) as u8; // could go over 8 because spinpos can go over 1
+
+    let gray = segment ^ (segment >> 1);
+
+    let amber = (255, 32, 0);
+
+    if (gray & 0b001) != 0 {
+        wheel_leds.set(side, 22, amber);
+        wheel_leds.set(side, 21, amber);
+        wheel_leds.set(side, 20, amber);
+    }
+
+    if (gray & 0b010) != 0 {
+        wheel_leds.set(side, 19, amber);
+        wheel_leds.set(side, 18, amber);
+        wheel_leds.set(side, 17, amber);
+    }
+
+    if (gray & 0b100) != 0 {
+        wheel_leds.set(side, 16, amber);
+        wheel_leds.set(side, 15, amber);
+        wheel_leds.set(side, 14, amber);
+    }
 
     Ok(())
 }
