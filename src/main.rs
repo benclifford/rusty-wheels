@@ -433,20 +433,18 @@ fn render_speckle_random(
     for led in 0..23 {
         wheel_leds.set(side, led, (0, 0, 0));
     }
-    let rand_led = rand::thread_rng().gen_range(0,23);
-    let rand_rgb = rand::thread_rng().gen_range(0,3);
+    let rand_led = rand::thread_rng().gen_range(0, 23);
+    let rand_rgb = rand::thread_rng().gen_range(0, 3);
     let colour = match rand_rgb {
         0 => (255, 0, 0),
         1 => (0, 255, 0),
         2 => (0, 0, 255),
-        _ => (1, 1, 1) // shouldn't happen with choice of rand_rgb
+        _ => (1, 1, 1), // shouldn't happen with choice of rand_rgb
     };
     wheel_leds.set(side, rand_led, colour);
 
     Ok(())
 }
-
-
 
 fn render_bitmap(
     side: usize,
