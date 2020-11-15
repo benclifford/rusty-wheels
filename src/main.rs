@@ -195,11 +195,10 @@ const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 11
 ];
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-    let mode_phase_0: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
-    let mode_phase_1: usize = ((framestate.now.as_secs() / 25) % (MODES.len() as u64)) as usize;
+    let mode_phase: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
 
-    (MODES[mode_phase_0])(0, wheel_leds, framestate)?;
-    (MODES[mode_phase_1])(1, wheel_leds, framestate)?;
+    MODES[mode_phase](0, wheel_leds, framestate)?;
+    MODES[mode_phase](1, wheel_leds, framestate)?;
 
     Ok(())
 }
