@@ -16,6 +16,8 @@ use std::thread;
 
 use std::time::{Duration, Instant};
 
+use rand::Rng;
+
 use leds::WheelLEDs;
 use magnet::Magnet;
 
@@ -178,10 +180,12 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 9] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 11] = [
     render_sine_full,
     render_sine,
     render_mod_speckle,
+    render_speckle_onepix,
+    render_speckle_random,
     render_rainbows,
     render_sliders,
     render_rgb_trio,
@@ -401,6 +405,48 @@ fn render_mod_speckle(
 
     Ok(())
 }
+
+fn render_speckle_onepix(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    let mut done = false;
+    for led in 0..23 {
+        let m = framestate.loop_counter % (2 + (22 - led) as u32);
+        if m == 0 && !done {
+            wheel_leds.set(side, led, (255, 255, 0));
+            done = true;
+        } else {
+            wheel_leds.set(side, led, (0, 0, 0));
+        }
+    }
+
+    Ok(())
+}
+
+fn render_speckle_random(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    _framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+    let rand_led = rand::thread_rng().gen_range(0,23);
+    let rand_rgb = rand::thread_rng().gen_range(0,3);
+    let colour = match rand_rgb {
+        0 => (255, 0, 0),
+        1 => (0, 255, 0),
+        2 => (0, 0, 255),
+        _ => (1, 1, 1) // shouldn't happen with choice of rand_rgb
+    };
+    wheel_leds.set(side, rand_led, colour);
+
+    Ok(())
+}
+
+
 
 fn render_bitmap(
     side: usize,
