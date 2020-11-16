@@ -180,7 +180,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 14] = [
+const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 15] = [
     render_fade_spirals,
     render_radial_stripes,
     render_graycode_rim,
@@ -195,6 +195,7 @@ const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 14
     render_centre_red,
     render_rainbow_speckle,
     render_bitmap,
+    render_phrase,
 ];
 
 fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
@@ -453,11 +454,6 @@ fn render_bitmap(
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds.set(side, led, (0, 0, 0));
-    }
-
     // render approx 50 pixels in half the rotation
     // or 100 pixels per full rotation
     let row: [u128; 7] = [
@@ -470,6 +466,75 @@ fn render_bitmap(
         0b010000001110001110010001000000011110001110010001001110001110,
     ];
 
+    helper_render_bitmap(&row, side, wheel_leds, framestate)
+}
+
+// These should become part of mode-local state object that isn't
+// implemented at the moment, using an as-yet-undefined RenderMode trait
+static mut phrase_row: [u128; 7] = [0, 0, 0, 0, 0, 0, 0]; // blank canvas
+                                                          // mode-local state wouldn't need an initialized variable: the initialization
+                                                          // would initialise the bitmap so it would never be uninitialised before
+                                                          // calling render.
+static mut phrase_row_initialized: bool = false;
+
+fn render_phrase(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    // there are no other threads around to mess with this, so
+    // this unsafe should be allowed. In the presence of per-mode
+    // state objects, this unsafe should go away entirely, replaced
+    // by an initialized-at-creation mode state object.
+    unsafe {
+        if !phrase_row_initialized {
+            println!("Iniializing phrase bitmap");
+            let phrase = "@BENCLIFFORD";
+
+            let font = bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font");
+
+            for c in phrase.chars() {
+                let glyph = font
+                    .glyphs()
+                    .get(&c)
+                    .unwrap_or_else(|| panic!("Cannot get glyph"));
+
+                // first shift the existing display rightwards by the appropriate number of pixels
+                let width = glyph.width() + 1;
+                for row in 0..7 {
+                    // assume 7 rows here
+                    phrase_row[row] <<= width;
+                }
+
+                // now render the glyph
+                for row in (0 as usize)..7 {
+                    for col in 0..glyph.width() {
+                        if glyph.get(col, row as u32) {
+                            phrase_row[row] = phrase_row[row] | 1 << (glyph.width() - col - 1);
+                        }
+                    }
+                }
+            }
+
+            phrase_row_initialized = true;
+        }
+
+        // see above note  - this happens because phrase_row is being passed in
+        helper_render_bitmap(&phrase_row, side, wheel_leds, framestate)
+    }
+}
+
+/// This can render a 128 pixel wide, 7 bit pixel high bitmap
+fn helper_render_bitmap(
+    row: &[u128; 7],
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
     let mut pixel;
 
     // rotate the text round the wheel once per minute
