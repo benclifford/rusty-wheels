@@ -666,7 +666,7 @@ fn render_radial_stripes(
     let segment = (framestate.spin_pos * 32.0) as u8; // could go over 32 because spinpos can go over 1
 
     if segment % 2 == 1 {
-        for led in 0..23 {
+        for led in 12..23 {
             wheel_leds.set(side, led, (64, 64, 64));
         }
     }
