@@ -489,11 +489,15 @@ fn render_bitmap(
     }
 
     for n in 0..7 {
-        let r: u8 = ((((row[n] & (1 << pixel)) >> pixel) & 1) << 7) as u8;
-        let colour = match side {
-            0 => (r, 0, r), // magenta
-            1 => (0, r, r), // cyan
-            _ => panic!("impossible side number"),
+        let r = ((row[n] & (1 << pixel)) >> pixel) & 1;
+        let colour = if r != 0 {
+            match side {
+                0 => (255, 32, 0), // amber
+                1 => (56, 255, 0),  // green - from wikipedia phosper wavelength converted to rgb
+                _ => panic!("impossible side number"),
+            }
+        } else {
+            (0, 0, 0)
         };
         wheel_leds.set(side, 22 - n, colour);
     }
