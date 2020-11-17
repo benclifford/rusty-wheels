@@ -181,6 +181,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_pulsed_rainbow,
     render_rainbow_rim,
     render_fade_spirals,
     render_radial_stripes,
@@ -275,6 +276,30 @@ fn render_rainbow_rim(
 
     Ok(())
 }
+
+
+fn render_pulsed_rainbow(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..15 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    for led in 15..23 {
+        let led_n = led-15;
+        let frac: f32 = ((led - 15) as f32) / 8.0;
+        let v1 = (framestate.spin_pos + frac) % 1.0;
+        let v2 = (v1 * (led_n as f32 + 2.0)) % 1.0;
+        let v3 = if v2 > 0.5 { 1.0 } else { 0.0 };
+        let rainbow_colour = fraction_to_rgb(frac, Some(v3));
+        wheel_leds.set(side, led, rainbow_colour);
+    }
+
+    Ok(())
+}
+
 
 /// This renders the second side of the wheel two overlaid patterns:
 ///  * a green time-based line
@@ -373,9 +398,19 @@ fn render_centre_red(
 
 /// Turns spin position into a saturated rainbow wheel
 fn spinpos_to_rgb(framestate: &FrameState) -> (u8, u8, u8) {
-    let hue = (framestate.spin_pos * 360.0).min(360.0);
+    fraction_to_rgb(framestate.spin_pos, None)
+}
 
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.2));
+/// turns a value from 0..1 into RGB
+fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> (u8, u8, u8) {
+    let hue = (fraction * 360.0).min(360.0);
+
+    let real_value = match value {
+        Some(v) => v,  
+        None => 0.2
+    };
+
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, real_value));
 
     let srgb = Srgb::from(hsv);
 
@@ -385,6 +420,7 @@ fn spinpos_to_rgb(framestate: &FrameState) -> (u8, u8, u8) {
 
     (red, green, blue)
 }
+
 
 fn render_rainbow_speckle(
     side: usize,
