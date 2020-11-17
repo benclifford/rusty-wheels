@@ -180,7 +180,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-const MODES: [fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>; 15] = [
+const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
     render_fade_spirals,
     render_radial_stripes,
     render_graycode_rim,
