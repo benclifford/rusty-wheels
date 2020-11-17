@@ -181,6 +181,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_helix,
     render_europa,
     render_pulsed_rainbow,
     render_rainbow_rim,
@@ -642,6 +643,25 @@ fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState)
     // negatives around
     let led = (17.0 + phase * 5.0) as usize;
 
+    wheel_leds.set(side, led, (0, 255, 0));
+
+    Ok(())
+}
+
+fn render_helix(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    let phase = (framestate.spin_pos * TAU * 10.0).sin();
+
+    // beware of casting to unsigned when there could still be
+    // negatives around
+    let led = cmp::min( (17.0 + phase * 6.0) as usize, 22);
+    wheel_leds.set(side, led, (64, 0, 64));
+
+    let led = cmp::min( (17.0 - phase * 6.0) as usize, 22);
     wheel_leds.set(side, led, (0, 255, 0));
 
     Ok(())
