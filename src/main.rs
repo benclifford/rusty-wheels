@@ -181,6 +181,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_europa,
     render_pulsed_rainbow,
     render_rainbow_rim,
     render_fade_spirals,
@@ -728,6 +729,30 @@ fn render_radial_stripes(
         for led in 12..23 {
             wheel_leds.set(side, led, (64, 64, 64));
         }
+    }
+
+    Ok(())
+}
+
+fn render_europa(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    // establish a blue canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 32));
+    }
+
+    let segment = (framestate.spin_pos * 12.0) % 1.0; // could go over 12 because spinpos can go over 1
+
+    if segment < 0.08 || (segment >= 0.16 && segment < 0.24) {
+        wheel_leds.set(side, 18, (255, 255, 0));
+    } else if segment < 0.16 {
+        for led in 17..20 {
+            wheel_leds.set(side, led, (255, 255, 0));
+        }
+
     }
 
     Ok(())
