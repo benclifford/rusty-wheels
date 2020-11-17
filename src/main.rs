@@ -595,8 +595,9 @@ fn helper_render_bitmap(
     }
     let mut pixel;
 
-    // rotate the text round the wheel once per minute
-    let spin_adj: f32 = ((framestate.now.as_secs() % 60) as f32) / 60.0;
+    // can be used to adjust where the bitmap starts rendering
+    // but has different physical meaning on each side
+    const spin_adj: f32 = 0.0;
 
     pixel = (((framestate.spin_pos + spin_adj) % 1.0) * 128.0) as u8;
 
