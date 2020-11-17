@@ -181,6 +181,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_rainbow_rim,
     render_fade_spirals,
     render_radial_stripes,
     render_graycode_rim,
@@ -249,6 +250,27 @@ fn render_rainbows(
         wheel_leds.set(side, 20, (0, 0, 0));
         wheel_leds.set(side, 21, (0, 0, 0));
         wheel_leds.set(side, 22, (0, 0, 0));
+    }
+
+    Ok(())
+}
+
+
+/// This renders the first side of the wheel with
+/// an 8 pixel rainbow around the rim of wheel
+fn render_rainbow_rim(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..15 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    let rainbow_colour = spinpos_to_rgb(framestate);
+
+    for led in 15..23 {
+        wheel_leds.set(side, led, rainbow_colour);
     }
 
     Ok(())
