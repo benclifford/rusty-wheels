@@ -181,6 +181,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_random_rim,
     render_helix,
     render_europa,
     render_pulsed_rainbow,
@@ -278,6 +279,33 @@ fn render_rainbow_rim(
 
     Ok(())
 }
+
+
+fn render_random_rim(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    _framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..20 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    // starting at 1 avoids having all three bits off
+    // (the 0 position) so there will always at least
+    // be one LED on in each frame
+    let n = rand::thread_rng().gen_range(1, 8);
+
+    for led in 0..3 {
+        if n & (1 << led) != 0 {
+            wheel_leds.set(side, 20+led, (255, 0, 0));
+        } else { 
+            wheel_leds.set(side, 20+led, (0, 0, 0));
+        }
+    }
+
+    Ok(())
+}
+
 
 
 fn render_pulsed_rainbow(
