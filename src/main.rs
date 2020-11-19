@@ -271,7 +271,6 @@ fn render_rainbows(
     Ok(())
 }
 
-
 /// This renders the first side of the wheel with
 /// an 8 pixel rainbow around the rim of wheel
 fn render_rainbow_rim(
@@ -292,7 +291,6 @@ fn render_rainbow_rim(
     Ok(())
 }
 
-
 fn render_random_rim(
     side: usize,
     wheel_leds: &mut WheelLEDs,
@@ -309,16 +307,14 @@ fn render_random_rim(
 
     for led in 0..3 {
         if n & (1 << led) != 0 {
-            wheel_leds.set(side, 20+led, (255, 0, 0));
-        } else { 
-            wheel_leds.set(side, 20+led, (0, 0, 0));
+            wheel_leds.set(side, 20 + led, (255, 0, 0));
+        } else {
+            wheel_leds.set(side, 20 + led, (0, 0, 0));
         }
     }
 
     Ok(())
 }
-
-
 
 fn render_pulsed_rainbow(
     side: usize,
@@ -330,7 +326,7 @@ fn render_pulsed_rainbow(
     }
 
     for led in 15..23 {
-        let led_n = led-15;
+        let led_n = led - 15;
         let frac: f32 = ((led - 15) as f32) / 8.0;
         let v1 = (framestate.spin_pos + frac) % 1.0;
         let v2 = (v1 * (led_n as f32 + 2.0)) % 1.0;
@@ -341,7 +337,6 @@ fn render_pulsed_rainbow(
 
     Ok(())
 }
-
 
 /// This renders the second side of the wheel two overlaid patterns:
 ///  * a green time-based line
@@ -448,8 +443,8 @@ fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> (u8, u8, u8) {
     let hue = (fraction * 360.0).min(360.0);
 
     let real_value = match value {
-        Some(v) => v,  
-        None => 0.2
+        Some(v) => v,
+        None => 0.2,
     };
 
     let hsv: Hsv = Hsv::from_components((hue, 1.0, real_value));
@@ -462,7 +457,6 @@ fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> (u8, u8, u8) {
 
     (red, green, blue)
 }
-
 
 fn render_rainbow_speckle(
     side: usize,
@@ -659,7 +653,7 @@ fn helper_render_bitmap(
         let colour = if r != 0 {
             match side {
                 0 => (255, 32, 0), // amber
-                1 => (56, 255, 0),  // green - from wikipedia phosper wavelength converted to rgb
+                1 => (56, 255, 0), // green - from wikipedia phosper wavelength converted to rgb
                 _ => panic!("impossible side number"),
             }
         } else {
@@ -688,7 +682,11 @@ fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState)
     Ok(())
 }
 
-fn render_helix(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+fn render_helix(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds.set(side, led, (0, 0, 0));
@@ -698,10 +696,10 @@ fn render_helix(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState
 
     // beware of casting to unsigned when there could still be
     // negatives around
-    let led = cmp::min( (17.0 + phase * 6.0) as usize, 22);
+    let led = cmp::min((17.0 + phase * 6.0) as usize, 22);
     wheel_leds.set(side, led, (64, 0, 64));
 
-    let led = cmp::min( (17.0 - phase * 6.0) as usize, 22);
+    let led = cmp::min((17.0 - phase * 6.0) as usize, 22);
     wheel_leds.set(side, led, (0, 255, 0));
 
     Ok(())
@@ -812,7 +810,6 @@ fn render_europa(
         for led in 17..20 {
             wheel_leds.set(side, led, (255, 255, 0));
         }
-
     }
 
     Ok(())
