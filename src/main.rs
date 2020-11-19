@@ -1,5 +1,6 @@
 mod leds;
 mod magnet;
+mod buttons;
 
 use palette::encoding::pixel::Pixel;
 use palette::Hsv;
@@ -21,6 +22,8 @@ use rand::Rng;
 use leds::WheelLEDs;
 use magnet::Magnet;
 
+use buttons::PushButton;
+
 /// The duration between magnet pulses that distinguishes between
 /// stopped mode and live mode.
 const STOP_TIME_MS: u128 = 2000;
@@ -33,11 +36,16 @@ fn main() {
         Err(e) => panic!("magnet setup returned an error: {}", e),
     };
 
+    let push_button = match PushButton::new() {
+        Ok(m) => m,
+        Err(e) => panic!("push button setup returned an error: {}", e),
+    };
+
     let wheel_leds = WheelLEDs::new();
 
     let shutdown_flag = Arc::new(AtomicBool::new(false));
 
-    match run_leds(magnet, wheel_leds, shutdown_flag) {
+    match run_leds(magnet, wheel_leds, push_button, shutdown_flag) {
         Ok(_) => println!("runleds finished ok"),
         Err(e) => println!("runleds returned an error: {}", e),
     }
@@ -48,6 +56,7 @@ fn main() {
 fn run_leds(
     mut m: Magnet,
     mut wheel_leds: WheelLEDs,
+    mut push_button: PushButton,
     shutdown_flag: Arc<AtomicBool>,
 ) -> io::Result<()> {
     let start_time = Instant::now();
@@ -67,11 +76,18 @@ fn run_leds(
     flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
     flag::register(signal_hook::SIGINT, Arc::clone(&shutdown_flag))?;
 
+    let mut p: bool = true;
+
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
             last_spin_start_time = spin_start_time;
             spin_start_time = Instant::now()
         };
+
+        if push_button.pulsed() {
+            println!("push button pulse");
+            p = !p;
+        }
 
         let spin_length = spin_start_time - last_spin_start_time;
 
@@ -85,7 +101,11 @@ fn run_leds(
         };
 
         if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
-            render_stopped_mode(&mut wheel_leds, &framestate)?;
+            if p {
+                render_stopped_mode(&mut wheel_leds, &framestate)?;
+            } else {
+                render_other_stopped_mode(&mut wheel_leds, &framestate)?;
+            }
         } else {
             render_live_mode(&mut wheel_leds, &framestate)?;
         }
@@ -133,6 +153,21 @@ struct FrameState {
     /// approximately 1. This might go above 1 if the bike is slowing down,
     /// so code needs to accept that.
     spin_pos: f32,
+}
+
+fn render_other_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+
+    for side in 0..2 {
+        for led in 0..23 {
+            wheel_leds.set(side, led, (32, 32, 32));
+        }
+        // override the middle ones with full brightness
+        for led in 9..14 {
+            wheel_leds.set(side, led, (255, 255, 255));
+        }
+    }
+
+    Ok(())
 }
 
 fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
