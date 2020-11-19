@@ -141,20 +141,26 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     let flicker = (now_millis / 25) % 4 == 0;
     let topside = now_secs % 2 == 0;
     for side in 0..2 {
-        for led in 0..6 {
+        for led in 0..2 {
+            wheel_leds.set(side, led, (2, 0, 0));
+        }
+        for led in 2..4 {
             wheel_leds.set(side, led, (8, 0, 0));
+        }
+        for led in 4..6 {
+            wheel_leds.set(side, led, (64, 0, 0));
         }
 
         for led in 6..8 {
-            wheel_leds.set(side, led, (128, 0, 0));
+            wheel_leds.set(side, led, (255, 0, 0));
         }
 
-        for led in 8..10 {
+        for led in 8..9 {
             wheel_leds.set(side, led, (0, 0, 0));
         }
 
         if topside ^ (side == 0) {
-            for led in 10..13 {
+            for led in 9..14 {
                 if flicker {
                     wheel_leds.set(side, led, (255, 255, 0));
                 } else {
@@ -162,18 +168,24 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
                 }
             }
         } else {
-            for led in 10..13 {
+            for led in 9..14 {
                 wheel_leds.set(side, led, (0, 0, 0));
             }
         }
-        for led in 13..15 {
+        for led in 14..15 {
             wheel_leds.set(side, led, (0, 0, 0));
         }
         for led in 15..17 {
-            wheel_leds.set(side, led, (128, 0, 0));
+            wheel_leds.set(side, led, (255, 0, 0));
         }
-        for led in 17..23 {
+        for led in 17..19 {
+            wheel_leds.set(side, led, (64, 0, 0));
+        }
+        for led in 19..21 {
             wheel_leds.set(side, led, (8, 0, 0));
+        }
+        for led in 21..23 {
+            wheel_leds.set(side, led, (2, 0, 0));
         }
     }
 
