@@ -78,6 +78,16 @@ fn run_leds(
 
     let mut p: bool = true;
 
+    // this should perhaps be a "new mode" time - doesn't need to be a cycling mode number
+    // as all that is captured in the "mode" reference.
+    let mut mode_phase: usize = MODES.len() + 1; // pick a mode value that will be trigger new mode initialisation immediately
+
+    // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
+    // absolute time based phasing. But it's better than threading Option behaviour all the way through.
+    let mut mode: Box<dyn Mode> = Box::new(StatelessMode {
+                    render_fn: MODES[0]
+                });
+
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
             last_spin_start_time = spin_start_time;
@@ -107,7 +117,22 @@ fn run_leds(
                 render_other_stopped_mode(&mut wheel_leds, &framestate)?;
             }
         } else {
-            render_live_mode(&mut wheel_leds, &framestate)?;
+
+            let next_mode_phase: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
+
+            if next_mode_phase != mode_phase {
+                // stateful new mode initialisation should go here
+
+                mode_phase = next_mode_phase;
+                mode = Box::new(StatelessMode {
+                    render_fn: MODES[mode_phase]
+                });
+
+                // mode should now become a stateful object implementing a mode trait
+            }
+
+            mode.render(0, &mut wheel_leds, &framestate)?;
+            mode.render(1, &mut wheel_leds, &framestate)?;
         }
 
         wheel_leds.show()?;
@@ -227,6 +252,21 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
+
+trait Mode {
+    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>;
+}
+
+struct StatelessMode {
+    render_fn: fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>
+}
+
+impl Mode for StatelessMode {
+    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+        (self.render_fn)(side, leds, frame)
+    }
+}
+
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
     render_fade_quarters,
     render_random_rim,
@@ -251,14 +291,6 @@ const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] =
     render_phrase,
 ];
 
-fn render_live_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-    let mode_phase: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
-
-    MODES[mode_phase](0, wheel_leds, framestate)?;
-    MODES[mode_phase](1, wheel_leds, framestate)?;
-
-    Ok(())
-}
 
 /// This renders the first side of the wheel with:
 ///  * an 8 pixel rainbow around the wheel
