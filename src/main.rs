@@ -84,9 +84,7 @@ fn run_leds(
 
     // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
     // absolute time based phasing. But it's better than threading Option behaviour all the way through.
-    let mut mode: Box<dyn Mode> = Box::new(StatelessMode {
-                    render_fn: MODES[0]
-                });
+    let mut mode: Box<dyn Mode> = MODES[0]();
 
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
@@ -121,14 +119,8 @@ fn run_leds(
             let next_mode_phase: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
 
             if next_mode_phase != mode_phase {
-                // stateful new mode initialisation should go here
-
                 mode_phase = next_mode_phase;
-                mode = Box::new(StatelessMode {
-                    render_fn: MODES[mode_phase]
-                });
-
-                // mode should now become a stateful object implementing a mode trait
+                mode = MODES[mode_phase]();
             }
 
             mode.render(0, &mut wheel_leds, &framestate)?;
@@ -267,28 +259,37 @@ impl Mode for StatelessMode {
     }
 }
 
-const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
-    render_fade_quarters,
-    render_random_rim,
-    render_helix,
-    render_europa,
-    render_pulsed_rainbow,
-    render_rainbow_rim,
-    render_fade_spirals,
-    render_radial_stripes,
-    render_graycode_rim,
-    render_sine_full,
-    render_sine,
-    render_mod_speckle,
-    render_speckle_onepix,
-    render_speckle_random,
-    render_rainbows,
-    render_sliders,
-    render_rgb_trio,
-    render_centre_red,
-    render_rainbow_speckle,
-    render_bitmap,
-    render_phrase,
+macro_rules! stateless_mode {
+  ( $x:expr ) => { || 
+      Box::new(StatelessMode {
+                    render_fn: $x
+                })
+   }
+}
+
+
+const MODES: &[fn() -> Box<dyn Mode>] = &[
+    stateless_mode!(render_fade_quarters),
+    stateless_mode!(render_random_rim),
+    stateless_mode!(render_helix),
+    stateless_mode!(render_europa),
+    stateless_mode!(render_pulsed_rainbow),
+    stateless_mode!(render_rainbow_rim),
+    stateless_mode!(render_fade_spirals),
+    stateless_mode!(render_radial_stripes),
+    stateless_mode!(render_graycode_rim),
+    stateless_mode!(render_sine_full),
+    stateless_mode!(render_sine),
+    stateless_mode!(render_mod_speckle),
+    stateless_mode!(render_speckle_onepix),
+    stateless_mode!(render_speckle_random),
+    stateless_mode!(render_rainbows),
+    stateless_mode!(render_sliders),
+    stateless_mode!(render_rgb_trio),
+    stateless_mode!(render_centre_red),
+    stateless_mode!(render_rainbow_speckle),
+    stateless_mode!(render_bitmap),
+    stateless_mode!(render_phrase),
 ];
 
 
