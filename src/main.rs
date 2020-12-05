@@ -291,7 +291,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(render_centre_red),
     stateless_mode!(render_rainbow_speckle),
     stateless_mode!(render_bitmap),
-    stateless_mode!(render_phrase),
+    construct_phrase_mode,
 ];
 
 
@@ -634,60 +634,55 @@ fn render_bitmap(
     helper_render_bitmap(&row, side, wheel_leds, framestate)
 }
 
-// These should become part of mode-local state object that isn't
-// implemented at the moment, using an as-yet-undefined RenderMode trait
-static mut phrase_row: [u128; 7] = [0, 0, 0, 0, 0, 0, 0]; // blank canvas
-                                                          // mode-local state wouldn't need an initialized variable: the initialization
-                                                          // would initialise the bitmap so it would never be uninitialised before
-                                                          // calling render.
-static mut phrase_row_initialized: bool = false;
 
-fn render_phrase(
-    side: usize,
-    wheel_leds: &mut WheelLEDs,
-    framestate: &FrameState,
-) -> io::Result<()> {
-    // there are no other threads around to mess with this, so
-    // this unsafe should be allowed. In the presence of per-mode
-    // state objects, this unsafe should go away entirely, replaced
-    // by an initialized-at-creation mode state object.
-    unsafe {
-        if !phrase_row_initialized {
-            println!("Iniializing phrase bitmap");
-            let phrase = "@BENCLIFFORD";
+struct PhraseMode {
+    bitmap: [u128; 7]
+}
 
-            let font = bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font");
+fn construct_phrase_mode() -> Box<dyn Mode> {
 
-            for c in phrase.chars() {
-                let glyph = font
-                    .glyphs()
-                    .get(&c)
-                    .unwrap_or_else(|| panic!("Cannot get glyph"));
+    let mut bitmap: [u128; 7] = [0, 0, 0, 0, 0, 0, 0];
 
-                // first shift the existing display rightwards by the appropriate number of pixels
-                let width = glyph.width() + 1;
-                for row in 0..7 {
-                    // assume 7 rows here
-                    phrase_row[row] <<= width;
-                }
+    println!("Iniialising phrase bitmap");
+    let phrase = "@BENCLIFFORD";
 
-                // now render the glyph
-                for row in (0 as usize)..7 {
-                    for col in 0..glyph.width() {
-                        if glyph.get(col, row as u32) {
-                            phrase_row[row] = phrase_row[row] | 1 << (glyph.width() - col - 1);
-                        }
-                    }
-                }
-            }
+    let font = bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font");
 
-            phrase_row_initialized = true;
+    for c in phrase.chars() {
+        let glyph = font
+            .glyphs()
+            .get(&c)
+            .unwrap_or_else(|| panic!("Cannot get glyph"));
+
+        // first shift the existing display rightwards by the appropriate number of pixels
+        let width = glyph.width() + 1;
+        for row in 0..7 {
+            // assume 7 rows here
+            bitmap[row] <<= width;
         }
 
-        // see above note  - this happens because phrase_row is being passed in
-        helper_render_bitmap(&phrase_row, side, wheel_leds, framestate)
+        // now render the glyph
+        for row in (0 as usize)..7 {
+            for col in 0..glyph.width() {
+                if glyph.get(col, row as u32) {
+                    bitmap[row] = bitmap[row] | 1 << (glyph.width() - col - 1);
+                }
+            }
+        }
+    }
+    println!("Initialised phrase bitmap");
+
+    Box::new(PhraseMode {
+         bitmap: bitmap
+    })
+}
+
+impl Mode for PhraseMode {
+    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+        helper_render_bitmap(&self.bitmap, side, leds, frame)
     }
 }
+
 
 /// This can render a 128 pixel wide, 7 bit pixel high bitmap
 fn helper_render_bitmap(
