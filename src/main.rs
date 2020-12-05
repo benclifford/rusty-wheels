@@ -228,6 +228,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn(usize, &mut leds::WheelLEDs, &FrameState) -> io::Result<()>] = &[
+    render_fade_quarters,
     render_random_rim,
     render_helix,
     render_europa,
@@ -878,6 +879,30 @@ fn render_fade_spirals(
                 wheel_leds.set(side, led as usize, (v, 0, v));
             }
         }
+    }
+
+    Ok(())
+}
+
+fn render_fade_quarters(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
+
+    let fade_frac = (framestate.spin_pos * 4.0) % 1.0;
+
+    // some gamma correction
+    let brightness = fade_frac.powf(3.0).min(1.0);
+
+    let pix_brightness_red = (255.0 * brightness) as u8;
+    let pix_brightness_green = (64.0 * brightness) as u8;
+
+    for led in 0..11 {
+        wheel_leds.set(side, led as usize, (0, 0, 0));
+    }
+    for led in 11..23 {
+        wheel_leds.set(side, led as usize, (pix_brightness_red, pix_brightness_green, 0));
     }
 
     Ok(())
