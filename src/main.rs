@@ -259,6 +259,8 @@ impl Mode for StatelessMode {
     }
 }
 
+
+/// Lifts a render function into a mode which has no state
 macro_rules! stateless_mode {
   ( $x:expr ) => { || 
       Box::new(StatelessMode {
