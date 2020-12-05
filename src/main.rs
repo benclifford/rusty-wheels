@@ -125,7 +125,7 @@ fn run_leds(
 
             mode.render(0, &mut wheel_leds, &framestate)?;
             mode.render(1, &mut wheel_leds, &framestate)?;
-            mode.step();
+            mode.step(&framestate);
         }
 
         wheel_leds.show()?;
@@ -251,7 +251,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 trait Mode {
     fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>;
 
-    fn step(&mut self) -> io::Result<()> {
+    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
         Ok(())
     }
 }
@@ -278,6 +278,7 @@ macro_rules! stateless_mode {
 
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    construct_edge_marker,
     construct_cellular,
     stateless_mode!(render_fade_quarters),
     stateless_mode!(render_random_rim),
@@ -963,7 +964,7 @@ impl Mode for CellularState {
         Ok(())
     }
 
-    fn step(&mut self) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
 
         let automata_number = 146;
 
@@ -1000,4 +1001,32 @@ fn construct_cellular() -> Box<dyn Mode> {
 
     Box::new(CellularState { cells: cells })
 }
+
+
+struct EdgeMarker {
+    last_spin_pos: f32
+}
+
+impl Mode for EdgeMarker {
+
+    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+        let colour = if frame.spin_pos < self.last_spin_pos {
+            (255, 255, 255)  
+        } else { (0, 0, 0) } ;
+        for led in 0..23 {
+            leds.set(side, led, colour);
+        }
+        Ok(())
+    }
+
+    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+        self.last_spin_pos = frame.spin_pos;
+        Ok(())
+    }
+}
+
+fn construct_edge_marker() -> Box<dyn Mode> {
+    Box::new(EdgeMarker { last_spin_pos: 0.0 })
+}
+
 
