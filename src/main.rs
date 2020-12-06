@@ -278,7 +278,7 @@ macro_rules! stateless_mode {
 
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
-    construct_edge_marker,
+    construct_edge_strobe,
     construct_cellular,
     stateless_mode!(render_fade_quarters),
     stateless_mode!(render_random_rim),
@@ -1003,15 +1003,15 @@ fn construct_cellular() -> Box<dyn Mode> {
 }
 
 
-struct EdgeMarker {
+struct EdgeStrobe {
     last_spin_pos: f32
 }
 
-impl Mode for EdgeMarker {
+impl Mode for EdgeStrobe {
 
     fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
         let colour = if frame.spin_pos < self.last_spin_pos {
-            (255, 255, 255)  
+            (255, 64, 0)  
         } else { (0, 0, 0) } ;
         for led in 0..23 {
             leds.set(side, led, colour);
@@ -1025,8 +1025,8 @@ impl Mode for EdgeMarker {
     }
 }
 
-fn construct_edge_marker() -> Box<dyn Mode> {
-    Box::new(EdgeMarker { last_spin_pos: 0.0 })
+fn construct_edge_strobe() -> Box<dyn Mode> {
+    Box::new(EdgeStrobe { last_spin_pos: 0.0 })
 }
 
 
