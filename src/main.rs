@@ -110,6 +110,7 @@ fn run_leds(
             loop_counter: loop_counter,
             spin_pos: (spin_start_time.elapsed().as_millis() as f32)
                 / (cmp::max(1, spin_length.as_millis()) as f32),
+            spin_length: spin_length,
         };
 
         if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
@@ -253,6 +254,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     // text modes
     stateless_mode!(mode_bitmap_text::render_bitmap),
     mode_bitmap_text::construct_phrase_mode,
+    mode_bitmap_text::construct_speedo_mode,
     // solid image-like modes
     stateless_mode!(render_centre_red),
     stateless_mode!(render_europa),

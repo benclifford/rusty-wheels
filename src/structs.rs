@@ -16,6 +16,10 @@ pub struct FrameState {
     /// approximately 1. This might go above 1 if the bike is slowing down,
     /// so code needs to accept that.
     pub spin_pos: f32,
+
+    /// An estimate of how long the wheel takes to rotate once, based on the
+    /// last full rotation.
+    pub spin_length: Duration,
 }
 
 /// render will be called to render each side

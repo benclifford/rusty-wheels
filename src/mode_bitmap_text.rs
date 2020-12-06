@@ -1,6 +1,14 @@
 use crate::leds;
 use crate::structs::{FrameState, Mode};
+use lazy_static::lazy_static;
+use std::default::Default;
 use std::io;
+use std::time::Duration;
+
+lazy_static! {
+    static ref FONT: bdf::Font =
+        { bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font") };
+}
 
 pub fn render_bitmap(
     side: usize,
@@ -27,35 +35,11 @@ struct PhraseMode {
 }
 
 pub fn construct_phrase_mode() -> Box<dyn Mode> {
-    let mut bitmap: [u128; 7] = [0, 0, 0, 0, 0, 0, 0];
-
     println!("Iniialising phrase bitmap");
     let phrase = "@BENCLIFFORD";
 
-    let font = bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font");
+    let bitmap = str_to_bitmap(phrase);
 
-    for c in phrase.chars() {
-        let glyph = font
-            .glyphs()
-            .get(&c)
-            .unwrap_or_else(|| panic!("Cannot get glyph"));
-
-        // first shift the existing display rightwards by the appropriate number of pixels
-        let width = glyph.width() + 1;
-        for row in 0..7 {
-            // assume 7 rows here
-            bitmap[row] <<= width;
-        }
-
-        // now render the glyph
-        for row in (0 as usize)..7 {
-            for col in 0..glyph.width() {
-                if glyph.get(col, row as u32) {
-                    bitmap[row] = bitmap[row] | 1 << (glyph.width() - col - 1);
-                }
-            }
-        }
-    }
     println!("Initialised phrase bitmap");
 
     Box::new(PhraseMode { bitmap: bitmap })
@@ -69,6 +53,86 @@ impl Mode for PhraseMode {
         frame: &FrameState,
     ) -> io::Result<()> {
         helper_render_bitmap(&self.bitmap, side, leds, frame)
+    }
+}
+
+struct SpeedoMode {
+    canvas: PhraseMode,
+    last_change: Duration,
+    last_spin_pos: f32,
+    counter: u32,
+}
+
+pub fn construct_speedo_mode() -> Box<dyn Mode> {
+    println!("Initialising speedo phrase bitmap: constructing phrase");
+    let phrase = "  - KM/H";
+
+    println!("Initialising speedo phrase bitmap: rendering text");
+    let bitmap = str_to_bitmap(phrase);
+
+    println!("Initialising speedo phrase bitmap: complete");
+
+    Box::new(SpeedoMode {
+        canvas: PhraseMode { bitmap: bitmap },
+        last_change: Default::default(),
+        last_spin_pos: 0.0,
+        counter: 0,
+    })
+}
+
+impl Mode for SpeedoMode {
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
+        helper_render_bitmap(&self.canvas.bitmap, side, leds, frame)
+    }
+
+    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+        // this will fire on the first spin boundary to occur after a second boundary.
+        if self.last_change + Duration::from_secs(1) < frame.now
+            && frame.spin_pos < self.last_spin_pos
+        {
+            // given spin_length as a duration
+            //    that is time / rot
+
+            let time_per_rot = frame.spin_length;
+
+            let s_per_rot: f32 = (time_per_rot.as_millis() as f32) / 1000.0;
+
+            // println!("s_per_rot = {}", s_per_rot);
+
+            let h_per_rot: f32 = s_per_rot / 60.0 / 60.0;
+            // println!("h_per_rot = {}", h_per_rot);
+
+            // there could be an infinity here... if duration is 0
+            let rot_per_hour = 1.0 / h_per_rot;
+            // println!("rot_per_hour = {}", rot_per_hour);
+
+            if rot_per_hour.is_infinite() {
+                // println!("infinity path");
+                let phrase = format!("XXX km/h");
+                self.canvas.bitmap = str_to_bitmap(&phrase);
+                self.counter += 1;
+                self.last_change = frame.now;
+            } else {
+                // this is based on characteristics of the bike wheel
+                // which is 20" for my bike
+                const WHEEL_M_PER_ROT: f32 = 1.59;
+                const WHEEL_KM_PER_ROT: f32 = WHEEL_M_PER_ROT / 1000.0;
+
+                let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
+
+                let phrase = format!("{:>3.0} km/h", kmh);
+                self.canvas.bitmap = str_to_bitmap(&phrase);
+                self.counter += 1;
+                self.last_change = frame.now;
+            }
+        }
+        self.last_spin_pos = frame.spin_pos;
+        Ok(())
     }
 }
 
@@ -113,4 +177,32 @@ fn helper_render_bitmap(
     }
 
     Ok(())
+}
+
+fn str_to_bitmap(phrase: &str) -> [u128; 7] {
+    let mut bitmap: [u128; 7] = [0, 0, 0, 0, 0, 0, 0];
+    for c in phrase.chars() {
+        let glyph = FONT
+            .glyphs()
+            .get(&c)
+            .unwrap_or_else(|| panic!("Cannot get glyph"));
+
+        // first shift the existing display rightwards by the appropriate number of pixels
+        let width = glyph.width() + 1;
+        for row in 0..7 {
+            // assume 7 rows here
+            bitmap[row] <<= width;
+        }
+
+        // now render the glyph
+        for row in (0 as usize)..7 {
+            for col in 0..glyph.width() {
+                if glyph.get(col, row as u32) {
+                    bitmap[row] = bitmap[row] | 1 << (glyph.width() - col - 1);
+                }
+            }
+        }
+    }
+
+    bitmap
 }
