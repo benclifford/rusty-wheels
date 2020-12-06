@@ -258,29 +258,35 @@ macro_rules! stateless_mode {
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
-    mode_edge_strobe::construct_edge_strobe,
+    // discrete-like modes
     mode_cellular::construct_cellular,
-    stateless_mode!(render_fade_quarters),
-    stateless_mode!(render_random_rim),
-    stateless_mode!(render_helix),
-    stateless_mode!(render_europa),
-    stateless_mode!(render_pulsed_rainbow),
-    stateless_mode!(render_rainbow_rim),
-    stateless_mode!(render_fade_spirals),
-    stateless_mode!(render_radial_stripes),
     stateless_mode!(render_graycode_rim),
-    stateless_mode!(render_sine_full),
-    stateless_mode!(render_sine),
+    stateless_mode!(render_random_rim),
+    // pulsing modes
+    mode_edge_strobe::construct_edge_strobe,
+    stateless_mode!(render_fade_quarters),
+    stateless_mode!(render_radial_stripes),
+    stateless_mode!(render_rgb_trio),
+    // speckle modes
     stateless_mode!(mode_speckles::render_mod_speckle),
     stateless_mode!(mode_speckles::render_speckle_onepix),
     stateless_mode!(mode_speckles::render_speckle_random),
-    stateless_mode!(render_rainbows),
-    stateless_mode!(render_sliders),
-    stateless_mode!(render_rgb_trio),
-    stateless_mode!(render_centre_red),
     stateless_mode!(mode_speckles::render_rainbow_speckle),
+    // text modes
     stateless_mode!(mode_bitmap_text::render_bitmap),
     mode_bitmap_text::construct_phrase_mode,
+    // solid image-like modes
+    stateless_mode!(render_centre_red),
+    stateless_mode!(render_europa),
+    // rainbows and squiggles
+    stateless_mode!(render_helix),
+    stateless_mode!(render_pulsed_rainbow),
+    stateless_mode!(render_rainbow_rim),
+    stateless_mode!(render_fade_spirals),
+    stateless_mode!(render_sine_full),
+    stateless_mode!(render_sine),
+    stateless_mode!(render_rainbows),
+    stateless_mode!(render_sliders),
 ];
 
 /// This renders the first side of the wheel with:
