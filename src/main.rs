@@ -1,6 +1,8 @@
 mod buttons;
 mod leds;
 mod magnet;
+mod mode_edge_strobe;
+mod structs;
 
 use palette::encoding::pixel::Pixel;
 use palette::Hsv;
@@ -21,6 +23,7 @@ use rand::Rng;
 
 use leds::WheelLEDs;
 use magnet::Magnet;
+use structs::{FrameState, Mode};
 
 use buttons::PushButton;
 
@@ -157,22 +160,6 @@ fn run_leds(
     Ok(())
 }
 
-/// A FrameState contains information about the position and timing of
-/// the bike wheel useful for rendering a frame.
-struct FrameState {
-    /// Duration since the executable started
-    now: Duration,
-
-    /// A count of the number of frames rendered. This will increase by one
-    /// on each render, regardless of time or wheel rotation.
-    loop_counter: u32,
-
-    /// An estimate of the current position of the wheel, ranging from 0 to
-    /// approximately 1. This might go above 1 if the bike is slowing down,
-    /// so code needs to accept that.
-    spin_pos: f32,
-}
-
 fn render_other_stopped_mode(
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
@@ -247,17 +234,6 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-/// render will be called to render each side
-/// then step will be called to allow any state advancing to happen
-trait Mode {
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState)
-        -> io::Result<()>;
-
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
-        Ok(())
-    }
-}
-
 struct StatelessMode {
     render_fn: fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
 }
@@ -281,7 +257,7 @@ macro_rules! stateless_mode {
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
-    construct_edge_strobe,
+    mode_edge_strobe::construct_edge_strobe,
     construct_cellular,
     stateless_mode!(render_fade_quarters),
     stateless_mode!(render_random_rim),
@@ -1024,36 +1000,4 @@ fn construct_cellular() -> Box<dyn Mode> {
     }
 
     Box::new(CellularState { cells: cells })
-}
-
-struct EdgeStrobe {
-    last_spin_pos: f32,
-}
-
-impl Mode for EdgeStrobe {
-    fn render(
-        &self,
-        side: usize,
-        leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
-    ) -> io::Result<()> {
-        let colour = if frame.spin_pos < self.last_spin_pos {
-            (255, 64, 0)
-        } else {
-            (0, 0, 0)
-        };
-        for led in 0..23 {
-            leds.set(side, led, colour);
-        }
-        Ok(())
-    }
-
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
-        self.last_spin_pos = frame.spin_pos;
-        Ok(())
-    }
-}
-
-fn construct_edge_strobe() -> Box<dyn Mode> {
-    Box::new(EdgeStrobe { last_spin_pos: 0.0 })
 }
