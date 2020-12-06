@@ -1,6 +1,7 @@
 mod buttons;
 mod leds;
 mod magnet;
+mod mode_cellular;
 mod mode_edge_strobe;
 mod structs;
 
@@ -258,7 +259,7 @@ macro_rules! stateless_mode {
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
     mode_edge_strobe::construct_edge_strobe,
-    construct_cellular,
+    mode_cellular::construct_cellular,
     stateless_mode!(render_fade_quarters),
     stateless_mode!(render_random_rim),
     stateless_mode!(render_helix),
@@ -926,78 +927,4 @@ fn render_fade_quarters(
     }
 
     Ok(())
-}
-
-struct CellularState {
-    cells: [bool; 23],
-}
-
-impl Mode for CellularState {
-    fn render(
-        &self,
-        side: usize,
-        leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
-    ) -> io::Result<()> {
-        for led in 0..23 {
-            let colour = if self.cells[led] {
-                (0, 32, 64)
-            } else {
-                (0, 0, 0)
-            };
-            leds.set(side, led, colour);
-        }
-
-        Ok(())
-    }
-
-    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
-        let automata_number = 146;
-
-        let mut new_cells = self.cells;
-
-        for cell in 0..23 {
-            let downcell = if cell < 1 {
-                false
-            } else {
-                self.cells[cell - 1]
-            };
-            let upcell = if cell > 21 {
-                false
-            } else {
-                self.cells[cell + 1]
-            };
-
-            let mut bit: u8 = 0;
-            if downcell {
-                bit = bit | 0b001;
-            }
-            if self.cells[cell] {
-                bit = bit | 0b010;
-            }
-            if upcell {
-                bit = bit | 0b100;
-            }
-
-            // bit now identifies a bit number in the automata number
-            let new_state = (automata_number >> bit) & 0b1;
-
-            new_cells[cell] = new_state == 1;
-        }
-
-        self.cells = new_cells;
-
-        Ok(())
-    }
-}
-
-fn construct_cellular() -> Box<dyn Mode> {
-    let mut cells = [false; 23];
-
-    for n in 0..23 {
-        let r = rand::thread_rng().gen_range(0, 2);
-        cells[n] = r == 1;
-    }
-
-    Box::new(CellularState { cells: cells })
 }
