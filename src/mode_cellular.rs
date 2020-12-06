@@ -12,7 +12,7 @@ impl Mode for CellularState {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             let colour = if self.cells[led] {

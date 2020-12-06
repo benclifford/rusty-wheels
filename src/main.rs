@@ -129,7 +129,7 @@ fn run_leds(
 
             mode.render(0, &mut wheel_leds, &framestate)?;
             mode.render(1, &mut wheel_leds, &framestate)?;
-            mode.step(&framestate);
+            mode.step(&framestate)?;
         }
 
         wheel_leds.show()?;
@@ -163,7 +163,7 @@ fn run_leds(
 
 fn render_other_stopped_mode(
     wheel_leds: &mut WheelLEDs,
-    framestate: &FrameState,
+    _framestate: &FrameState,
 ) -> io::Result<()> {
     for side in 0..2 {
         for led in 0..23 {
@@ -685,11 +685,7 @@ fn helper_render_bitmap(
     }
     let mut pixel;
 
-    // can be used to adjust where the bitmap starts rendering
-    // but has different physical meaning on each side
-    const spin_adj: f32 = 0.0;
-
-    pixel = (((framestate.spin_pos + spin_adj) % 1.0) * 128.0) as u8;
+    pixel = ((framestate.spin_pos % 1.0) * 128.0) as u8;
 
     // if spin pos too high, maybe we'll go over a limit
 

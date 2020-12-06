@@ -24,7 +24,7 @@ pub trait Mode {
     fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState)
         -> io::Result<()>;
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         Ok(())
     }
 }
