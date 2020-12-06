@@ -1,14 +1,12 @@
 mod buttons;
+mod helpers;
 mod leds;
 mod magnet;
 mod mode_bitmap_text;
 mod mode_cellular;
 mod mode_edge_strobe;
+mod mode_speckles;
 mod structs;
-
-use palette::encoding::pixel::Pixel;
-use palette::Hsv;
-use palette::Srgb;
 
 use signal_hook::flag;
 
@@ -23,6 +21,7 @@ use std::time::{Duration, Instant};
 
 use rand::Rng;
 
+use helpers::{fraction_to_rgb, spinpos_to_rgb};
 use leds::WheelLEDs;
 use magnet::Magnet;
 use structs::{FrameState, Mode};
@@ -272,14 +271,14 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(render_graycode_rim),
     stateless_mode!(render_sine_full),
     stateless_mode!(render_sine),
-    stateless_mode!(render_mod_speckle),
-    stateless_mode!(render_speckle_onepix),
-    stateless_mode!(render_speckle_random),
+    stateless_mode!(mode_speckles::render_mod_speckle),
+    stateless_mode!(mode_speckles::render_speckle_onepix),
+    stateless_mode!(mode_speckles::render_speckle_random),
     stateless_mode!(render_rainbows),
     stateless_mode!(render_sliders),
     stateless_mode!(render_rgb_trio),
     stateless_mode!(render_centre_red),
-    stateless_mode!(render_rainbow_speckle),
+    stateless_mode!(mode_speckles::render_rainbow_speckle),
     stateless_mode!(mode_bitmap_text::render_bitmap),
     mode_bitmap_text::construct_phrase_mode,
 ];
@@ -489,116 +488,6 @@ fn render_centre_red(
         wheel_leds.set(side, 12 + n, colour);
         wheel_leds.set(side, 11 - n, colour);
     }
-
-    Ok(())
-}
-
-/// Turns spin position into a saturated rainbow wheel
-fn spinpos_to_rgb(framestate: &FrameState) -> (u8, u8, u8) {
-    fraction_to_rgb(framestate.spin_pos, None)
-}
-
-/// turns a value from 0..1 into RGB
-fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> (u8, u8, u8) {
-    let hue = (fraction * 360.0).min(360.0);
-
-    let real_value = match value {
-        Some(v) => v,
-        None => 0.2,
-    };
-
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, real_value));
-
-    let srgb = Srgb::from(hsv);
-
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-    let [red, green, blue] = pixels;
-
-    (red, green, blue)
-}
-
-fn render_rainbow_speckle(
-    side: usize,
-    wheel_leds: &mut WheelLEDs,
-    framestate: &FrameState,
-) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds.set(side, led, (0, 0, 0));
-    }
-
-    let colour = spinpos_to_rgb(framestate);
-
-    let phase = framestate.loop_counter % 4;
-
-    if phase == 0 {
-        for n in 0..6 {
-            wheel_leds.set(side, n * 4, colour);
-        }
-    } else if phase == 2 {
-        for n in 0..6 {
-            wheel_leds.set(side, n * 4 + 2, colour);
-        }
-    }
-    // otherwise don't set any pixels
-
-    Ok(())
-}
-
-fn render_mod_speckle(
-    side: usize,
-    wheel_leds: &mut WheelLEDs,
-    framestate: &FrameState,
-) -> io::Result<()> {
-    for led in 0..23 {
-        let m = framestate.loop_counter % (2 + (22 - led) as u32);
-        if m == 0 {
-            wheel_leds.set(side, led, (255, 255, 0));
-        } else {
-            wheel_leds.set(side, led, (0, 0, 0));
-        }
-    }
-
-    Ok(())
-}
-
-fn render_speckle_onepix(
-    side: usize,
-    wheel_leds: &mut WheelLEDs,
-    framestate: &FrameState,
-) -> io::Result<()> {
-    let mut done = false;
-    for led in 0..23 {
-        let m = framestate.loop_counter % (2 + (22 - led) as u32);
-        if m == 0 && !done {
-            wheel_leds.set(side, led, (255, 255, 0));
-            done = true;
-        } else {
-            wheel_leds.set(side, led, (0, 0, 0));
-        }
-    }
-
-    Ok(())
-}
-
-fn render_speckle_random(
-    side: usize,
-    wheel_leds: &mut WheelLEDs,
-    _framestate: &FrameState,
-) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds.set(side, led, (0, 0, 0));
-    }
-    let rand_led = rand::thread_rng().gen_range(0, 23);
-    let rand_rgb = rand::thread_rng().gen_range(0, 3);
-    let colour = match rand_rgb {
-        0 => (255, 0, 0),
-        1 => (0, 255, 0),
-        2 => (0, 0, 255),
-        _ => (1, 1, 1), // shouldn't happen with choice of rand_rgb
-    };
-    wheel_leds.set(side, rand_led, colour);
 
     Ok(())
 }

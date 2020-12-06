@@ -1,5 +1,5 @@
-use crate::structs::{FrameState, Mode};
 use crate::leds;
+use crate::structs::{FrameState, Mode};
 use std::io;
 
 pub fn render_bitmap(
@@ -114,4 +114,3 @@ fn helper_render_bitmap(
 
     Ok(())
 }
-
