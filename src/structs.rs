@@ -28,3 +28,27 @@ pub trait Mode {
         Ok(())
     }
 }
+
+pub struct StatelessMode {
+    pub render_fn:
+        fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
+}
+
+impl Mode for StatelessMode {
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
+        (self.render_fn)(side, leds, frame)
+    }
+}
+
+/// Lifts a render function into a mode which has no state
+#[macro_export]
+macro_rules! stateless_mode {
+    ( $x:expr ) => {
+        || Box::new(crate::structs::StatelessMode { render_fn: $x })
+    };
+}

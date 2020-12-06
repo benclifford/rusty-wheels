@@ -235,28 +235,6 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-struct StatelessMode {
-    render_fn: fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
-}
-
-impl Mode for StatelessMode {
-    fn render(
-        &self,
-        side: usize,
-        leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
-    ) -> io::Result<()> {
-        (self.render_fn)(side, leds, frame)
-    }
-}
-
-/// Lifts a render function into a mode which has no state
-macro_rules! stateless_mode {
-    ( $x:expr ) => {
-        || Box::new(StatelessMode { render_fn: $x })
-    };
-}
-
 const MODES: &[fn() -> Box<dyn Mode>] = &[
     // discrete-like modes
     mode_cellular::construct_cellular,
