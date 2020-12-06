@@ -1,6 +1,6 @@
+mod buttons;
 mod leds;
 mod magnet;
-mod buttons;
 
 use palette::encoding::pixel::Pixel;
 use palette::Hsv;
@@ -115,8 +115,8 @@ fn run_leds(
                 render_other_stopped_mode(&mut wheel_leds, &framestate)?;
             }
         } else {
-
-            let next_mode_phase: usize = ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
+            let next_mode_phase: usize =
+                ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
 
             if next_mode_phase != mode_phase {
                 mode_phase = next_mode_phase;
@@ -173,8 +173,10 @@ struct FrameState {
     spin_pos: f32,
 }
 
-fn render_other_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-
+fn render_other_stopped_mode(
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
     for side in 0..2 {
         for led in 0..23 {
             wheel_leds.set(side, led, (32, 32, 32));
@@ -245,11 +247,11 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     Ok(())
 }
 
-
 /// render will be called to render each side
 /// then step will be called to allow any state advancing to happen
 trait Mode {
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>;
+    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState)
+        -> io::Result<()>;
 
     fn step(&mut self, frame: &FrameState) -> io::Result<()> {
         Ok(())
@@ -257,25 +259,26 @@ trait Mode {
 }
 
 struct StatelessMode {
-    render_fn: fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>
+    render_fn: fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
 }
 
 impl Mode for StatelessMode {
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
         (self.render_fn)(side, leds, frame)
     }
 }
 
-
 /// Lifts a render function into a mode which has no state
 macro_rules! stateless_mode {
-  ( $x:expr ) => { || 
-      Box::new(StatelessMode {
-                    render_fn: $x
-                })
-   }
+    ( $x:expr ) => {
+        || Box::new(StatelessMode { render_fn: $x })
+    };
 }
-
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
     construct_edge_strobe,
@@ -302,7 +305,6 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(render_bitmap),
     construct_phrase_mode,
 ];
-
 
 /// This renders the first side of the wheel with:
 ///  * an 8 pixel rainbow around the wheel
@@ -643,13 +645,11 @@ fn render_bitmap(
     helper_render_bitmap(&row, side, wheel_leds, framestate)
 }
 
-
 struct PhraseMode {
-    bitmap: [u128; 7]
+    bitmap: [u128; 7],
 }
 
 fn construct_phrase_mode() -> Box<dyn Mode> {
-
     let mut bitmap: [u128; 7] = [0, 0, 0, 0, 0, 0, 0];
 
     println!("Iniialising phrase bitmap");
@@ -681,17 +681,19 @@ fn construct_phrase_mode() -> Box<dyn Mode> {
     }
     println!("Initialised phrase bitmap");
 
-    Box::new(PhraseMode {
-         bitmap: bitmap
-    })
+    Box::new(PhraseMode { bitmap: bitmap })
 }
 
 impl Mode for PhraseMode {
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
         helper_render_bitmap(&self.bitmap, side, leds, frame)
     }
 }
-
 
 /// This can render a 128 pixel wide, 7 bit pixel high bitmap
 fn helper_render_bitmap(
@@ -928,7 +930,6 @@ fn render_fade_quarters(
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
-
     let fade_frac = (framestate.spin_pos * 4.0) % 1.0;
 
     // some gamma correction
@@ -941,23 +942,33 @@ fn render_fade_quarters(
         wheel_leds.set(side, led as usize, (0, 0, 0));
     }
     for led in 11..23 {
-        wheel_leds.set(side, led as usize, (pix_brightness_red, pix_brightness_green, 0));
+        wheel_leds.set(
+            side,
+            led as usize,
+            (pix_brightness_red, pix_brightness_green, 0),
+        );
     }
 
     Ok(())
 }
 
-
 struct CellularState {
-    cells: [bool; 23]
+    cells: [bool; 23],
 }
 
 impl Mode for CellularState {
-    
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
-
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
         for led in 0..23 {
-            let colour = if self.cells[led] { (0, 32, 64) } else { (0, 0, 0) };
+            let colour = if self.cells[led] {
+                (0, 32, 64)
+            } else {
+                (0, 0, 0)
+            };
             leds.set(side, led, colour);
         }
 
@@ -965,19 +976,32 @@ impl Mode for CellularState {
     }
 
     fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
-
         let automata_number = 146;
 
         let mut new_cells = self.cells;
 
         for cell in 0..23 {
-            let downcell = if cell < 1 { false } else { self.cells[cell-1] };
-            let upcell = if cell > 21 { false } else { self.cells[cell+1] };
+            let downcell = if cell < 1 {
+                false
+            } else {
+                self.cells[cell - 1]
+            };
+            let upcell = if cell > 21 {
+                false
+            } else {
+                self.cells[cell + 1]
+            };
 
             let mut bit: u8 = 0;
-            if downcell { bit = bit | 0b001; }
-            if self.cells[cell] { bit = bit | 0b010; }
-            if upcell { bit = bit | 0b100; }
+            if downcell {
+                bit = bit | 0b001;
+            }
+            if self.cells[cell] {
+                bit = bit | 0b010;
+            }
+            if upcell {
+                bit = bit | 0b100;
+            }
 
             // bit now identifies a bit number in the automata number
             let new_state = (automata_number >> bit) & 0b1;
@@ -1002,17 +1026,22 @@ fn construct_cellular() -> Box<dyn Mode> {
     Box::new(CellularState { cells: cells })
 }
 
-
 struct EdgeStrobe {
-    last_spin_pos: f32
+    last_spin_pos: f32,
 }
 
 impl Mode for EdgeStrobe {
-
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()> {
+    fn render(
+        &self,
+        side: usize,
+        leds: &mut leds::WheelLEDs,
+        frame: &FrameState,
+    ) -> io::Result<()> {
         let colour = if frame.spin_pos < self.last_spin_pos {
-            (255, 64, 0)  
-        } else { (0, 0, 0) } ;
+            (255, 64, 0)
+        } else {
+            (0, 0, 0)
+        };
         for led in 0..23 {
             leds.set(side, led, colour);
         }
@@ -1028,5 +1057,3 @@ impl Mode for EdgeStrobe {
 fn construct_edge_strobe() -> Box<dyn Mode> {
     Box::new(EdgeStrobe { last_spin_pos: 0.0 })
 }
-
-
