@@ -33,12 +33,12 @@ impl Mode for CellularState {
 
         for cell in 0..23 {
             let downcell = if cell < 1 {
-                false
+                self.cells[22]
             } else {
                 self.cells[cell - 1]
             };
             let upcell = if cell > 21 {
-                false
+                self.cells[0]
             } else {
                 self.cells[cell + 1]
             };
