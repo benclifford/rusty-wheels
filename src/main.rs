@@ -238,6 +238,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_randomwalk::create_float_spray,
     mode_randomwalk::create_random_walk_dot,
     // discrete-like modes
     mode_cellular::construct_cellular,
