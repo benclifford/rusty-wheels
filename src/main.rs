@@ -269,6 +269,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(render_rainbows),
     stateless_mode!(render_sliders),
     mode_rainbow::construct_rainbow_on_off,
+    stateless_mode!(render_fib_concentric),
 ];
 
 /// This renders the first side of the wheel with:
@@ -476,6 +477,30 @@ fn render_centre_red(
         wheel_leds.set(side, 12 + n, colour);
         wheel_leds.set(side, 11 - n, colour);
     }
+
+    Ok(())
+}
+
+// renders the middle pixels on each side bright red, with the
+// edges (outer and hubwards) fading down to black
+fn render_fib_concentric(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    _framestate: &FrameState,
+) -> io::Result<()> {
+    // establish a blank canvas
+    for led in 0..23 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+
+    let amber = (128, 16, 0);
+    wheel_leds.set(side, 23 - 1, amber);
+    wheel_leds.set(side, 23 - 2, amber);
+    wheel_leds.set(side, 23 - 3, amber);
+    wheel_leds.set(side, 23 - 5, amber);
+    wheel_leds.set(side, 23 - 8, amber);
+    wheel_leds.set(side, 23 - 13, amber);
+    wheel_leds.set(side, 23 - 21, amber);
 
     Ok(())
 }
