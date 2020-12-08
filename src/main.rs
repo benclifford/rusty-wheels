@@ -5,6 +5,7 @@ mod magnet;
 mod mode_bitmap_text;
 mod mode_cellular;
 mod mode_edge_strobe;
+mod mode_rainbow;
 mod mode_speckles;
 mod structs;
 
@@ -267,6 +268,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(render_sine),
     stateless_mode!(render_rainbows),
     stateless_mode!(render_sliders),
+    mode_rainbow::construct_rainbow_on_off,
 ];
 
 /// This renders the first side of the wheel with:
