@@ -33,6 +33,9 @@ use buttons::PushButton;
 /// stopped mode and live mode.
 const STOP_TIME_MS: u128 = 2000;
 
+/// The duration between mode changes.
+const MODE_CHANGE_SEC: u64 = 20;
+
 fn main() {
     println!("Starting rusty-wheels");
 
@@ -83,9 +86,7 @@ fn run_leds(
 
     let mut p: bool = true;
 
-    // this should perhaps be a "new mode" time - doesn't need to be a cycling mode number
-    // as all that is captured in the "mode" reference.
-    let mut mode_phase: usize = MODES.len() + 1; // pick a mode value that will be trigger new mode initialisation immediately
+    let mut next_mode_time = Instant::now();
 
     // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
     // absolute time based phasing. But it's better than threading Option behaviour all the way through.
@@ -121,12 +122,10 @@ fn run_leds(
                 render_other_stopped_mode(&mut wheel_leds, &framestate)?;
             }
         } else {
-            let next_mode_phase: usize =
-                ((framestate.now.as_secs() / 20) % (MODES.len() as u64)) as usize;
-
-            if next_mode_phase != mode_phase {
-                mode_phase = next_mode_phase;
-                mode = MODES[mode_phase]();
+            if next_mode_time <= Instant::now() {
+                let next_mode = rand::thread_rng().gen_range(0, MODES.len());
+                mode = MODES[next_mode]();
+                next_mode_time = Instant::now() + Duration::from_secs(MODE_CHANGE_SEC);
             }
 
             mode.render(0, &mut wheel_leds, &framestate)?;
