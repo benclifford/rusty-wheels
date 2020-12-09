@@ -8,6 +8,7 @@ mod mode_edge_strobe;
 mod mode_rainbow;
 mod mode_randomwalk;
 mod mode_speckles;
+mod mode_trails;
 mod structs;
 
 use signal_hook::flag;
@@ -238,6 +239,8 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_trails::construct_hue_trails,
+    mode_trails::construct_white_trails,
     mode_randomwalk::create_float_spray,
     mode_randomwalk::create_random_walk_dot,
     // discrete-like modes
