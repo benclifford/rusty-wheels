@@ -1,9 +1,13 @@
+use crate::helpers::fraction_to_rgb;
 use crate::leds;
 use crate::structs::{FrameState, Mode};
+use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::io;
 
 struct CellularState {
+    automata_number: u8,
+    rgb: (u8, u8, u8),
     cells: [bool; 23],
 }
 
@@ -15,11 +19,7 @@ impl Mode for CellularState {
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
-            let colour = if self.cells[led] {
-                (0, 32, 64)
-            } else {
-                (0, 0, 0)
-            };
+            let colour = if self.cells[led] { self.rgb } else { (0, 0, 0) };
             leds.set(side, led, colour);
         }
 
@@ -27,8 +27,6 @@ impl Mode for CellularState {
     }
 
     fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
-        let automata_number = 146;
-
         let mut new_cells = self.cells;
 
         for cell in 0..23 {
@@ -55,7 +53,7 @@ impl Mode for CellularState {
             }
 
             // bit now identifies a bit number in the automata number
-            let new_state = (automata_number >> bit) & 0b1;
+            let new_state = (self.automata_number >> bit) & 0b1;
 
             new_cells[cell] = new_state == 1;
         }
@@ -66,6 +64,8 @@ impl Mode for CellularState {
     }
 }
 
+const pretty_automata: &[u8] = &[73, 105, 146];
+
 pub fn construct_cellular() -> Box<dyn Mode> {
     let mut cells = [false; 23];
 
@@ -74,5 +74,17 @@ pub fn construct_cellular() -> Box<dyn Mode> {
         cells[n] = r == 1;
     }
 
-    Box::new(CellularState { cells: cells })
+    let a_n = match pretty_automata.choose(&mut rand::thread_rng()) {
+        Some(x) => *x,
+        None => panic!("Could not choose an automata number"),
+    };
+
+    let hue = rand::thread_rng().gen_range(0.0, 1.0);
+    let rgb = fraction_to_rgb(hue, Some(0.25));
+
+    Box::new(CellularState {
+        rgb: rgb,
+        automata_number: a_n,
+        cells: cells,
+    })
 }
