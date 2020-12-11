@@ -239,6 +239,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_trails::construct_hue_trails_sparse,
     mode_trails::construct_hue_trails,
     mode_trails::construct_white_trails,
     mode_randomwalk::create_float_spray,
