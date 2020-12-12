@@ -39,20 +39,15 @@ impl Mode for Dither {
 
         for led in 0..23 {
             let corrected_intensity = intensity + row_accum_error + self.prev_errors[led];
-
-            let render_amount = if corrected_intensity > 0.5 { 1.0 } else { 0.0 };
+           
+            let render_amount = 
+                if corrected_intensity > 0.66 { 1.0 } 
+                else if corrected_intensity > 0.33 { 0.5 }
+                else { 0.0 };
 
             let total_error = corrected_intensity - render_amount;
 
             row_accum_error = total_error * (7.0 / 16.0);
-
-            /*
-            println!("intensity = {}", intensity);
-            println!("corrected intensity = {}", corrected_intensity);
-            println!("render_amount = {}", render_amount);
-            println!("total error (corr. int - render_amt)= {}", total_error);
-            println!("row_accum_error = {}", row_accum_error);
-            */
 
             let lower_accum_error = total_error * (3.0 / 16.0);
             let mid_accum_error = total_error * (5.0 / 16.0);
@@ -68,9 +63,11 @@ impl Mode for Dither {
                 self.next_errors[led+1] += higher_accum_error;
             }
 
+            const GAMMA: f32 = 2.0;
+            let gamma_corrected_render_amount = render_amount.min(1.0).max(0.0).powf(GAMMA);
             let colour = (
-                (255.0 * render_amount) as u8,
-                (64.0 * render_amount) as u8,
+                (255.0 * gamma_corrected_render_amount) as u8,
+                (255.0 * gamma_corrected_render_amount) as u8,
                 0,
             );
             self.rgb[led] = colour;
