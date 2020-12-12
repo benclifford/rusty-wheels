@@ -14,6 +14,7 @@ mod structs;
 use signal_hook::flag;
 
 use std::cmp;
+use std::env;
 use std::f32::consts::TAU;
 use std::io;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -81,6 +82,8 @@ fn run_leds(
     }
     wheel_leds.show()?;
 
+    let args: Vec<String> = env::args().collect();
+
     let mut loop_counter: u32 = 0;
 
     flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
@@ -124,7 +127,7 @@ fn run_leds(
                 render_other_stopped_mode(&mut wheel_leds, &framestate)?;
             }
         } else {
-            if next_mode_time <= Instant::now() {
+            if next_mode_time <= Instant::now() && args.len() <= 1 {
                 let next_mode = rand::thread_rng().gen_range(0, MODES.len());
                 mode = MODES[next_mode]();
                 next_mode_time = Instant::now() + Duration::from_secs(MODE_CHANGE_SEC);
