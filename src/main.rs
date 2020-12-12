@@ -134,6 +134,7 @@ fn run_leds(
                 next_mode_time = Instant::now() + Duration::from_secs(MODE_CHANGE_SEC);
             }
 
+            mode.pre_step(&framestate)?;
             mode.render(0, &mut wheel_leds, &framestate)?;
             mode.render(1, &mut wheel_leds, &framestate)?;
             mode.step(&framestate)?;

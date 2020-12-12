@@ -28,6 +28,12 @@ pub trait Mode {
     fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState)
         -> io::Result<()>;
 
+    /// runs before render calls on a frame
+    fn pre_step(&mut self, _frame: &FrameState) -> io::Result<()> {
+        Ok(())
+    }
+
+    /// runs after render calls on a frame
     fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         Ok(())
     }
