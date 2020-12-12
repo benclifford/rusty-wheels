@@ -26,9 +26,13 @@ impl Mode for Dither {
 }
 
     fn pre_step(&mut self, frame: &FrameState) -> io::Result<()> {
-        // fade from 0 up to full intensity around the wheel
-        let intensity = frame.spin_pos.min(1.0);
-        // let intensity = 0.3;
+        let bounded_pos = frame.spin_pos.min(1.0);
+        let scaled_pos = (bounded_pos * 2.0) % 1.0;
+        let intensity = if scaled_pos < 0.5 {
+            scaled_pos
+        } else {
+            1.0 - scaled_pos
+        };
 
         let mut row_accum_error = 0.0;
         self.next_errors = [0.0; 23];
