@@ -4,6 +4,7 @@ mod leds;
 mod magnet;
 mod mode_bitmap_text;
 mod mode_cellular;
+mod mode_dither;
 mod mode_edge_strobe;
 mod mode_rainbow;
 mod mode_randomwalk;
@@ -242,6 +243,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_dither::create_dither,
     mode_trails::construct_hue_trails_sparse,
     mode_trails::construct_hue_trails,
     mode_trails::construct_white_trails,
