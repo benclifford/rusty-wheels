@@ -18,12 +18,11 @@ impl Mode for Dither {
         leds: &mut leds::WheelLEDs,
         frame: &FrameState,
     ) -> io::Result<()> {
-
-    for led in 0..23 {
-        leds.set(side, led, self.rgb[led]);
+        for led in 0..23 {
+            leds.set(side, led, self.rgb[led]);
+        }
+        Ok(())
     }
-    Ok(())
-}
 
     fn pre_step(&mut self, frame: &FrameState) -> io::Result<()> {
         let bounded_pos = frame.spin_pos.min(1.0);
@@ -39,11 +38,14 @@ impl Mode for Dither {
 
         for led in 0..23 {
             let corrected_intensity = intensity + row_accum_error + self.prev_errors[led];
-           
-            let render_amount = 
-                if corrected_intensity > 0.66 { 1.0 } 
-                else if corrected_intensity > 0.33 { 0.5 }
-                else { 0.0 };
+
+            let render_amount = if corrected_intensity > 0.66 {
+                1.0
+            } else if corrected_intensity > 0.33 {
+                0.5
+            } else {
+                0.0
+            };
 
             let total_error = corrected_intensity - render_amount;
 
@@ -56,11 +58,11 @@ impl Mode for Dither {
             // is it right to discard the lower and higher errors at the end,
             // or should they be absorbed into other errors?
             if led > 0 {
-                self.next_errors[led-1] += lower_accum_error;
+                self.next_errors[led - 1] += lower_accum_error;
             }
             self.next_errors[led] += mid_accum_error;
             if led < 22 {
-                self.next_errors[led+1] += higher_accum_error;
+                self.next_errors[led + 1] += higher_accum_error;
             }
 
             const GAMMA: f32 = 2.0;
@@ -86,6 +88,6 @@ pub fn create_dither() -> Box<dyn Mode> {
     Box::new(Dither {
         prev_errors: [0.0; 23],
         next_errors: [0.0; 23],
-        rgb: [(0, 0, 0); 23]
+        rgb: [(0, 0, 0); 23],
     })
 }
