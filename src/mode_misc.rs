@@ -239,7 +239,11 @@ pub fn render_fib_concentric(
     Ok(())
 }
 
-pub fn render_sine(side: usize, wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+pub fn render_sine(
+    side: usize,
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds.set(side, led, (0, 0, 0));
