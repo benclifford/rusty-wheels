@@ -12,7 +12,7 @@ impl Mode for RandomWalkDot {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             leds.set(side, led, (0, 0, 0));
@@ -21,7 +21,7 @@ impl Mode for RandomWalkDot {
         Ok(())
     }
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         let choice = rand::thread_rng().gen_range(0, 3);
 
         if choice == 1 && self.led < 22 {
@@ -47,7 +47,7 @@ impl Mode for FloatSpray {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             let colour = ((self.leds[led].powf(3.0) * 255.0) as u8, 0, 0);
@@ -56,7 +56,7 @@ impl Mode for FloatSpray {
         Ok(())
     }
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         for led in 0..22 {
             self.leds[led] = self.leds[led + 1]
         }

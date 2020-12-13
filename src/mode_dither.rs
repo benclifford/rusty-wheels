@@ -16,7 +16,7 @@ impl Mode for Dither {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             leds.set(side, led, self.rgb[led]);
@@ -78,7 +78,7 @@ impl Mode for Dither {
         Ok(())
     }
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         self.prev_errors = self.next_errors;
         Ok(())
     }

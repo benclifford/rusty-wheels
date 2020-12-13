@@ -13,7 +13,7 @@ impl Mode for RainbowOnOff {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             let (active, hue) = self.colours[led];
@@ -27,7 +27,7 @@ impl Mode for RainbowOnOff {
         Ok(())
     }
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         let led = rand::thread_rng().gen_range(0, 23);
 
         let action = rand::thread_rng().gen_range(0, 5);
@@ -48,10 +48,10 @@ impl Mode for RainbowOnOff {
     }
 }
 
-fn fst((a, b): (bool, f32)) -> bool {
+fn fst((a, _): (bool, f32)) -> bool {
     a
 }
-fn snd((a, b): (bool, f32)) -> f32 {
+fn snd((_, b): (bool, f32)) -> f32 {
     b
 }
 

@@ -13,7 +13,7 @@ impl Mode for Trails {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             leds.set(side, led, self.leds[led]);
@@ -21,7 +21,7 @@ impl Mode for Trails {
         Ok(())
     }
 
-    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
         let led = rand::thread_rng().gen_range(0, 23);
         let swiz = rand::thread_rng().gen_range(0, 2);
         if swiz == 0 {
@@ -49,7 +49,7 @@ impl Mode for HueTrails {
         &self,
         side: usize,
         leds: &mut leds::WheelLEDs,
-        frame: &FrameState,
+        _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
             let (h, v) = self.leds[led];

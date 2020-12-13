@@ -64,7 +64,7 @@ impl Mode for CellularState {
     }
 }
 
-const pretty_automata: &[u8] = &[73, 105, 146];
+const PRETTY_AUTOMATA: &[u8] = &[73, 105, 146];
 
 pub fn construct_cellular() -> Box<dyn Mode> {
     let mut cells = [false; 23];
@@ -74,7 +74,7 @@ pub fn construct_cellular() -> Box<dyn Mode> {
         cells[n] = r == 1;
     }
 
-    let a_n = match pretty_automata.choose(&mut rand::thread_rng()) {
+    let a_n = match PRETTY_AUTOMATA.choose(&mut rand::thread_rng()) {
         Some(x) => *x,
         None => panic!("Could not choose an automata number"),
     };
