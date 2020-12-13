@@ -9,6 +9,7 @@ mod mode_edge_strobe;
 mod mode_misc;
 mod mode_rainbow;
 mod mode_randomwalk;
+mod mode_rgb_dither;
 mod mode_speckles;
 mod mode_trails;
 mod structs;
@@ -243,6 +244,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_rgb_dither::create_dither,
     mode_dither::create_dither,
     mode_trails::construct_hue_trails_sparse,
     mode_trails::construct_hue_trails,
