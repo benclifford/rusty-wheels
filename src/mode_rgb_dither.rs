@@ -4,26 +4,27 @@ use std::io;
 
 use std::ops::Add;
 use std::ops::AddAssign;
-use std::ops::Sub;
 use std::ops::Mul;
+use std::ops::Sub;
 
 use palette::encoding::pixel::Pixel;
 use palette::Hsv;
 use palette::Srgb;
 
-
 /// a value in the space we are dithering
 #[derive(Copy, Clone)]
 struct V {
-    v: (f32, f32, f32)
+    v: (f32, f32, f32),
 }
 
 impl Add for V {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        let (x,y,z) = other.v;
-        let (a,b,c) = self.v;
-        V { v: (a+x, b+y, c+z) }
+        let (x, y, z) = other.v;
+        let (a, b, c) = self.v;
+        V {
+            v: (a + x, b + y, c + z),
+        }
     }
 }
 
@@ -36,21 +37,23 @@ impl AddAssign for V {
 impl Sub for V {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
-        let (x,y,z) = other.v;
-        let (a,b,c) = self.v;
-        V { v: (a-x, b-y, c-z) }
+        let (x, y, z) = other.v;
+        let (a, b, c) = self.v;
+        V {
+            v: (a - x, b - y, c - z),
+        }
     }
 }
 
 impl Mul<f32> for V {
     type Output = Self;
     fn mul(self, other: f32) -> Self {
-        let (a,b,c) = self.v;
-        V { v: (a * other, b * other, c * other) }
+        let (a, b, c) = self.v;
+        V {
+            v: (a * other, b * other, c * other),
+        }
     }
 }
-
-
 
 struct Dither {
     /// This will contain the errors propagated from the previous frame
@@ -89,10 +92,10 @@ impl Mode for Dither {
         let g = (pixels[1] as f32) / 256.0;
         let b = (pixels[2] as f32) / 256.0;
 
-        let intensity: V = V{ v: (r, g, b)};
+        let intensity: V = V { v: (r, g, b) };
 
         let mut row_accum_error: V = V { v: (0.0, 0.0, 0.0) };
-        self.next_errors = [V {v: (0.0, 0.0, 0.0)}; 23];
+        self.next_errors = [V { v: (0.0, 0.0, 0.0) }; 23];
 
         for led in 0..23 {
             let corrected_intensity = intensity + row_accum_error + self.prev_errors[led];
@@ -100,9 +103,9 @@ impl Mode for Dither {
             let (r, g, b) = corrected_intensity.v;
             let render_amount = if r > 0.5 {
                 V { v: (1.0, 0.0, 0.0) }
-            } else if g > 0.5 { 
+            } else if g > 0.5 {
                 V { v: (0.0, 1.0, 0.0) }
-            } else if b > 0.5 { 
+            } else if b > 0.5 {
                 V { v: (0.0, 0.0, 1.0) }
             } else {
                 V { v: (0.0, 0.0, 0.0) }
@@ -130,11 +133,7 @@ impl Mode for Dither {
             let v = render_amount;
             let (r, g, b) = v.v;
             // TODO: put GAMMA correction back in?
-            let colour = (
-                (255.0 * r) as u8,
-                (255.0 * g) as u8,
-                (255.0 * b) as u8,
-            );
+            let colour = ((255.0 * r) as u8, (255.0 * g) as u8, (255.0 * b) as u8);
             self.rgb[led] = colour;
         }
 
@@ -149,8 +148,8 @@ impl Mode for Dither {
 
 pub fn create_dither() -> Box<dyn Mode> {
     Box::new(Dither {
-        prev_errors: [V {v: (0.0, 0.0, 0.0)}; 23],
-        next_errors: [V {v: (0.0, 0.0, 0.0)}; 23],
+        prev_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
+        next_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
         rgb: [(0, 0, 0); 23],
     })
 }
