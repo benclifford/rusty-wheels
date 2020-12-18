@@ -11,6 +11,8 @@ use palette::encoding::pixel::Pixel;
 use palette::Hsv;
 use palette::Srgb;
 
+use rand::Rng;
+
 /// a value in the space we are dithering
 #[derive(Copy, Clone)]
 struct V {
@@ -62,6 +64,8 @@ struct Dither {
     next_errors: [V; 23],
     /// pre-step will render into here
     rgb: [(u8, u8, u8); 23],
+    /// selection of pixel colours that can be used
+    available_colours: Box<[(f32, f32, f32)]>,
 }
 
 impl Mode for Dither {
@@ -100,16 +104,7 @@ impl Mode for Dither {
         for led in 0..23 {
             let corrected_intensity = intensity + row_accum_error + self.prev_errors[led];
 
-            let (r, g, b) = corrected_intensity.v;
-            let render_amount = if r > 0.5 {
-                V { v: (1.0, 0.0, 0.0) }
-            } else if g > 0.5 {
-                V { v: (0.0, 1.0, 0.0) }
-            } else if b > 0.5 {
-                V { v: (0.0, 0.0, 1.0) }
-            } else {
-                V { v: (0.0, 0.0, 0.0) }
-            };
+            let render_amount = find_closest_colour(corrected_intensity.v, &self.available_colours);
 
             let total_error = corrected_intensity - render_amount;
 
@@ -133,7 +128,11 @@ impl Mode for Dither {
             let v = render_amount;
             let (r, g, b) = v.v;
             // TODO: put GAMMA correction back in?
-            let colour = ((255.0 * r) as u8, (255.0 * g) as u8, (255.0 * b) as u8);
+            let colour = (
+                (255.0 * (r.powf(GAMMA))) as u8,
+                (255.0 * (g.powf(GAMMA))) as u8,
+                (255.0 * (b.powf(GAMMA))) as u8,
+            );
             self.rgb[led] = colour;
         }
 
@@ -147,9 +146,65 @@ impl Mode for Dither {
 }
 
 pub fn create_dither() -> Box<dyn Mode> {
+    let offset = rand::thread_rng().gen_range(0.0, 120.0);
+
+    let hue = (0.0 + offset) % 360.0;
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.00));
+
+    let srgb = Srgb::from(hsv);
+
+    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+    let r = (pixels[0] as f32) / 256.0;
+    let g = (pixels[1] as f32) / 256.0;
+    let b = (pixels[2] as f32) / 256.0;
+
+    let col1 = (r, g, b);
+
+    let hue = (120.0 + offset) % 360.0;
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
+
+    let srgb = Srgb::from(hsv);
+
+    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+    let r = (pixels[0] as f32) / 256.0;
+    let g = (pixels[1] as f32) / 256.0;
+    let b = (pixels[2] as f32) / 256.0;
+
+    let col2 = (r, g, b);
+
+    let hue = (240.0 + offset) % 360.0;
+    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
+
+    let srgb = Srgb::from(hsv);
+
+    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+    let r = (pixels[0] as f32) / 256.0;
+    let g = (pixels[1] as f32) / 256.0;
+    let b = (pixels[2] as f32) / 256.0;
+
+    let col3 = (r, g, b);
+
     Box::new(Dither {
         prev_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
         next_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
         rgb: [(0, 0, 0); 23],
+        available_colours: Box::new([(0.0, 0.0, 0.0), col1, col2, col3]),
     })
+}
+
+fn find_closest_colour(rgb: (f32, f32, f32), available: &Box<[(f32, f32, f32)]>) -> V {
+    let (r, g, b) = rgb;
+    let mut best_distance = 1000.0; // "very big"
+    let mut best_colour = (0.0, 0.0, 0.0);
+    for (r2, g2, b2) in available.iter() {
+        let distance = (r - r2).abs() + (g - g2).abs() + (b - b2).abs();
+        if distance < best_distance {
+            best_colour = (*r2, *g2, *b2);
+            best_distance = distance;
+        }
+    }
+    V { v: best_colour }
 }
