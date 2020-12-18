@@ -1,5 +1,4 @@
 use crate::leds;
-use crate::helpers::fraction_to_rgb;
 use crate::structs::{FrameState, Mode};
 use std::io;
 
