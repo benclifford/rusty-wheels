@@ -146,14 +146,13 @@ impl Mode for Dither {
 }
 
 pub fn create_dither() -> Box<dyn Mode> {
-
     let num_colours = 3;
 
     let base_degrees = rand::thread_rng().gen_range(0.0, 360.0);
     let step_degrees = 360.0 / (num_colours as f32);
 
     let mut colour_vec: Vec<(f32, f32, f32)> = Vec::new();
-    colour_vec.push( (0.0, 0.0, 0.0) );
+    colour_vec.push((0.0, 0.0, 0.0));
 
     for n in 0..num_colours {
         let hue = (base_degrees + step_degrees * (n as f32)) % 360.0;
@@ -167,7 +166,7 @@ pub fn create_dither() -> Box<dyn Mode> {
         let g = (pixels[1] as f32) / 256.0;
         let b = (pixels[2] as f32) / 256.0;
 
-        colour_vec.push( (r, g, b) );
+        colour_vec.push((r, g, b));
     }
 
     Box::new(Dither {
