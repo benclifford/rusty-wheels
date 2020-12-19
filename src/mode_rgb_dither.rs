@@ -84,24 +84,26 @@ impl Mode for Dither {
     fn pre_step(&mut self, frame: &FrameState) -> io::Result<()> {
         let bounded_pos = frame.spin_pos.min(1.0);
 
-        let hue = (bounded_pos * 360.0).min(360.0);
-        // don't push value too high - if can't render full intensity, colour choosing alg locks on red
-        let hsv: Hsv = Hsv::from_components((hue, 1.0, 0.3));
-
-        let srgb = Srgb::from(hsv);
-
-        let pixels: [f32; 3] = srgb.into_linear().into_format().into_raw();
-
-        let r = pixels[0];
-        let g = pixels[1];
-        let b = pixels[2];
-
-        let intensity: V = V { v: (r, g, b) };
-
         let mut row_accum_error: V = V { v: (0.0, 0.0, 0.0) };
         self.next_errors = [V { v: (0.0, 0.0, 0.0) }; 23];
 
         for led in 0..23 {
+            let hue = (bounded_pos * 360.0).min(360.0);
+
+            let value = ((led as f32) / 23.0).powf(2.0) * 0.9 + 0.1;
+            // don't push value too high - if can't render full intensity, colour choosing alg locks on red
+            let hsv: Hsv = Hsv::from_components((hue, 1.0, value));
+
+            let srgb = Srgb::from(hsv);
+
+            let pixels: [f32; 3] = srgb.into_linear().into_format().into_raw();
+
+            let r = pixels[0];
+            let g = pixels[1];
+            let b = pixels[2];
+
+            let intensity: V = V { v: (r, g, b) };
+
             let corrected_intensity = intensity + row_accum_error + self.prev_errors[led];
 
             let render_amount = find_closest_colour(corrected_intensity.v, &self.available_colours);
