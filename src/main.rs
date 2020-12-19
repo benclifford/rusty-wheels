@@ -244,6 +244,7 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_bitmap_text::construct_phrase_mode_hello,
     mode_rgb_dither::create_dither,
     mode_dither::create_dither,
     mode_trails::construct_hue_trails_sparse,

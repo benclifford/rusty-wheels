@@ -45,6 +45,17 @@ pub fn construct_phrase_mode() -> Box<dyn Mode> {
     Box::new(PhraseMode { bitmap: bitmap })
 }
 
+pub fn construct_phrase_mode_hello() -> Box<dyn Mode> {
+    println!("Iniialising phrase bitmap");
+    let phrase = " HELLO  HELLO  HELLO ";
+
+    let bitmap = str_to_bitmap(phrase);
+
+    println!("Initialised phrase bitmap");
+
+    Box::new(PhraseMode { bitmap: bitmap })
+}
+
 impl Mode for PhraseMode {
     fn render(
         &self,
