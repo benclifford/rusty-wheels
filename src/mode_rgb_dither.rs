@@ -146,53 +146,29 @@ impl Mode for Dither {
 }
 
 pub fn create_dither() -> Box<dyn Mode> {
-    let offset = rand::thread_rng().gen_range(0.0, 120.0);
 
-    let hue = (0.0 + offset) % 360.0;
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.00));
+    let num_colours = 3;
 
-    let srgb = Srgb::from(hsv);
-
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-    let r = (pixels[0] as f32) / 256.0;
-    let g = (pixels[1] as f32) / 256.0;
-    let b = (pixels[2] as f32) / 256.0;
-
-    let col1 = (r, g, b);
-
-    let hue = (120.0 + offset) % 360.0;
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
-
-    let srgb = Srgb::from(hsv);
-
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-    let r = (pixels[0] as f32) / 256.0;
-    let g = (pixels[1] as f32) / 256.0;
-    let b = (pixels[2] as f32) / 256.0;
-
-    let col2 = (r, g, b);
-
-    let hue = (240.0 + offset) % 360.0;
-    let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
-
-    let srgb = Srgb::from(hsv);
-
-    let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
-
-    let r = (pixels[0] as f32) / 256.0;
-    let g = (pixels[1] as f32) / 256.0;
-    let b = (pixels[2] as f32) / 256.0;
-
-    let col3 = (r, g, b);
+    let base_degrees = rand::thread_rng().gen_range(0.0, 360.0);
+    let step_degrees = 360.0 / (num_colours as f32);
 
     let mut colour_vec: Vec<(f32, f32, f32)> = Vec::new();
-
     colour_vec.push( (0.0, 0.0, 0.0) );
-    colour_vec.push( col1 );
-    colour_vec.push( col2 );
-    colour_vec.push( col3 );
+
+    for n in 0..num_colours {
+        let hue = (base_degrees + step_degrees * (n as f32)) % 360.0;
+        let hsv: Hsv = Hsv::from_components((hue, 1.0, 1.0));
+
+        let srgb = Srgb::from(hsv);
+
+        let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+
+        let r = (pixels[0] as f32) / 256.0;
+        let g = (pixels[1] as f32) / 256.0;
+        let b = (pixels[2] as f32) / 256.0;
+
+        colour_vec.push( (r, g, b) );
+    }
 
     Box::new(Dither {
         prev_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
