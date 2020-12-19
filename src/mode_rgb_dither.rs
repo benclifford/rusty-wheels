@@ -90,11 +90,11 @@ impl Mode for Dither {
 
         let srgb = Srgb::from(hsv);
 
-        let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+        let pixels: [f32; 3] = srgb.into_linear().into_format().into_raw();
 
-        let r = (pixels[0] as f32) / 256.0;
-        let g = (pixels[1] as f32) / 256.0;
-        let b = (pixels[2] as f32) / 256.0;
+        let r = pixels[0];
+        let g = pixels[1];
+        let b = pixels[2];
 
         let intensity: V = V { v: (r, g, b) };
 
@@ -159,11 +159,11 @@ pub fn create_dither() -> Box<dyn Mode> {
 
         let srgb = Srgb::from(hsv);
 
-        let pixels: [u8; 3] = srgb.into_linear().into_format().into_raw();
+        let pixels: [f32; 3] = srgb.into_linear().into_format().into_raw();
 
-        let r = (pixels[0] as f32) / 256.0;
-        let g = (pixels[1] as f32) / 256.0;
-        let b = (pixels[2] as f32) / 256.0;
+        let r = pixels[0];
+        let g = pixels[1];
+        let b = pixels[2];
 
         colour_vec.push((r, g, b));
     }
