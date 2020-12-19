@@ -200,7 +200,7 @@ fn find_closest_colour(rgb: (f32, f32, f32), available: &Box<[(f32, f32, f32)]>)
     let mut best_distance = 1000.0; // "very big"
     let mut best_colour = (0.0, 0.0, 0.0);
     for (r2, g2, b2) in available.iter() {
-        let distance = (r - r2).abs() + (g - g2).abs() + (b - b2).abs();
+        let distance = ((r - r2).powf(2.0) + (g - g2).powf(2.0) + (b - b2).powf(2.0)).sqrt();
         if distance < best_distance {
             best_colour = (*r2, *g2, *b2);
             best_distance = distance;
