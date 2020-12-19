@@ -255,6 +255,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     mode_cellular::construct_cellular,
     stateless_mode!(mode_misc::render_graycode_rim),
     stateless_mode!(mode_misc::render_random_rim),
+    stateless_mode!(mode_misc::render_random_rim_red_yellow),
     // pulsing modes
     mode_edge_strobe::construct_edge_strobe,
     stateless_mode!(mode_misc::render_fade_quarters),
