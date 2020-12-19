@@ -146,7 +146,7 @@ impl Mode for Dither {
 }
 
 pub fn create_dither() -> Box<dyn Mode> {
-    let num_colours = 3;
+    let num_colours = rand::thread_rng().gen_range(2,6);
 
     let base_degrees = rand::thread_rng().gen_range(0.0, 360.0);
     let step_degrees = 360.0 / (num_colours as f32);
