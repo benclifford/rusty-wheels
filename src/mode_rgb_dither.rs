@@ -127,7 +127,6 @@ impl Mode for Dither {
             const GAMMA: f32 = 2.0;
             let v = render_amount;
             let (r, g, b) = v.v;
-            // TODO: put GAMMA correction back in?
             let colour = (
                 (255.0 * (r.powf(GAMMA))) as u8,
                 (255.0 * (g.powf(GAMMA))) as u8,
