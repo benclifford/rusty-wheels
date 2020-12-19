@@ -65,7 +65,7 @@ struct Dither {
     /// pre-step will render into here
     rgb: [(u8, u8, u8); 23],
     /// selection of pixel colours that can be used
-    available_colours: Box<[(f32, f32, f32)]>,
+    available_colours: Vec<(f32, f32, f32)>,
 }
 
 impl Mode for Dither {
@@ -187,15 +187,22 @@ pub fn create_dither() -> Box<dyn Mode> {
 
     let col3 = (r, g, b);
 
+    let mut colour_vec: Vec<(f32, f32, f32)> = Vec::new();
+
+    colour_vec.push( (0.0, 0.0, 0.0) );
+    colour_vec.push( col1 );
+    colour_vec.push( col2 );
+    colour_vec.push( col3 );
+
     Box::new(Dither {
         prev_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
         next_errors: [V { v: (0.0, 0.0, 0.0) }; 23],
         rgb: [(0, 0, 0); 23],
-        available_colours: Box::new([(0.0, 0.0, 0.0), col1, col2, col3]),
+        available_colours: colour_vec,
     })
 }
 
-fn find_closest_colour(rgb: (f32, f32, f32), available: &Box<[(f32, f32, f32)]>) -> V {
+fn find_closest_colour(rgb: (f32, f32, f32), available: &Vec<(f32, f32, f32)>) -> V {
     let (r, g, b) = rgb;
     let mut best_distance = 1000.0; // "very big"
     let mut best_colour = (0.0, 0.0, 0.0);
