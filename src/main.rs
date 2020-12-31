@@ -171,10 +171,7 @@ fn run_leds(
     Ok(())
 }
 
-fn render_floodlight_mode(
-    wheel_leds: &mut WheelLEDs,
-    _framestate: &FrameState,
-) -> io::Result<()> {
+fn render_floodlight_mode(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
     for side in 0..2 {
         for led in 0..23 {
             wheel_leds.set(side, led, (32, 32, 32));
@@ -193,16 +190,19 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     match t {
         0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
         1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
-        _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate)
+        _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate),
     }
 }
 
-fn render_stopped_mode_red_yellow_one_random(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
-    let rand_led = rand::thread_rng().gen_range(0,23);
-    let ran_col = rand::thread_rng().gen_range(0,2);
+fn render_stopped_mode_red_yellow_one_random(
+    wheel_leds: &mut WheelLEDs,
+    _framestate: &FrameState,
+) -> io::Result<()> {
+    let rand_led = rand::thread_rng().gen_range(0, 23);
+    let ran_col = rand::thread_rng().gen_range(0, 2);
     for led in 0..23 {
-        wheel_leds.set(0, led, (0,0,0));
-        wheel_leds.set(1, led, (0,0,0));
+        wheel_leds.set(0, led, (0, 0, 0));
+        wheel_leds.set(1, led, (0, 0, 0));
     }
 
     let rcol = if ran_col == 0 {
@@ -217,8 +217,10 @@ fn render_stopped_mode_red_yellow_one_random(wheel_leds: &mut WheelLEDs, _frames
     Ok(())
 }
 
-fn render_stopped_mode_red_yellow_slide(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-
+fn render_stopped_mode_red_yellow_slide(
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
     let this_frame_shift = ((framestate.now.as_millis() / 100) % 23) as usize;
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
@@ -231,23 +233,25 @@ fn render_stopped_mode_red_yellow_slide(wheel_leds: &mut WheelLEDs, framestate: 
         set(offset, (255, 0, 0));
     }
     for offset in 6..12 {
-        set(offset, (0,0,0));
-        set(offset, (0,0,0));
+        set(offset, (0, 0, 0));
+        set(offset, (0, 0, 0));
     }
     for offset in 12..18 {
-        set(offset, (255,128,0));
-        set(offset, (255,128,0));
+        set(offset, (255, 128, 0));
+        set(offset, (255, 128, 0));
     }
     for offset in 18..23 {
-        set(offset, (0,0,0));
-        set(offset, (0,0,0));
+        set(offset, (0, 0, 0));
+        set(offset, (0, 0, 0));
     }
 
     Ok(())
 }
 
-
-fn render_stopped_mode_red_yellow_centre_pulse(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+fn render_stopped_mode_red_yellow_centre_pulse(
+    wheel_leds: &mut WheelLEDs,
+    framestate: &FrameState,
+) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
     let now_secs = framestate.now.as_secs();
     let flicker = (now_millis / 25) % 4 == 0;
