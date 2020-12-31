@@ -189,9 +189,10 @@ fn render_floodlight_mode(
 }
 
 fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
-    let t = framestate.now.as_secs() / 20 % 2;
+    let t = framestate.now.as_secs() / 20 % 3;
     match t {
         0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
+        1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
         _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate)
     }
 }
@@ -215,6 +216,36 @@ fn render_stopped_mode_red_yellow_one_random(wheel_leds: &mut WheelLEDs, _frames
 
     Ok(())
 }
+
+fn render_stopped_mode_red_yellow_slide(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+
+    let this_frame_shift = ((framestate.now.as_millis() / 100) % 23) as usize;
+
+    let mut set = |l: usize, col: (u8, u8, u8)| {
+        let led = (l + this_frame_shift) % 23;
+        wheel_leds.set(0, led, col);
+        wheel_leds.set(1, led, col);
+    };
+
+    for offset in 0..6 {
+        set(offset, (255, 0, 0));
+    }
+    for offset in 6..12 {
+        set(offset, (0,0,0));
+        set(offset, (0,0,0));
+    }
+    for offset in 12..18 {
+        set(offset, (255,128,0));
+        set(offset, (255,128,0));
+    }
+    for offset in 18..23 {
+        set(offset, (0,0,0));
+        set(offset, (0,0,0));
+    }
+
+    Ok(())
+}
+
 
 fn render_stopped_mode_red_yellow_centre_pulse(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
