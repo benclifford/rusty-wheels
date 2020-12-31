@@ -125,7 +125,7 @@ fn run_leds(
             if p {
                 render_stopped_mode(&mut wheel_leds, &framestate)?;
             } else {
-                render_other_stopped_mode(&mut wheel_leds, &framestate)?;
+                render_floodlight_mode(&mut wheel_leds, &framestate)?;
             }
         } else {
             if next_mode_time <= Instant::now() && args.len() <= 1 {
@@ -169,7 +169,7 @@ fn run_leds(
     Ok(())
 }
 
-fn render_other_stopped_mode(
+fn render_floodlight_mode(
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
