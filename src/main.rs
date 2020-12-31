@@ -90,6 +90,8 @@ fn run_leds(
     flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
     flag::register(signal_hook::SIGINT, Arc::clone(&shutdown_flag))?;
 
+    // floodlight mode: when false, stopped mode should be a floodlight
+    // when true, stopped mode should be animated traffic caution modes
     let mut p: bool = true;
 
     let mut next_mode_time = Instant::now();
@@ -187,6 +189,34 @@ fn render_floodlight_mode(
 }
 
 fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+    let t = framestate.now.as_secs() / 20 % 2;
+    match t {
+        0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
+        _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate)
+    }
+}
+
+fn render_stopped_mode_red_yellow_one_random(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
+    let rand_led = rand::thread_rng().gen_range(0,23);
+    let ran_col = rand::thread_rng().gen_range(0,2);
+    for led in 0..23 {
+        wheel_leds.set(0, led, (0,0,0));
+        wheel_leds.set(1, led, (0,0,0));
+    }
+
+    let rcol = if ran_col == 0 {
+        (255, 0, 0)
+    } else {
+        (255, 128, 0)
+    };
+
+    wheel_leds.set(0, rand_led, rcol);
+    wheel_leds.set(1, rand_led, rcol);
+
+    Ok(())
+}
+
+fn render_stopped_mode_red_yellow_centre_pulse(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
     let now_secs = framestate.now.as_secs();
     let flicker = (now_millis / 25) % 4 == 0;
