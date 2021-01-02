@@ -7,6 +7,7 @@ mod mode_cellular;
 mod mode_dither;
 mod mode_edge_strobe;
 mod mode_misc;
+mod mode_oval;
 mod mode_rainbow;
 mod mode_randomwalk;
 mod mode_rgb_dither;
@@ -309,6 +310,7 @@ fn render_stopped_mode_red_yellow_centre_pulse(
 }
 
 const MODES: &[fn() -> Box<dyn Mode>] = &[
+    stateless_mode!(mode_oval::render_oval),
     mode_bitmap_text::construct_phrase_mode_hello,
     mode_rgb_dither::create_dither,
     mode_dither::create_dither,
