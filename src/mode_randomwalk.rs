@@ -10,7 +10,7 @@ struct RandomWalkDot {
 impl Mode for RandomWalkDot {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {
@@ -45,7 +45,7 @@ struct FloatSpray {
 impl Mode for FloatSpray {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {

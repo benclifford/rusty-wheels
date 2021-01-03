@@ -28,7 +28,7 @@ use std::time::{Duration, Instant};
 
 use rand::Rng;
 
-use leds::WheelLEDs;
+use leds::{WheelLEDs, Side, SIDES};
 use magnet::Magnet;
 use structs::{FrameState, Mode};
 
@@ -77,9 +77,9 @@ fn run_leds(
     let mut spin_start_time = start_time;
     let mut last_spin_start_time = start_time;
 
-    for side in 0..2 {
+    for side in SIDES.iter() {
         for led in 0..23 {
-            wheel_leds.set(side, led, (0, 0, 0));
+            wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
     wheel_leds.show()?;
@@ -138,8 +138,8 @@ fn run_leds(
             }
 
             mode.pre_step(&framestate)?;
-            mode.render(0, &mut wheel_leds, &framestate)?;
-            mode.render(1, &mut wheel_leds, &framestate)?;
+            mode.render(leds::Side::Left, &mut wheel_leds, &framestate)?;
+            mode.render(leds::Side::Right, &mut wheel_leds, &framestate)?;
             mode.step(&framestate)?;
         }
 
@@ -152,18 +152,18 @@ fn run_leds(
 
     // run a shutdown effect
 
-    for side in 0..2 {
+    for side in SIDES.iter() {
         for led in 0..23 {
-            wheel_leds.set(side, led, (1, 1, 1));
+            wheel_leds.set(*side, led, (1, 1, 1));
         }
     }
     wheel_leds.show()?;
 
     thread::sleep(Duration::from_millis(250));
 
-    for side in 0..2 {
+    for side in SIDES.iter() {
         for led in 0..23 {
-            wheel_leds.set(side, led, (0, 0, 0));
+            wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
     wheel_leds.show()?;
@@ -173,13 +173,13 @@ fn run_leds(
 }
 
 fn render_floodlight_mode(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
-    for side in 0..2 {
+    for side in SIDES.iter() {
         for led in 0..23 {
-            wheel_leds.set(side, led, (32, 32, 32));
+            wheel_leds.set(*side, led, (32, 32, 32));
         }
         // override the middle ones with full brightness
         for led in 9..14 {
-            wheel_leds.set(side, led, (255, 255, 255));
+            wheel_leds.set(*side, led, (255, 255, 255));
         }
     }
 
@@ -202,8 +202,8 @@ fn render_stopped_mode_red_yellow_one_random(
     let rand_led = rand::thread_rng().gen_range(0, 23);
     let ran_col = rand::thread_rng().gen_range(0, 2);
     for led in 0..23 {
-        wheel_leds.set(0, led, (0, 0, 0));
-        wheel_leds.set(1, led, (0, 0, 0));
+        wheel_leds.set(Side::Left, led, (0, 0, 0));
+        wheel_leds.set(Side::Right, led, (0, 0, 0));
     }
 
     let rcol = if ran_col == 0 {
@@ -212,8 +212,8 @@ fn render_stopped_mode_red_yellow_one_random(
         (255, 128, 0)
     };
 
-    wheel_leds.set(0, rand_led, rcol);
-    wheel_leds.set(1, rand_led, rcol);
+    wheel_leds.set(Side::Left, rand_led, rcol);
+    wheel_leds.set(Side::Right, rand_led, rcol);
 
     Ok(())
 }
@@ -226,8 +226,8 @@ fn render_stopped_mode_red_yellow_slide(
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
         let led = (l + this_frame_shift) % 23;
-        wheel_leds.set(0, led, col);
-        wheel_leds.set(1, led, col);
+        wheel_leds.set(Side::Left, led, col);
+        wheel_leds.set(Side::Right, led, col);
     };
 
     for offset in 0..6 {
@@ -257,52 +257,52 @@ fn render_stopped_mode_red_yellow_centre_pulse(
     let now_secs = framestate.now.as_secs();
     let flicker = (now_millis / 25) % 4 == 0;
     let topside = now_secs % 2 == 0;
-    for side in 0..2 {
+    for side in &SIDES {
         for led in 0..2 {
-            wheel_leds.set(side, led, (2, 0, 0));
+            wheel_leds.set(*side, led, (2, 0, 0));
         }
         for led in 2..4 {
-            wheel_leds.set(side, led, (8, 0, 0));
+            wheel_leds.set(*side, led, (8, 0, 0));
         }
         for led in 4..6 {
-            wheel_leds.set(side, led, (64, 0, 0));
+            wheel_leds.set(*side, led, (64, 0, 0));
         }
 
         for led in 6..8 {
-            wheel_leds.set(side, led, (255, 0, 0));
+            wheel_leds.set(*side, led, (255, 0, 0));
         }
 
         for led in 8..9 {
-            wheel_leds.set(side, led, (0, 0, 0));
+            wheel_leds.set(*side, led, (0, 0, 0));
         }
 
-        if topside ^ (side == 0) {
+        if topside ^ (*side == Side::Left) {
             for led in 9..14 {
                 if flicker {
-                    wheel_leds.set(side, led, (255, 255, 0));
+                    wheel_leds.set(*side, led, (255, 255, 0));
                 } else {
-                    wheel_leds.set(side, led, (0, 0, 0));
+                    wheel_leds.set(*side, led, (0, 0, 0));
                 }
             }
         } else {
             for led in 9..14 {
-                wheel_leds.set(side, led, (0, 0, 0));
+                wheel_leds.set(*side, led, (0, 0, 0));
             }
         }
         for led in 14..15 {
-            wheel_leds.set(side, led, (0, 0, 0));
+            wheel_leds.set(*side, led, (0, 0, 0));
         }
         for led in 15..17 {
-            wheel_leds.set(side, led, (255, 0, 0));
+            wheel_leds.set(*side, led, (255, 0, 0));
         }
         for led in 17..19 {
-            wheel_leds.set(side, led, (64, 0, 0));
+            wheel_leds.set(*side, led, (64, 0, 0));
         }
         for led in 19..21 {
-            wheel_leds.set(side, led, (8, 0, 0));
+            wheel_leds.set(*side, led, (8, 0, 0));
         }
         for led in 21..23 {
-            wheel_leds.set(side, led, (2, 0, 0));
+            wheel_leds.set(*side, led, (2, 0, 0));
         }
     }
 

@@ -36,6 +36,17 @@ fn send_rgb(w: &mut BufWriter<Spidev>, rgb: (u8, u8, u8)) -> io::Result<usize> {
     send_led(w, 255, r, g, b)
 }
 
+/// A Side identifies a side of the physical wheel
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum Side {
+    /// The first set of LEDs on the string
+    Left,
+    /// The second set of LEDs on the string
+    Right
+}
+
+pub const SIDES: [Side;2] = [Side::Left, Side::Right];
+
 /// WheelLEDs provides some kind of array-like access to setting individual
 /// LEDs which can then be dumped out in one frame.
 /// It provides a mutable collection of RGB tuples, one entry for each LED,
@@ -54,13 +65,11 @@ impl WheelLEDs {
     /// set a pixel, side 0 or 1, pixel 0 ... 22
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
-    pub fn set(&mut self, side: usize, pixel: usize, rgb: (u8, u8, u8)) {
+    pub fn set(&mut self, side: Side, pixel: usize, rgb: (u8, u8, u8)) {
         assert!(pixel <= 22, "pixel number too large");
-        assert!(side == 0 || side == 1, "side number invalid");
-        if side == 0 {
-            self.leds[pixel] = rgb;
-        } else {
-            self.leds[23 + (22 - pixel)] = rgb
+        match side {
+            Side::Left => self.leds[pixel] = rgb,
+            Side::Right => self.leds[23 + (22 - pixel)] = rgb
         }
     }
 

@@ -14,7 +14,7 @@ struct CellularState {
 impl Mode for CellularState {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {

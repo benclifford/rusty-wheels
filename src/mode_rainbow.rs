@@ -11,7 +11,7 @@ struct RainbowOnOff {
 impl Mode for RainbowOnOff {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {

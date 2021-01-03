@@ -11,7 +11,7 @@ lazy_static! {
 }
 
 pub fn render_bitmap(
-    side: usize,
+    side: leds::Side,
     wheel_leds: &mut leds::WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -59,7 +59,7 @@ pub fn construct_phrase_mode_hello() -> Box<dyn Mode> {
 impl Mode for PhraseMode {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         frame: &FrameState,
     ) -> io::Result<()> {
@@ -94,7 +94,7 @@ pub fn construct_speedo_mode() -> Box<dyn Mode> {
 impl Mode for SpeedoMode {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         frame: &FrameState,
     ) -> io::Result<()> {
@@ -150,7 +150,7 @@ impl Mode for SpeedoMode {
 /// This can render a 128 pixel wide, 7 bit pixel high bitmap
 fn helper_render_bitmap(
     row: &[u128; 7],
-    side: usize,
+    side: leds::Side,
     wheel_leds: &mut leds::WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -169,7 +169,7 @@ fn helper_render_bitmap(
     }
 
     // flip pixels on other side because rotation is the other way round
-    if side == 1 {
+    if side == leds::Side::Right {
         pixel = 127 - pixel;
     }
 
@@ -177,9 +177,8 @@ fn helper_render_bitmap(
         let r = ((row[n] & (1 << pixel)) >> pixel) & 1;
         let colour = if r != 0 {
             match side {
-                0 => (255, 32, 0), // amber
-                1 => (56, 255, 0), // green - from wikipedia phosper wavelength converted to rgb
-                _ => panic!("impossible side number"),
+                leds::Side::Left => (255, 32, 0), // amber
+                leds::Side::Right => (56, 255, 0), // green - from wikipedia phosper wavelength converted to rgb
             }
         } else {
             (0, 0, 0)

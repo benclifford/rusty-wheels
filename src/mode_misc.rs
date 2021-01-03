@@ -1,5 +1,5 @@
 use crate::helpers::{fraction_to_rgb, spinpos_to_rgb};
-use crate::leds::WheelLEDs;
+use crate::leds::{Side, WheelLEDs};
 use crate::structs::FrameState;
 use rand::Rng;
 use std::cmp;
@@ -12,7 +12,7 @@ use std::io;
 ///  * green and purple LEDs that tick once per frame
 ///    to show the size of a rotational-pixel
 pub fn render_rainbows(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -56,7 +56,7 @@ pub fn render_rainbows(
 /// This renders the first side of the wheel with
 /// an 8 pixel rainbow around the rim of wheel
 pub fn render_rainbow_rim(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -74,7 +74,7 @@ pub fn render_rainbow_rim(
 }
 
 pub fn render_random_rim(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
@@ -99,7 +99,7 @@ pub fn render_random_rim(
 }
 
 pub fn render_random_rim_red_yellow(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
@@ -125,7 +125,7 @@ pub fn render_random_rim_red_yellow(
 }
 
 pub fn render_pulsed_rainbow(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -150,7 +150,7 @@ pub fn render_pulsed_rainbow(
 ///  * a green time-based line
 ///  * a magenta spin position line
 pub fn render_sliders(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -189,7 +189,7 @@ pub fn render_sliders(
 /// This renders three slices with black between them, each slice being one
 /// of red, green or blue
 pub fn render_rgb_trio(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -223,7 +223,7 @@ pub fn render_rgb_trio(
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
 pub fn render_centre_red(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
@@ -244,7 +244,7 @@ pub fn render_centre_red(
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
 pub fn render_fib_concentric(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
@@ -266,7 +266,7 @@ pub fn render_fib_concentric(
 }
 
 pub fn render_sine(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -287,7 +287,7 @@ pub fn render_sine(
 }
 
 pub fn render_helix(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -310,7 +310,7 @@ pub fn render_helix(
 }
 
 pub fn render_sine_full(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -339,7 +339,7 @@ pub fn render_sine_full(
 }
 
 pub fn render_graycode_rim(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -376,7 +376,7 @@ pub fn render_graycode_rim(
 }
 
 pub fn render_radial_stripes(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -397,7 +397,7 @@ pub fn render_radial_stripes(
 }
 
 pub fn render_europa(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -420,7 +420,7 @@ pub fn render_europa(
 }
 
 pub fn render_fade_spirals(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -453,7 +453,7 @@ pub fn render_fade_spirals(
 }
 
 pub fn render_fade_quarters(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {

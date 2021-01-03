@@ -11,7 +11,7 @@ struct Trails {
 impl Mode for Trails {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {
@@ -47,7 +47,7 @@ struct HueTrails {
 impl Mode for HueTrails {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         _frame: &FrameState,
     ) -> io::Result<()> {

@@ -9,7 +9,7 @@ struct EdgeStrobe {
 impl Mode for EdgeStrobe {
     fn render(
         &self,
-        side: usize,
+        side: leds::Side,
         leds: &mut leds::WheelLEDs,
         frame: &FrameState,
     ) -> io::Result<()> {

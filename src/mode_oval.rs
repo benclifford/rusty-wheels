@@ -1,9 +1,9 @@
-use crate::leds::WheelLEDs;
+use crate::leds::{Side, WheelLEDs};
 use crate::structs::FrameState;
 use std::io;
 
 pub fn render_oval(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {

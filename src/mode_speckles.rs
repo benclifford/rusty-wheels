@@ -1,11 +1,11 @@
 use crate::helpers::spinpos_to_rgb;
-use crate::leds::WheelLEDs;
+use crate::leds::{Side, WheelLEDs};
 use crate::structs::FrameState;
 use rand::Rng;
 use std::io;
 
 pub fn render_mod_speckle(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -22,7 +22,7 @@ pub fn render_mod_speckle(
 }
 
 pub fn render_speckle_onepix(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -41,7 +41,7 @@ pub fn render_speckle_onepix(
 }
 
 pub fn render_speckle_random(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     _framestate: &FrameState,
 ) -> io::Result<()> {
@@ -62,7 +62,7 @@ pub fn render_speckle_random(
 }
 
 pub fn render_rainbow_speckle(
-    side: usize,
+    side: Side,
     wheel_leds: &mut WheelLEDs,
     framestate: &FrameState,
 ) -> io::Result<()> {

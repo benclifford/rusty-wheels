@@ -1,4 +1,5 @@
 use crate::leds;
+use crate::leds::{Side};
 use std::io;
 use std::time::Duration;
 
@@ -22,10 +23,11 @@ pub struct FrameState {
     pub spin_length: Duration,
 }
 
+
 /// render will be called to render each side
 /// then step will be called to allow any state advancing to happen
 pub trait Mode {
-    fn render(&self, side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState)
+    fn render(&self, side: Side, leds: &mut leds::WheelLEDs, frame: &FrameState)
         -> io::Result<()>;
 
     /// runs before render calls on a frame
@@ -41,13 +43,13 @@ pub trait Mode {
 
 pub struct StatelessMode {
     pub render_fn:
-        fn(side: usize, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
+        fn(side: Side, leds: &mut leds::WheelLEDs, frame: &FrameState) -> io::Result<()>,
 }
 
 impl Mode for StatelessMode {
     fn render(
         &self,
-        side: usize,
+        side: Side,
         leds: &mut leds::WheelLEDs,
         frame: &FrameState,
     ) -> io::Result<()> {
