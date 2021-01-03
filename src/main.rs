@@ -13,6 +13,7 @@ mod mode_randomwalk;
 mod mode_rgb_dither;
 mod mode_speckles;
 mod mode_trails;
+mod modes;
 mod structs;
 
 use signal_hook::flag;
@@ -30,6 +31,7 @@ use rand::Rng;
 
 use leds::{Side, WheelLEDs, SIDES};
 use magnet::Magnet;
+use modes::MODES;
 use structs::{FrameState, Mode};
 
 use buttons::PushButton;
@@ -308,48 +310,3 @@ fn render_stopped_mode_red_yellow_centre_pulse(
 
     Ok(())
 }
-
-const MODES: &[fn() -> Box<dyn Mode>] = &[
-    stateless_mode!(mode_oval::render_oval),
-    mode_bitmap_text::construct_phrase_mode_hello,
-    mode_rgb_dither::create_dither,
-    mode_dither::create_dither,
-    mode_trails::construct_hue_trails_sparse,
-    mode_trails::construct_hue_trails,
-    mode_trails::construct_white_trails,
-    mode_randomwalk::create_float_spray,
-    mode_randomwalk::create_random_walk_dot,
-    // discrete-like modes
-    mode_cellular::construct_cellular,
-    stateless_mode!(mode_misc::render_graycode_rim),
-    stateless_mode!(mode_misc::render_random_rim),
-    stateless_mode!(mode_misc::render_random_rim_red_yellow),
-    // pulsing modes
-    mode_edge_strobe::construct_edge_strobe,
-    stateless_mode!(mode_misc::render_fade_quarters),
-    stateless_mode!(mode_misc::render_radial_stripes),
-    stateless_mode!(mode_misc::render_rgb_trio),
-    // speckle modes
-    stateless_mode!(mode_speckles::render_mod_speckle),
-    stateless_mode!(mode_speckles::render_speckle_onepix),
-    stateless_mode!(mode_speckles::render_speckle_random),
-    stateless_mode!(mode_speckles::render_rainbow_speckle),
-    // text modes
-    mode_bitmap_text::construct_phrase_fuck_boris,
-    mode_bitmap_text::construct_phrase_mode,
-    mode_bitmap_text::construct_speedo_mode,
-    // solid image-like modes
-    stateless_mode!(mode_misc::render_centre_red),
-    stateless_mode!(mode_misc::render_europa),
-    // rainbows and squiggles
-    stateless_mode!(mode_misc::render_helix),
-    stateless_mode!(mode_misc::render_pulsed_rainbow),
-    stateless_mode!(mode_misc::render_rainbow_rim),
-    stateless_mode!(mode_misc::render_fade_spirals),
-    stateless_mode!(mode_misc::render_sine_full),
-    stateless_mode!(mode_misc::render_sine),
-    stateless_mode!(mode_misc::render_rainbows),
-    stateless_mode!(mode_misc::render_sliders),
-    mode_rainbow::construct_rainbow_on_off,
-    stateless_mode!(mode_misc::render_fib_concentric),
-];
