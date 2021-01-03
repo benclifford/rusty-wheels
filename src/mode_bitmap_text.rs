@@ -10,26 +10,6 @@ lazy_static! {
         bdf::open("/home/pi/src/rusty-wheels/font.bdf").expect("Valid font");
 }
 
-pub fn render_bitmap(
-    side: leds::Side,
-    wheel_leds: &mut leds::WheelLEDs,
-    framestate: &FrameState,
-) -> io::Result<()> {
-    // render approx 50 pixels in half the rotation
-    // or 100 pixels per full rotation
-    let row: [u128; 7] = [
-        0b01111101000100111001000100000001111000111001111000111000111000000,
-        0b01000001000101000101001000000000100101000101000100010001000100000,
-        0b01000001000101000001010000000000100101000101000100010001000000000,
-        0b01111001000101000001100000000000111001000101111000010000111000000,
-        0b01000001000101000001010000000000100101000101010000010000000100000,
-        0b01000001000101000101001000000000100101000101001000010001000100000,
-        0b01000000111000111001000100000001111000111001000100111000111000000,
-    ];
-
-    helper_render_bitmap(&row, side, wheel_leds, framestate)
-}
-
 struct PhraseMode {
     bitmap: [u128; 7],
 }
@@ -48,6 +28,17 @@ pub fn construct_phrase_mode() -> Box<dyn Mode> {
 pub fn construct_phrase_mode_hello() -> Box<dyn Mode> {
     println!("Iniialising phrase bitmap");
     let phrase = " HELLO  HELLO  HELLO ";
+
+    let bitmap = str_to_bitmap(phrase);
+
+    println!("Initialised phrase bitmap");
+
+    Box::new(PhraseMode { bitmap: bitmap })
+}
+
+pub fn construct_phrase_fuck_boris() -> Box<dyn Mode> {
+    println!("Iniialising phrase bitmap");
+    let phrase = " FUCK BORIS ";
 
     let bitmap = str_to_bitmap(phrase);
 
@@ -177,7 +168,7 @@ fn helper_render_bitmap(
         let r = ((row[n] & (1 << pixel)) >> pixel) & 1;
         let colour = if r != 0 {
             match side {
-                leds::Side::Left => (255, 32, 0), // amber
+                leds::Side::Left => (255, 32, 0),  // amber
                 leds::Side::Right => (56, 255, 0), // green - from wikipedia phosper wavelength converted to rgb
             }
         } else {

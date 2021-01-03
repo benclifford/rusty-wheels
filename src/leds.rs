@@ -42,10 +42,10 @@ pub enum Side {
     /// The first set of LEDs on the string
     Left,
     /// The second set of LEDs on the string
-    Right
+    Right,
 }
 
-pub const SIDES: [Side;2] = [Side::Left, Side::Right];
+pub const SIDES: [Side; 2] = [Side::Left, Side::Right];
 
 /// WheelLEDs provides some kind of array-like access to setting individual
 /// LEDs which can then be dumped out in one frame.
@@ -69,7 +69,14 @@ impl WheelLEDs {
         assert!(pixel <= 22, "pixel number too large");
         match side {
             Side::Left => self.leds[pixel] = rgb,
-            Side::Right => self.leds[23 + (22 - pixel)] = rgb
+            Side::Right => self.leds[23 + (22 - pixel)] = rgb,
+        }
+    }
+
+    pub fn side_slice(&mut self, side: Side) -> &mut [(u8, u8, u8)] {
+        match side {
+            Side::Left => &mut self.leds[0..23],
+            Side::Right => &mut self.leds[23..46],
         }
     }
 

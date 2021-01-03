@@ -28,7 +28,7 @@ use std::time::{Duration, Instant};
 
 use rand::Rng;
 
-use leds::{WheelLEDs, Side, SIDES};
+use leds::{Side, WheelLEDs, SIDES};
 use magnet::Magnet;
 use structs::{FrameState, Mode};
 
@@ -335,7 +335,7 @@ const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(mode_speckles::render_speckle_random),
     stateless_mode!(mode_speckles::render_rainbow_speckle),
     // text modes
-    stateless_mode!(mode_bitmap_text::render_bitmap),
+    mode_bitmap_text::construct_phrase_fuck_boris,
     mode_bitmap_text::construct_phrase_mode,
     mode_bitmap_text::construct_speedo_mode,
     // solid image-like modes
