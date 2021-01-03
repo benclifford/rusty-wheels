@@ -95,7 +95,7 @@ impl WheelLEDs {
         }
 
         for led in 0..23 {
-            send_rgb(&mut self.led_stream, self.right_leds[22-led])?;
+            send_rgb(&mut self.led_stream, self.right_leds[22 - led])?;
         }
 
         // padding for clocking purposes down-strip
