@@ -11,9 +11,11 @@ use crate::mode_rainbow;
 use crate::mode_randomwalk;
 use crate::mode_rgb_dither;
 use crate::mode_speckles;
+use crate::mode_stepper;
 use crate::mode_trails;
 
 pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_stepper::construct_stepper,
     stateless_mode!(mode_misc::render_rainbow_rgb_speckle_rim),
     stateless_mode!(mode_misc::render_rainbow_rgb_plus_rim),
     stateless_mode!(mode_misc::render_rainbow_rgb_rim),

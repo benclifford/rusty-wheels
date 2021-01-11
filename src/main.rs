@@ -12,6 +12,7 @@ mod mode_rainbow;
 mod mode_randomwalk;
 mod mode_rgb_dither;
 mod mode_speckles;
+mod mode_stepper;
 mod mode_trails;
 mod modes;
 mod structs;
