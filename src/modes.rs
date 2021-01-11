@@ -14,6 +14,7 @@ use crate::mode_speckles;
 use crate::mode_trails;
 
 pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+    stateless_mode!(mode_misc::render_rainbow_rgb_plus_rim),
     stateless_mode!(mode_misc::render_rainbow_rgb_rim),
     stateless_mode!(mode_oval::render_oval),
     mode_bitmap_text::construct_phrase_mode_hello,
