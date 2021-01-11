@@ -5,6 +5,7 @@ use crate::mode_bitmap_text;
 use crate::mode_cellular;
 use crate::mode_dither;
 use crate::mode_edge_strobe;
+use crate::mode_linetracker;
 use crate::mode_misc;
 use crate::mode_oval;
 use crate::mode_rainbow;
@@ -15,6 +16,9 @@ use crate::mode_stepper;
 use crate::mode_trails;
 
 pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_linetracker::construct_squarewave,
+    mode_linetracker::construct_squarewave_flower,
+    mode_linetracker::construct_spiral_out,
     mode_stepper::construct_stepper,
     stateless_mode!(mode_misc::render_rainbow_rgb_speckle_rim),
     stateless_mode!(mode_misc::render_rainbow_rgb_plus_rim),

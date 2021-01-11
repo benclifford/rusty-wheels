@@ -6,6 +6,7 @@ mod mode_bitmap_text;
 mod mode_cellular;
 mod mode_dither;
 mod mode_edge_strobe;
+mod mode_linetracker;
 mod mode_misc;
 mod mode_oval;
 mod mode_rainbow;
