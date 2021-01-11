@@ -22,13 +22,12 @@ impl Mode for LineTracker {
     }
 
     fn step(&mut self, frame: &FrameState) -> io::Result<()> {
-
         let target = (self.func)(frame);
 
         if target > self.led {
-          self.led += 1;
+            self.led += 1;
         } else if target < self.led {
-          self.led -= 1;
+            self.led -= 1;
         }
 
         Ok(())
@@ -36,27 +35,44 @@ impl Mode for LineTracker {
 }
 
 fn spiral_out(frame: &FrameState) -> usize {
-  (frame.spin_pos * 23.0).min(22.0).max(0.0) as usize
+    (frame.spin_pos * 23.0).min(22.0).max(0.0) as usize
 }
 
 pub fn construct_spiral_out() -> Box<dyn Mode> {
-    Box::new(LineTracker { led: 11, func: spiral_out })
+    Box::new(LineTracker {
+        led: 11,
+        func: spiral_out,
+    })
 }
 
 fn squarewave_flower(frame: &FrameState) -> usize {
-  let phase = (frame.spin_pos * 3.0) % 1.0;
-  if phase > 0.5 { 22 } else { 0 }
+    let phase = (frame.spin_pos * 3.0) % 1.0;
+    if phase > 0.5 {
+        22
+    } else {
+        0
+    }
 }
 
 pub fn construct_squarewave_flower() -> Box<dyn Mode> {
-    Box::new(LineTracker { led: 11, func: squarewave_flower })
+    Box::new(LineTracker {
+        led: 11,
+        func: squarewave_flower,
+    })
 }
 
 fn squarewave(frame: &FrameState) -> usize {
-  let phase = (frame.spin_pos * 3.0) % 1.0;
-  if phase > 0.5 { 22 } else { 16 }
+    let phase = (frame.spin_pos * 3.0) % 1.0;
+    if phase > 0.5 {
+        22
+    } else {
+        16
+    }
 }
 
 pub fn construct_squarewave() -> Box<dyn Mode> {
-    Box::new(LineTracker { led: 11, func: squarewave })
+    Box::new(LineTracker {
+        led: 11,
+        func: squarewave,
+    })
 }
