@@ -66,6 +66,28 @@ pub fn render_rainbow_rgb_rim(
     Ok(())
 }
 
+pub fn render_rainbow_rgb_speckle_rim(
+    wheel_leds: &mut [(u8, u8, u8)],
+    framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..23 {
+        wheel_leds[led] = (0, 0, 0);
+    }
+
+    let (r, g, b) = spinpos_to_rgb(framestate);
+    wheel_leds[18] = (r, g, b);
+
+    match framestate.loop_counter % 3 {
+        0 => wheel_leds[19] = (r, 0, 0),
+        1 => wheel_leds[20] = (0, g, 0),
+        _ => wheel_leds[21] = (0, 0, b),
+    };
+
+    wheel_leds[22] = (r, g, b);
+
+    Ok(())
+}
+
 /// This renders a 6 pixel rainbox rim, with
 /// each LED being one of the six possible
 /// subsets of RGB.
