@@ -267,6 +267,32 @@ pub fn render_random_rim_red_yellow(
     Ok(())
 }
 
+pub fn render_spin_rim(
+    wheel_leds: &mut [(u8, u8, u8)],
+    framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..23 {
+        wheel_leds[led] = (0, 0, 0);
+    }
+
+    // one rotation every 4 seconds
+    // which, with 3-way symmetry, means
+    // symmetry every just over 1 second.
+    let t = (framestate.now.as_millis() as f32) / 1000.0 / 4.0;
+
+    let k = (framestate.spin_pos * 3.0 + t) % 1.0;
+
+    if k < 0.33 {
+
+        wheel_leds[22] = (255, 64, 0);
+        wheel_leds[21] = (255, 128, 0);
+        wheel_leds[20] = (255, 64, 0);
+    }
+
+    Ok(())
+}
+
+
 pub fn render_pulsed_rainbow(
     wheel_leds: &mut [(u8, u8, u8)],
     framestate: &FrameState,

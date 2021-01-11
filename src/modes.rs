@@ -16,6 +16,7 @@ use crate::mode_stepper;
 use crate::mode_trails;
 
 pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+    stateless_mode!(mode_misc::render_spin_rim),
     stateless_mode!(mode_misc::render_rainbow_rim_spaced2),
     stateless_mode!(mode_misc::render_rainbow_rim_spaced),
     stateless_mode!(mode_misc::render_rainbow_rim_sine_overlay),
