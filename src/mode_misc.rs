@@ -48,6 +48,24 @@ pub fn render_rainbows(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState)
     Ok(())
 }
 
+/// This renders a 3 pixel rainbox rim, using the
+/// three LEDs as separate RGB channels
+pub fn render_rainbow_rgb_rim(
+    wheel_leds: &mut [(u8, u8, u8)],
+    framestate: &FrameState,
+) -> io::Result<()> {
+    for led in 0..23 {
+        wheel_leds[led] = (0, 0, 0);
+    }
+
+    let (r, g, b) = spinpos_to_rgb(framestate);
+    wheel_leds[20] = (r, 0, 0);
+    wheel_leds[21] = (0, g, 0);
+    wheel_leds[22] = (0, 0, b);
+
+    Ok(())
+}
+
 /// This renders the first side of the wheel with
 /// an 8 pixel rainbow around the rim of wheel
 pub fn render_rainbow_rim(
