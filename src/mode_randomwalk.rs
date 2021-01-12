@@ -1,3 +1,4 @@
+use crate::helpers::fraction_to_rgb;
 use crate::leds;
 use crate::structs::{FrameState, Mode};
 use rand::Rng;
@@ -37,6 +38,49 @@ impl Mode for RandomWalkDot {
 pub fn create_random_walk_dot() -> Box<dyn Mode> {
     Box::new(RandomWalkDot { led: 11 })
 }
+
+struct Lightning {
+    led: usize,
+    hue: f32
+}
+
+impl Mode for Lightning {
+    fn render(
+        &self,
+        side: leds::Side,
+        leds: &mut leds::WheelLEDs,
+        _frame: &FrameState,
+    ) -> io::Result<()> {
+        for led in 0..23 {
+            leds.set(side, led, (0, 0, 0));
+        }
+        leds.set(side, self.led, fraction_to_rgb(self.hue, None));
+        Ok(())
+    }
+
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
+        let choice = rand::thread_rng().gen_range(0, 3);
+
+        if choice == 1 && self.led < 22 {
+            self.led += 1;
+        } else if choice == 2 && self.led > 0 {
+            self.led -= 1;
+        } else if choice == 1 && self.led >= 22 {
+            self.led = 11;
+            self.hue = rand::thread_rng().gen_range(0.0, 1.0);
+        } else if choice == 2 && self.led <= 0 {
+            self.led = 11;
+            self.hue = rand::thread_rng().gen_range(0.0, 1.0);
+        }
+
+        Ok(())
+    }
+}
+
+pub fn create_lightning() -> Box<dyn Mode> {
+    Box::new(Lightning { led: 11, hue: 0.0 })
+}
+
 
 struct FloatSpray {
     leds: [f32; 23],
