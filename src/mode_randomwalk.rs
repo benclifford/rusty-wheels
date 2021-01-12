@@ -114,7 +114,7 @@ impl Mode for ForkLightning {
 
             if self.leds[led] {
 
-            let choice: f32 = rand::thread_rng().gen_range(0.0, 3.5);
+            let choice: f32 = rand::thread_rng().gen_range(0.0, 3.33);
 
             if choice < 1.0 && led < 22 {
                 newleds[led+1] = true;
@@ -122,9 +122,14 @@ impl Mode for ForkLightning {
                 newleds[led-1] = true;
             } else if choice < 3.0 {
                 newleds[led] = true;
-            } else if choice < 3.4 && led < 22 && led > 0 { 
-                newleds[led+1] = true;
-                newleds[led-1] = true;
+            } else if choice < 3.3 && led < 22 && led > 0 {  // fork
+                // only fork if there is nothing else nearby in previous iteration, trying to keep density down
+                if !self.leds[led-1] && !self.leds[led+1] {
+                    newleds[led+1] = true;
+                    newleds[led-1] = true;
+                } else {
+                    newleds[led] = true;
+                }
             } // choice < 4.0 is extinguish, to counterbalance duplication
             }
 
