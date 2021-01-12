@@ -16,6 +16,7 @@ use crate::mode_stepper;
 use crate::mode_trails;
 
 pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+    mode_randomwalk::create_fork_lightning,
     mode_randomwalk::create_lightning,
     stateless_mode!(mode_misc::render_spin_rim),
     stateless_mode!(mode_misc::render_rainbow_rim_spaced2),

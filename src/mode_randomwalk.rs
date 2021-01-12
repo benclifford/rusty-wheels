@@ -82,6 +82,77 @@ pub fn create_lightning() -> Box<dyn Mode> {
 }
 
 
+struct ForkLightning {
+    leds: [bool;23],
+    hue: f32
+}
+
+impl Mode for ForkLightning {
+    fn render(
+        &self,
+        side: leds::Side,
+        leds: &mut leds::WheelLEDs,
+        _frame: &FrameState,
+    ) -> io::Result<()> {
+
+        for led in 0..23 {
+            if self.leds[led] {
+                leds.set(side, led, fraction_to_rgb(self.hue, None));
+            } else {
+                leds.set(side, led, (0, 0, 0));
+            }
+        }
+
+        Ok(())
+    }
+
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
+
+        let mut newleds = [false; 23];
+
+        for led in 0..23 {
+
+            if self.leds[led] {
+
+            let choice: f32 = rand::thread_rng().gen_range(0.0, 3.5);
+
+            if choice < 1.0 && led < 22 {
+                newleds[led+1] = true;
+            } else if choice < 2.0 && led > 0 {
+                newleds[led-1] = true;
+            } else if choice < 3.0 {
+                newleds[led] = true;
+            } else if choice < 3.4 && led < 22 && led > 0 { 
+                newleds[led+1] = true;
+                newleds[led-1] = true;
+            } // choice < 4.0 is extinguish, to counterbalance duplication
+            }
+
+        }
+
+        self.leds = newleds;
+
+        let mut alive = false;
+        for led in 0..23 {
+            if self.leds[led] {
+                alive = true;
+            }
+        }
+
+        if !alive {
+            self.leds[11] = true;
+            self.hue = rand::thread_rng().gen_range(0.0, 1.0);
+        }
+
+        Ok(())
+    }
+}
+
+pub fn create_fork_lightning() -> Box<dyn Mode> {
+    Box::new(ForkLightning { leds: [false; 23], hue: 0.0 })
+}
+
+
 struct FloatSpray {
     leds: [f32; 23],
 }
