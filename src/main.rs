@@ -1,5 +1,6 @@
 mod buttons;
 mod helpers;
+mod jumble;
 mod leds;
 mod magnet;
 mod mode_bitmap_text;
@@ -35,6 +36,8 @@ use leds::{Side, WheelLEDs, SIDES};
 use magnet::Magnet;
 use modes::MODES;
 use structs::{FrameState, Mode};
+
+use jumble::Jumbler;
 
 use buttons::PushButton;
 
@@ -101,9 +104,11 @@ fn run_leds(
 
     let mut next_mode_time = Instant::now();
 
+    let mut jumbler = Jumbler { content: MODES.to_vec() };
+
     // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
     // absolute time based phasing. But it's better than threading Option behaviour all the way through.
-    let mut mode: Box<dyn Mode> = MODES[0]();
+    let mut mode: Box<dyn Mode> = jumbler.next().unwrap()();
 
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
@@ -136,8 +141,7 @@ fn run_leds(
             }
         } else {
             if next_mode_time <= Instant::now() && args.len() <= 1 {
-                let next_mode = rand::thread_rng().gen_range(0, MODES.len());
-                mode = MODES[next_mode]();
+                mode = (jumbler.next().unwrap())();
                 next_mode_time = Instant::now() + Duration::from_secs(MODE_CHANGE_SEC);
             }
 
