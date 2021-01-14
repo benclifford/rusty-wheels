@@ -1,4 +1,5 @@
 use rand::Rng;
+use rand::seq::SliceRandom;
 
 use crate::structs::Mode;
 
@@ -16,7 +17,8 @@ pub struct Jumbler {
 }
 
 impl Jumbler {
-    pub fn new(content: Vec<fn() -> Box<dyn Mode>>) -> Jumbler {
+    pub fn new(mut content: Vec<fn() -> Box<dyn Mode>>) -> Jumbler {
+        content.shuffle(&mut rand::thread_rng());
         Jumbler { content: content }
     }
 }
