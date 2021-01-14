@@ -12,7 +12,13 @@ use crate::structs::Mode;
 /// list should be shuffled at creation time?
 
 pub struct Jumbler {
-    pub content: Vec<fn() -> Box<dyn Mode>>
+    content: Vec<fn() -> Box<dyn Mode>>
+}
+
+impl Jumbler {
+    pub fn new(content: Vec<fn() -> Box<dyn Mode>>) -> Jumbler {
+        Jumbler { content: content }
+    }
 }
 
 impl Iterator for Jumbler {
