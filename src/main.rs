@@ -1,24 +1,3 @@
-mod buttons;
-mod helpers;
-mod jumble;
-mod leds;
-mod magnet;
-mod mode_bitmap_text;
-mod mode_cellular;
-mod mode_dither;
-mod mode_edge_strobe;
-mod mode_linetracker;
-mod mode_misc;
-mod mode_oval;
-mod mode_rainbow;
-mod mode_randomwalk;
-mod mode_rgb_dither;
-mod mode_speckles;
-mod mode_stepper;
-mod mode_trails;
-mod modes;
-mod structs;
-
 use signal_hook::flag;
 
 use std::cmp;
@@ -32,14 +11,15 @@ use std::time::{Duration, Instant};
 
 use rand::Rng;
 
-use leds::{Side, WheelLEDs, SIDES};
-use magnet::Magnet;
-use modes::MODES;
-use structs::{FrameState, Mode};
+use rusty_wheels::leds;
+use rusty_wheels::leds::{Side, WheelLEDs, SIDES};
+use rusty_wheels::magnet::Magnet;
+use rusty_wheels::modes::MODES;
+use rusty_wheels::structs::{FrameState, Mode};
 
-use jumble::Jumbler;
+use rusty_wheels::jumble::Jumbler;
 
-use buttons::PushButton;
+use rusty_wheels::buttons::PushButton;
 
 /// The duration between magnet pulses that distinguishes between
 /// stopped mode and live mode.

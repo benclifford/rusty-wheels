@@ -12,3 +12,10 @@ palette = "0.5.0"
 sysfs_gpio = "0.5"
 signal-hook = "0.1.16"
 bdf = "0.6.0"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "write_leds_spi_benchmark"
+harness = false
