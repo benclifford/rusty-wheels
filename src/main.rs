@@ -88,7 +88,11 @@ fn run_leds(
 
     // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
     // absolute time based phasing. But it's better than threading Option behaviour all the way through.
-    let mut mode: Box<dyn Mode> = jumbler.next().unwrap()();
+    let mut mode: Box<dyn Mode> = if args.len() <= 1 {
+        jumbler.next().unwrap()()
+    } else {
+        (MODES[0])()
+    };
 
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
