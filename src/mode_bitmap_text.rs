@@ -160,7 +160,7 @@ fn helper_render_bitmap(
     }
 
     // flip pixels on other side because rotation is the other way round
-    if side == leds::Side::Right {
+    if side == leds::Side::Left {
         pixel = 127 - pixel;
     }
 
