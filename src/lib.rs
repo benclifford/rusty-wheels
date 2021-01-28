@@ -18,5 +18,3 @@ pub mod mode_stepper;
 pub mod mode_trails;
 pub mod modes;
 pub mod structs;
-
-

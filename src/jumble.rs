@@ -1,5 +1,5 @@
-use rand::Rng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 
 use crate::structs::Mode;
 
@@ -13,7 +13,7 @@ use crate::structs::Mode;
 /// list should be shuffled at creation time?
 
 pub struct Jumbler {
-    content: Vec<fn() -> Box<dyn Mode>>
+    content: Vec<fn() -> Box<dyn Mode>>,
 }
 
 impl Jumbler {
@@ -27,8 +27,7 @@ impl Iterator for Jumbler {
     type Item = fn() -> Box<dyn Mode>;
 
     fn next(&mut self) -> Option<fn() -> Box<dyn Mode>> {
-
-        let next_index = rand::thread_rng().gen_range(0, self.content.len()/2);
+        let next_index = rand::thread_rng().gen_range(0, self.content.len() / 2);
 
         let entry = self.content.remove(next_index);
 

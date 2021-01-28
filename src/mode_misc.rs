@@ -137,9 +137,9 @@ pub fn render_rainbow_rim_sine(
         wheel_leds[led] = (0, 0, 0);
     }
 
-    let r = ((0.5 + 0.5 * ( 7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let g = ((0.5 + 0.5 * ( 15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let b = ((0.5 + 0.5 * ( 3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let r = ((0.5 + 0.5 * (7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let g = ((0.5 + 0.5 * (15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let b = ((0.5 + 0.5 * (3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
 
     wheel_leds[22] = (r, 0, 0);
     wheel_leds[21] = (0, g, 0);
@@ -156,9 +156,9 @@ pub fn render_rainbow_rim_sine_overlay(
         wheel_leds[led] = (0, 0, 0);
     }
 
-    let r = ((0.5 + 0.5 * ( 7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let g = ((0.5 + 0.5 * ( 15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let b = ((0.5 + 0.5 * ( 3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let r = ((0.5 + 0.5 * (7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let g = ((0.5 + 0.5 * (15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let b = ((0.5 + 0.5 * (3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
 
     wheel_leds[22] = (r, g, 0);
     wheel_leds[21] = (0, g, b);
@@ -179,9 +179,9 @@ pub fn render_rainbow_rim_spaced(
         wheel_leds[led] = (0, 0, 0);
     }
 
-    let r = ((0.5 + 0.5 * ( 7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let g = ((0.5 + 0.5 * ( 15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let b = ((0.5 + 0.5 * ( 3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let r = ((0.5 + 0.5 * (7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let g = ((0.5 + 0.5 * (15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let b = ((0.5 + 0.5 * (3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
 
     wheel_leds[22] = (r, 0, 0);
     wheel_leds[20] = (r, 0, 0);
@@ -201,12 +201,12 @@ pub fn render_rainbow_rim_spaced2(
         wheel_leds[led] = (0, 0, 0);
     }
 
-    let r = ((0.5 + 0.5 * ( 7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let r2 = ((0.5 + 0.5 * ( 8.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let g = ((0.5 + 0.5 * ( 15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let g2 = ((0.5 + 0.5 * ( 16.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let b = ((0.5 + 0.5 * ( 3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
-    let b2 = ((0.5 + 0.5 * ( 4.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let r = ((0.5 + 0.5 * (7.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let r2 = ((0.5 + 0.5 * (8.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let g = ((0.5 + 0.5 * (15.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let g2 = ((0.5 + 0.5 * (16.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let b = ((0.5 + 0.5 * (3.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
+    let b2 = ((0.5 + 0.5 * (4.0 * framestate.spin_pos * 6.28).sin()).powf(2.0) * 255.0) as u8;
 
     wheel_leds[22] = (r, 0, 0);
     wheel_leds[21] = (r2, 0, 0);
@@ -267,10 +267,7 @@ pub fn render_random_rim_red_yellow(
     Ok(())
 }
 
-pub fn render_spin_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_spin_rim(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -283,7 +280,6 @@ pub fn render_spin_rim(
     let k = (framestate.spin_pos * 3.0 + t) % 1.0;
 
     if k < 0.33 {
-
         wheel_leds[22] = (255, 64, 0);
         wheel_leds[21] = (255, 128, 0);
         wheel_leds[20] = (255, 64, 0);
@@ -291,7 +287,6 @@ pub fn render_spin_rim(
 
     Ok(())
 }
-
 
 pub fn render_pulsed_rainbow(
     wheel_leds: &mut [(u8, u8, u8)],
