@@ -18,9 +18,9 @@ Hardware
 
 * Raspberry Pi Zero
 * 46 DotStar RGB LEDs, cut into two strips, one for each side of the wheel
-* Hall effect magnetic sensor
+* Hall effect magnetic sensor: Hobbytronics A1120EUA-T Hall Effect Switch
 * Magnet
-* Level shifter
+* Level shifter: v1 = SparkFun BOB-12009
 * Perma-proto board
 * Screw terminals x 7
 * Buttons x 3
