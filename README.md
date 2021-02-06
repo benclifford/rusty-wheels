@@ -20,7 +20,8 @@ Hardware
 * 46 DotStar RGB LEDs, cut into two strips, one for each side of the wheel
 * Hall effect magnetic sensor: Hobbytronics A1120EUA-T Hall Effect Switch
 * Magnet
-* Level shifter: v1 = SparkFun BOB-12009
+* Level shifter: v1 = SparkFun BOB-12009 (v2, I'm hacking around with
+  PCA9306 https://www.sparkfun.com/products/15439)
 * Perma-proto board
 * Screw terminals x 7
 * Buttons x 3
