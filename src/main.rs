@@ -94,6 +94,9 @@ fn run_leds(
         (MODES[0])()
     };
 
+    let mut stats_num_frames: u32 = 0;
+    let mut stats_start_time = Instant::now();
+
     while !(shutdown_flag.load(Ordering::Relaxed)) {
         if m.pulsed() {
             last_spin_start_time = spin_start_time;
@@ -127,6 +130,12 @@ fn run_leds(
             if next_mode_time <= Instant::now() && args.len() <= 1 {
                 mode = (jumbler.next().unwrap())();
                 next_mode_time = Instant::now() + Duration::from_secs(MODE_CHANGE_SEC);
+
+                let stats_duration = stats_start_time.elapsed();
+                let stats_fps = (stats_num_frames as f32) / (stats_duration.as_secs() as f32);
+                println!("Frame rate statistics: {} frames over {:?} seconds = {} frames/sec", stats_num_frames, stats_duration, stats_fps);
+                stats_num_frames = 0;
+                stats_start_time = Instant::now();
             }
 
             mode.pre_step(&framestate)?;
@@ -138,6 +147,7 @@ fn run_leds(
         wheel_leds.show()?;
 
         loop_counter += 1;
+        stats_num_frames += 1;
     }
     let duration_secs = start_time.elapsed().as_secs();
     println!("Duration {} seconds", duration_secs);
