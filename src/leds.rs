@@ -19,7 +19,7 @@ fn create_spi() -> io::Result<Spidev> {
 
     let options = SpidevOptions::new()
         .bits_per_word(8)
-        .max_speed_hz(1_000_000)
+        .max_speed_hz(8_000_000)
         .mode(SpiModeFlags::SPI_MODE_0)
         .build();
     spi.configure(&options)?;
