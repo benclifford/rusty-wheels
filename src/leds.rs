@@ -58,20 +58,20 @@ pub struct WheelLEDs<const LEDS: usize> {
 
     /// left_leds stores RGB values for the left side of the wheel,
     /// starting at the centre.
-    left_leds: [(u8, u8, u8); 23],
+    left_leds: [(u8, u8, u8); LEDS],
 
     /// right_leds stores RGB values for the right side fo the wheel,
     /// starting at the centre. This is the reverse of the order
     /// that right-side LEDs need to be sent down SPI.
-    right_leds: [(u8, u8, u8); 23],
+    right_leds: [(u8, u8, u8); LEDS],
 }
 
 impl<const LEDS: usize> WheelLEDs<LEDS> {
-    /// set a pixel, side 0 or 1, pixel 0 ... 22
+    /// set a pixel, side 0 or 1, pixel 0 ... LEDS-1
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
     pub fn set(&mut self, side: Side, pixel: usize, rgb: (u8, u8, u8)) {
-        assert!(pixel <= 22, "pixel number too large");
+        assert!(pixel <= LEDS-1, "pixel number too large");
         match side {
             Side::Left => self.left_leds[pixel] = rgb,
             Side::Right => self.right_leds[pixel] = rgb,
@@ -90,12 +90,12 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
         // initialise LED strip to recieve values from the start
         send_led(&mut self.led_stream, 0, 0, 0, 0)?;
 
-        for led in 0..23 {
+        for led in 0..LEDS {
             send_rgb(&mut self.led_stream, self.left_leds[led])?;
         }
 
-        for led in 0..23 {
-            send_rgb(&mut self.led_stream, self.right_leds[22 - led])?;
+        for led in 0..LEDS {
+            send_rgb(&mut self.led_stream, self.right_leds[LEDS - 1 - led])?;
         }
 
         // padding for clocking purposes down-strip
@@ -117,8 +117,8 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
 
         WheelLEDs {
             led_stream: led_stream,
-            left_leds: [(0, 0, 0); 23],
-            right_leds: [(0, 0, 0); 23],
+            left_leds: [(0, 0, 0); LEDS],
+            right_leds: [(0, 0, 0); LEDS],
         }
     }
 }
