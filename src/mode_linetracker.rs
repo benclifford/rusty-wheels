@@ -14,7 +14,7 @@ impl<const LEDS: usize> Mode<LEDS> for LineTracker {
         leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
-        for led in 0..23 {
+        for led in 0..LEDS {
             leds.set(side, led, (0, 0, 0));
         }
         leds.set(side, self.led, (255, 8, 0));
@@ -34,21 +34,21 @@ impl<const LEDS: usize> Mode<LEDS> for LineTracker {
     }
 }
 
-fn spiral_out(frame: &FrameState) -> usize {
-    (frame.spin_pos * 23.0).min(22.0).max(0.0) as usize
+fn spiral_out<const LEDS: usize>(frame: &FrameState) -> usize {
+    (frame.spin_pos * (LEDS as f32)).min((LEDS - 1) as f32).max(0.0) as usize
 }
 
 pub fn construct_spiral_out<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(LineTracker {
         led: 11,
-        func: spiral_out,
+        func: spiral_out::<LEDS>,
     })
 }
 
-fn squarewave_flower(frame: &FrameState) -> usize {
+fn squarewave_flower<const LEDS: usize>(frame: &FrameState) -> usize {
     let phase = (frame.spin_pos * 3.0) % 1.0;
     if phase > 0.5 {
-        22
+        LEDS
     } else {
         0
     }
@@ -57,22 +57,22 @@ fn squarewave_flower(frame: &FrameState) -> usize {
 pub fn construct_squarewave_flower<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(LineTracker {
         led: 11,
-        func: squarewave_flower,
+        func: squarewave_flower::<LEDS>,
     })
 }
 
-fn squarewave(frame: &FrameState) -> usize {
+fn squarewave<const LEDS: usize>(frame: &FrameState) -> usize {
     let phase = (frame.spin_pos * 3.0) % 1.0;
     if phase > 0.5 {
-        22
+        LEDS
     } else {
-        16
+        LEDS * 2 / 3
     }
 }
 
 pub fn construct_squarewave<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(LineTracker {
         led: 11,
-        func: squarewave,
+        func: squarewave::<LEDS>,
     })
 }
