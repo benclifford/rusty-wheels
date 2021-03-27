@@ -39,11 +39,11 @@ pub trait Mode<const LEDS: usize> {
     }
 }
 
-pub struct StatelessMode {
+pub struct StatelessMode<const LEDS: usize> {
     pub render_fn: fn(leds: &mut [(u8, u8, u8)], frame: &FrameState) -> io::Result<()>,
 }
 
-impl<const LEDS: usize> Mode<LEDS> for StatelessMode {
+impl<const LEDS: usize> Mode<LEDS> for StatelessMode<LEDS> {
     fn render(&self, side: Side, leds: &mut leds::WheelLEDs<{LEDS}>, frame: &FrameState) -> io::Result<()> {
         (self.render_fn)(leds.side_slice(side), frame)
     }
