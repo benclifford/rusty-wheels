@@ -68,11 +68,11 @@ struct Dither {
     available_colours: Vec<(f32, f32, f32)>,
 }
 
-impl Mode for Dither {
+impl<const LEDS: usize> Mode<LEDS> for Dither {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -146,7 +146,7 @@ impl Mode for Dither {
     }
 }
 
-pub fn create_dither() -> Box<dyn Mode> {
+pub fn create_dither<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     let num_colours = rand::thread_rng().gen_range(2, 6);
 
     let base_degrees = rand::thread_rng().gen_range(0.0, 360.0);

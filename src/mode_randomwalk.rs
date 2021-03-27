@@ -8,11 +8,11 @@ struct RandomWalkDot {
     led: usize,
 }
 
-impl Mode for RandomWalkDot {
+impl<const LEDS: usize> Mode<LEDS> for RandomWalkDot {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -35,7 +35,7 @@ impl Mode for RandomWalkDot {
     }
 }
 
-pub fn create_random_walk_dot() -> Box<dyn Mode> {
+pub fn create_random_walk_dot<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(RandomWalkDot { led: 11 })
 }
 
@@ -44,11 +44,11 @@ struct Lightning {
     hue: f32,
 }
 
-impl Mode for Lightning {
+impl<const LEDS: usize> Mode<LEDS> for Lightning {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -77,7 +77,7 @@ impl Mode for Lightning {
     }
 }
 
-pub fn create_lightning() -> Box<dyn Mode> {
+pub fn create_lightning<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(Lightning { led: 11, hue: 0.0 })
 }
 
@@ -86,11 +86,11 @@ struct ForkLightning {
     hue: f32,
 }
 
-impl Mode for ForkLightning {
+impl<const LEDS: usize> Mode<LEDS> for ForkLightning {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -148,7 +148,7 @@ impl Mode for ForkLightning {
     }
 }
 
-pub fn create_fork_lightning() -> Box<dyn Mode> {
+pub fn create_fork_lightning<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(ForkLightning {
         leds: [false; 23],
         hue: 0.0,
@@ -159,11 +159,11 @@ struct FloatSpray {
     leds: [f32; 23],
 }
 
-impl Mode for FloatSpray {
+impl<const LEDS: usize> Mode<LEDS> for FloatSpray {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -184,6 +184,6 @@ impl Mode for FloatSpray {
     }
 }
 
-pub fn create_float_spray() -> Box<dyn Mode> {
+pub fn create_float_spray<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(FloatSpray { leds: [0.0; 23] })
 }

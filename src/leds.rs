@@ -53,7 +53,7 @@ pub const SIDES: [Side; 2] = [Side::Left, Side::Right];
 /// structure in two dimensions by radial position and side
 /// and a way to dump that array onto the physical LED array.
 
-pub struct WheelLEDs {
+pub struct WheelLEDs<const LEDS: usize> {
     led_stream: BufWriter<Spidev>,
 
     /// left_leds stores RGB values for the left side of the wheel,
@@ -66,7 +66,7 @@ pub struct WheelLEDs {
     right_leds: [(u8, u8, u8); 23],
 }
 
-impl WheelLEDs {
+impl<const LEDS: usize> WheelLEDs<LEDS> {
     /// set a pixel, side 0 or 1, pixel 0 ... 22
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
@@ -109,7 +109,7 @@ impl WheelLEDs {
         Ok(())
     }
 
-    pub fn new() -> WheelLEDs {
+    pub fn new() -> WheelLEDs<LEDS> {
         let led_stream = match setup_leds() {
             Ok(leds) => leds,
             Err(e) => panic!("LED setup returned an error: {}", e),

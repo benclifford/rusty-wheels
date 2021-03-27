@@ -15,7 +15,7 @@ use crate::mode_speckles;
 use crate::mode_stepper;
 use crate::mode_trails;
 
-pub const MODES: &[fn() -> Box<dyn Mode>] = &[
+pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] { &[
     mode_randomwalk::create_fork_lightning,
     mode_randomwalk::create_lightning,
     stateless_mode!(mode_misc::render_spin_rim),
@@ -72,4 +72,4 @@ pub const MODES: &[fn() -> Box<dyn Mode>] = &[
     stateless_mode!(mode_misc::render_sliders),
     mode_rainbow::construct_rainbow_on_off,
     stateless_mode!(mode_misc::render_fib_concentric),
-];
+]}

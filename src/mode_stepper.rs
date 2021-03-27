@@ -7,11 +7,11 @@ struct Stepper {
     last_spin_pos: f32,
 }
 
-impl Mode for Stepper {
+impl<const LEDS: usize> Mode<LEDS> for Stepper {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -30,7 +30,7 @@ impl Mode for Stepper {
     }
 }
 
-pub fn construct_stepper() -> Box<dyn Mode> {
+pub fn construct_stepper<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(Stepper {
         radius: 0,
         last_spin_pos: 0.0,

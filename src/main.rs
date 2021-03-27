@@ -14,7 +14,7 @@ use rand::Rng;
 use rusty_wheels::leds;
 use rusty_wheels::leds::{Side, WheelLEDs, SIDES};
 use rusty_wheels::magnet::Magnet;
-use rusty_wheels::modes::MODES;
+use rusty_wheels::modes::modes;
 use rusty_wheels::structs::{FrameState, Mode};
 
 use rusty_wheels::jumble::Jumbler;
@@ -29,7 +29,7 @@ const STOP_TIME_MS: u128 = 2000;
 const MODE_CHANGE_SEC: u64 = 20;
 
 /// The number of LEDs on each side
-const LEDS: usize = 23;
+const N_LEDS: usize = 23;
 
 fn main() {
     println!("Starting rusty-wheels");
@@ -44,7 +44,7 @@ fn main() {
         Err(e) => panic!("push button setup returned an error: {}", e),
     };
 
-    let wheel_leds = WheelLEDs::new();
+    let wheel_leds: WheelLEDs<N_LEDS> = WheelLEDs::new();
 
     let shutdown_flag = Arc::new(AtomicBool::new(false));
 
@@ -56,9 +56,9 @@ fn main() {
     println!("Ending rusty-wheels");
 }
 
-fn run_leds(
+fn run_leds<const LEDS: usize>(
     mut m: Magnet,
-    mut wheel_leds: WheelLEDs,
+    mut wheel_leds: WheelLEDs<LEDS>,
     mut push_button: PushButton,
     shutdown_flag: Arc<AtomicBool>,
 ) -> io::Result<()> {
@@ -68,7 +68,7 @@ fn run_leds(
     let mut last_spin_start_time = start_time;
 
     for side in SIDES.iter() {
-        for led in 0..LEDS {
+        for led in 0..N_LEDS {
             wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
@@ -87,14 +87,14 @@ fn run_leds(
 
     let mut next_mode_time = Instant::now();
 
-    let mut jumbler = Jumbler::new(MODES.to_vec());
+    let mut jumbler = Jumbler::new(modes().to_vec());
 
     // this is going to get replaced pretty much right away unless I implement a count-down timer mode switcher rather than
     // absolute time based phasing. But it's better than threading Option behaviour all the way through.
-    let mut mode: Box<dyn Mode> = if args.len() <= 1 {
+    let mut mode: Box<dyn Mode<LEDS>> = if args.len() <= 1 {
         jumbler.next().unwrap()()
     } else {
-        (MODES[0])()
+        (modes()[0])()
     };
 
     let mut stats_num_frames: u32 = 0;
@@ -158,7 +158,7 @@ fn run_leds(
     // run a shutdown effect
 
     for side in SIDES.iter() {
-        for led in 0..LEDS {
+        for led in 0..N_LEDS {
             wheel_leds.set(*side, led, (1, 1, 1));
         }
     }
@@ -167,7 +167,7 @@ fn run_leds(
     thread::sleep(Duration::from_millis(250));
 
     for side in SIDES.iter() {
-        for led in 0..LEDS {
+        for led in 0..N_LEDS {
             wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
@@ -177,9 +177,9 @@ fn run_leds(
     Ok(())
 }
 
-fn render_floodlight_mode(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) -> io::Result<()> {
+fn render_floodlight_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, _framestate: &FrameState) -> io::Result<()> {
     for side in SIDES.iter() {
-        for led in 0..LEDS {
+        for led in 0..N_LEDS {
             wheel_leds.set(*side, led, (32, 32, 32));
         }
         // override the middle ones with full brightness
@@ -191,7 +191,7 @@ fn render_floodlight_mode(wheel_leds: &mut WheelLEDs, _framestate: &FrameState) 
     Ok(())
 }
 
-fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> io::Result<()> {
+fn render_stopped_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, framestate: &FrameState) -> io::Result<()> {
     let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 3;
     match t {
         0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
@@ -200,13 +200,13 @@ fn render_stopped_mode(wheel_leds: &mut WheelLEDs, framestate: &FrameState) -> i
     }
 }
 
-fn render_stopped_mode_red_yellow_one_random(
-    wheel_leds: &mut WheelLEDs,
+fn render_stopped_mode_red_yellow_one_random<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
     _framestate: &FrameState,
 ) -> io::Result<()> {
-    let rand_led = rand::thread_rng().gen_range(0, LEDS);
+    let rand_led = rand::thread_rng().gen_range(0, N_LEDS);
     let ran_col = rand::thread_rng().gen_range(0, 2);
-    for led in 0..LEDS {
+    for led in 0..N_LEDS {
         wheel_leds.set(Side::Left, led, (0, 0, 0));
         wheel_leds.set(Side::Right, led, (0, 0, 0));
     }
@@ -223,14 +223,14 @@ fn render_stopped_mode_red_yellow_one_random(
     Ok(())
 }
 
-fn render_stopped_mode_red_yellow_slide(
-    wheel_leds: &mut WheelLEDs,
+fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    let this_frame_shift = ((framestate.now.as_millis() / 100) % (LEDS as u128)) as usize;
+    let this_frame_shift = ((framestate.now.as_millis() / 100) % (N_LEDS as u128)) as usize;
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
-        let led = (l + this_frame_shift) % LEDS;
+        let led = (l + this_frame_shift) % N_LEDS;
         wheel_leds.set(Side::Left, led, col);
         wheel_leds.set(Side::Right, led, col);
     };
@@ -246,7 +246,7 @@ fn render_stopped_mode_red_yellow_slide(
         set(offset, (255, 128, 0));
         set(offset, (255, 128, 0));
     }
-    for offset in 18..LEDS {
+    for offset in 18..N_LEDS {
         set(offset, (0, 0, 0));
         set(offset, (0, 0, 0));
     }
@@ -254,8 +254,8 @@ fn render_stopped_mode_red_yellow_slide(
     Ok(())
 }
 
-fn render_stopped_mode_red_yellow_centre_pulse(
-    wheel_leds: &mut WheelLEDs,
+fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
@@ -306,7 +306,7 @@ fn render_stopped_mode_red_yellow_centre_pulse(
         for led in 19..21 {
             wheel_leds.set(*side, led, (8, 0, 0));
         }
-        for led in 21..LEDS {
+        for led in 21..N_LEDS {
             wheel_leds.set(*side, led, (2, 0, 0));
         }
     }

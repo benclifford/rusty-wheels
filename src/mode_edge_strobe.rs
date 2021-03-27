@@ -6,11 +6,11 @@ struct EdgeStrobe {
     last_spin_pos: f32,
 }
 
-impl Mode for EdgeStrobe {
+impl<const LEDS: usize> Mode<LEDS> for EdgeStrobe {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         frame: &FrameState,
     ) -> io::Result<()> {
         let colour = if frame.spin_pos < self.last_spin_pos {
@@ -30,6 +30,6 @@ impl Mode for EdgeStrobe {
     }
 }
 
-pub fn construct_edge_strobe() -> Box<dyn Mode> {
+pub fn construct_edge_strobe<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(EdgeStrobe { last_spin_pos: 0.0 })
 }

@@ -11,11 +11,11 @@ struct CellularState {
     cells: [bool; 23],
 }
 
-impl Mode for CellularState {
+impl<const LEDS: usize> Mode<LEDS> for CellularState {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -66,7 +66,7 @@ impl Mode for CellularState {
 
 const PRETTY_AUTOMATA: &[u8] = &[73, 105, 146];
 
-pub fn construct_cellular() -> Box<dyn Mode> {
+pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     let mut cells = [false; 23];
 
     for n in 0..23 {

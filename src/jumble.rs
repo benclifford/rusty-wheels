@@ -12,21 +12,21 @@ use crate::structs::Mode;
 /// initial list a fair chance to be picked. Maybe the content
 /// list should be shuffled at creation time?
 
-pub struct Jumbler {
-    content: Vec<fn() -> Box<dyn Mode>>,
+pub struct Jumbler<const LEDS: usize> {
+    content: Vec<fn() -> Box<dyn Mode<LEDS>>>,
 }
 
-impl Jumbler {
-    pub fn new(mut content: Vec<fn() -> Box<dyn Mode>>) -> Jumbler {
+impl<const LEDS: usize> Jumbler<LEDS> {
+    pub fn new(mut content: Vec<fn() -> Box<dyn Mode<LEDS>>>) -> Jumbler<LEDS> {
         content.shuffle(&mut rand::thread_rng());
         Jumbler { content: content }
     }
 }
 
-impl Iterator for Jumbler {
-    type Item = fn() -> Box<dyn Mode>;
+impl<const LEDS: usize> Iterator for Jumbler<LEDS> {
+    type Item = fn() -> Box<dyn Mode<LEDS>>;
 
-    fn next(&mut self) -> Option<fn() -> Box<dyn Mode>> {
+    fn next(&mut self) -> Option<fn() -> Box<dyn Mode<LEDS>>> {
         let next_index = rand::thread_rng().gen_range(0, self.content.len() / 2);
 
         let entry = self.content.remove(next_index);

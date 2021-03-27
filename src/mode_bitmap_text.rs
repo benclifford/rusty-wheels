@@ -14,7 +14,7 @@ struct PhraseMode {
     bitmap: [u128; 7],
 }
 
-pub fn construct_phrase_mode() -> Box<dyn Mode> {
+pub fn construct_phrase_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Iniialising phrase bitmap");
     let phrase = "@BENCLIFFORD";
 
@@ -25,7 +25,7 @@ pub fn construct_phrase_mode() -> Box<dyn Mode> {
     Box::new(PhraseMode { bitmap: bitmap })
 }
 
-pub fn construct_phrase_mode_hello() -> Box<dyn Mode> {
+pub fn construct_phrase_mode_hello<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Iniialising phrase bitmap");
     let phrase = " HELLO  HELLO  HELLO ";
 
@@ -36,7 +36,7 @@ pub fn construct_phrase_mode_hello() -> Box<dyn Mode> {
     Box::new(PhraseMode { bitmap: bitmap })
 }
 
-pub fn construct_phrase_fuck_boris() -> Box<dyn Mode> {
+pub fn construct_phrase_fuck_boris<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Iniialising phrase bitmap");
     let phrase = " FUCK BORIS ";
 
@@ -47,11 +47,11 @@ pub fn construct_phrase_fuck_boris() -> Box<dyn Mode> {
     Box::new(PhraseMode { bitmap: bitmap })
 }
 
-impl Mode for PhraseMode {
+impl<const LEDS: usize> Mode<LEDS> for PhraseMode {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         frame: &FrameState,
     ) -> io::Result<()> {
         helper_render_bitmap(&self.bitmap, side, leds, frame)
@@ -65,7 +65,7 @@ struct SpeedoMode {
     counter: u32,
 }
 
-pub fn construct_speedo_mode() -> Box<dyn Mode> {
+pub fn construct_speedo_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Initialising speedo phrase bitmap: constructing phrase");
     let phrase = "  - KM/H";
 
@@ -82,11 +82,11 @@ pub fn construct_speedo_mode() -> Box<dyn Mode> {
     })
 }
 
-impl Mode for SpeedoMode {
+impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         frame: &FrameState,
     ) -> io::Result<()> {
         helper_render_bitmap(&self.canvas.bitmap, side, leds, frame)
@@ -139,10 +139,10 @@ impl Mode for SpeedoMode {
 }
 
 /// This can render a 128 pixel wide, 7 bit pixel high bitmap
-fn helper_render_bitmap(
+fn helper_render_bitmap<const LEDS: usize>(
     row: &[u128; 7],
     side: leds::Side,
-    wheel_leds: &mut leds::WheelLEDs,
+    wheel_leds: &mut leds::WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
     // establish a blank canvas

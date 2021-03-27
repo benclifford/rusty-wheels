@@ -11,11 +11,11 @@ struct Dither {
     rgb: [(u8, u8, u8); 23],
 }
 
-impl Mode for Dither {
+impl<const LEDS: usize> Mode<LEDS> for Dither {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -84,7 +84,7 @@ impl Mode for Dither {
     }
 }
 
-pub fn create_dither() -> Box<dyn Mode> {
+pub fn create_dither<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(Dither {
         prev_errors: [0.0; 23],
         next_errors: [0.0; 23],

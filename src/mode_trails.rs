@@ -8,11 +8,11 @@ struct Trails {
     leds: [(u8, u8, u8); 23],
 }
 
-impl Mode for Trails {
+impl<const LEDS: usize> Mode<LEDS> for Trails {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -33,7 +33,7 @@ impl Mode for Trails {
     }
 }
 
-pub fn construct_white_trails() -> Box<dyn Mode> {
+pub fn construct_white_trails<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(Trails {
         leds: [(0, 0, 0); 23],
     })
@@ -44,11 +44,11 @@ struct HueTrails {
     leds: [(f32, f32); 23],
 }
 
-impl Mode for HueTrails {
+impl<const LEDS: usize> Mode<LEDS> for HueTrails {
     fn render(
         &self,
         side: leds::Side,
-        leds: &mut leds::WheelLEDs,
+        leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
         for led in 0..23 {
@@ -74,14 +74,14 @@ impl Mode for HueTrails {
     }
 }
 
-pub fn construct_hue_trails() -> Box<dyn Mode> {
+pub fn construct_hue_trails<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(HueTrails {
         trigger_denominator: 1,
         leds: [(0.0, 0.0); 23],
     })
 }
 
-pub fn construct_hue_trails_sparse() -> Box<dyn Mode> {
+pub fn construct_hue_trails_sparse<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     Box::new(HueTrails {
         trigger_denominator: 5,
         leds: [(0.0, 0.0); 23],
