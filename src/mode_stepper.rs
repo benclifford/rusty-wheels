@@ -14,7 +14,7 @@ impl<const LEDS: usize> Mode<LEDS> for Stepper {
         leds: &mut leds::WheelLEDs<LEDS>,
         _frame: &FrameState,
     ) -> io::Result<()> {
-        for led in 0..23 {
+        for led in 0..LEDS {
             leds.set(side, led, (0, 0, 0));
         }
         leds.set(side, self.radius, (255, 128, 0));
@@ -23,7 +23,7 @@ impl<const LEDS: usize> Mode<LEDS> for Stepper {
 
     fn step(&mut self, frame: &FrameState) -> io::Result<()> {
         if frame.spin_pos < self.last_spin_pos {
-            self.radius = (self.radius + 1) % 23;
+            self.radius = (self.radius + 1) % LEDS;
         }
         self.last_spin_pos = frame.spin_pos;
         Ok(())
