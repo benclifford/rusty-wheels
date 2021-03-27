@@ -68,7 +68,7 @@ fn run_leds<const LEDS: usize>(
     let mut last_spin_start_time = start_time;
 
     for side in SIDES.iter() {
-        for led in 0..N_LEDS {
+        for led in 0..LEDS {
             wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
@@ -158,7 +158,7 @@ fn run_leds<const LEDS: usize>(
     // run a shutdown effect
 
     for side in SIDES.iter() {
-        for led in 0..N_LEDS {
+        for led in 0..LEDS {
             wheel_leds.set(*side, led, (1, 1, 1));
         }
     }
@@ -167,7 +167,7 @@ fn run_leds<const LEDS: usize>(
     thread::sleep(Duration::from_millis(250));
 
     for side in SIDES.iter() {
-        for led in 0..N_LEDS {
+        for led in 0..LEDS {
             wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
@@ -179,7 +179,7 @@ fn run_leds<const LEDS: usize>(
 
 fn render_floodlight_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, _framestate: &FrameState) -> io::Result<()> {
     for side in SIDES.iter() {
-        for led in 0..N_LEDS {
+        for led in 0..LEDS {
             wheel_leds.set(*side, led, (32, 32, 32));
         }
         // override the middle ones with full brightness
@@ -204,9 +204,9 @@ fn render_stopped_mode_red_yellow_one_random<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     _framestate: &FrameState,
 ) -> io::Result<()> {
-    let rand_led = rand::thread_rng().gen_range(0, N_LEDS);
+    let rand_led = rand::thread_rng().gen_range(0, LEDS);
     let ran_col = rand::thread_rng().gen_range(0, 2);
-    for led in 0..N_LEDS {
+    for led in 0..LEDS {
         wheel_leds.set(Side::Left, led, (0, 0, 0));
         wheel_leds.set(Side::Right, led, (0, 0, 0));
     }
@@ -227,10 +227,10 @@ fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    let this_frame_shift = ((framestate.now.as_millis() / 100) % (N_LEDS as u128)) as usize;
+    let this_frame_shift = ((framestate.now.as_millis() / 100) % (LEDS as u128)) as usize;
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
-        let led = (l + this_frame_shift) % N_LEDS;
+        let led = (l + this_frame_shift) % LEDS;
         wheel_leds.set(Side::Left, led, col);
         wheel_leds.set(Side::Right, led, col);
     };
@@ -246,7 +246,7 @@ fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
         set(offset, (255, 128, 0));
         set(offset, (255, 128, 0));
     }
-    for offset in 18..N_LEDS {
+    for offset in 18..LEDS {
         set(offset, (0, 0, 0));
         set(offset, (0, 0, 0));
     }
@@ -306,7 +306,7 @@ fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
         for led in 19..21 {
             wheel_leds.set(*side, led, (8, 0, 0));
         }
-        for led in 21..N_LEDS {
+        for led in 21..LEDS {
             wheel_leds.set(*side, led, (2, 0, 0));
         }
     }
