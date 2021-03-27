@@ -146,7 +146,7 @@ fn helper_render_bitmap<const LEDS: usize>(
     framestate: &FrameState,
 ) -> io::Result<()> {
     // establish a blank canvas
-    for led in 0..23 {
+    for led in 0..LEDS {
         wheel_leds.set(side, led, (0, 0, 0));
     }
     let mut pixel;
@@ -174,7 +174,7 @@ fn helper_render_bitmap<const LEDS: usize>(
         } else {
             (0, 0, 0)
         };
-        wheel_leds.set(side, 22 - n, colour);
+        wheel_leds.set(side, LEDS - 1 - n, colour);
     }
 
     Ok(())
