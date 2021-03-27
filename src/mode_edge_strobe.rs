@@ -18,7 +18,7 @@ impl<const LEDS: usize> Mode<LEDS> for EdgeStrobe {
         } else {
             (0, 0, 0)
         };
-        for led in 0..23 {
+        for led in 0..LEDS {
             leds.set(side, led, colour);
         }
         Ok(())
