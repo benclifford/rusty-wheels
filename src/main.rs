@@ -192,10 +192,10 @@ fn render_floodlight_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, _
 }
 
 fn render_stopped_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, framestate: &FrameState) -> io::Result<()> {
-    let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 3;
+    let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 2;
     match t {
-        0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
-        1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
+        // 0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
+        0 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
         _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate),
     }
 }
