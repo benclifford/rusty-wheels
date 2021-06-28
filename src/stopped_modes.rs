@@ -7,10 +7,11 @@ use crate::structs::FrameState;
 const MODE_CHANGE_SEC: u64 = 60;
 
 pub fn render_stopped_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, framestate: &FrameState) -> io::Result<()> {
-    let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 2;
+    let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 3;
     match t {
         // 0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
-        0 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
+        0 => render_stopped_mode_amber_swap(wheel_leds, framestate),
+        1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
         _ => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate),
     }
 }
@@ -123,6 +124,34 @@ fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
         }
         for led in 21..LEDS {
             wheel_leds.set(*side, led, (2, 0, 0));
+        }
+    }
+
+    Ok(())
+}
+
+fn render_stopped_mode_amber_swap<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    let now_secs = framestate.now.as_secs();
+    let topside = now_secs % 2 == 0;
+    for side in &SIDES {
+        for led in 0..8 {
+            wheel_leds.set(*side, led, (0, 0, 0));
+        }
+
+        if topside ^ (*side == Side::Left) {
+            for led in 9..14 {
+                wheel_leds.set(*side, led, (255, 64, 0));
+            }
+        } else {
+            for led in 9..14 {
+                wheel_leds.set(*side, led, (0, 0, 0));
+            }
+        }
+        for led in 14..LEDS {
+            wheel_leds.set(*side, led, (0, 0, 0));
         }
     }
 
