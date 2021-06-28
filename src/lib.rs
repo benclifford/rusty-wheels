@@ -17,4 +17,5 @@ pub mod mode_speckles;
 pub mod mode_stepper;
 pub mod mode_trails;
 pub mod modes;
+pub mod stopped_modes;
 pub mod structs;
