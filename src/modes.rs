@@ -60,7 +60,7 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] { &[
     mode_bitmap_text::construct_speedo_mode,
     // solid image-like modes
     stateless_mode!(mode_misc::render_centre_red),
-    stateless_mode!(mode_misc::render_europa),
+    // stateless_mode!(mode_misc::render_europa),
     // rainbows and squiggles
     stateless_mode!(mode_misc::render_helix),
     stateless_mode!(mode_misc::render_pulsed_rainbow),
