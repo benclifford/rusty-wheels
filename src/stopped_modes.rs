@@ -44,27 +44,29 @@ fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    let this_frame_shift = ((framestate.now.as_millis() / 100) % (LEDS as u128)) as usize;
+
+    let this_frame_shift = ((framestate.now.as_millis() / 32) % (LEDS as u128)) as usize;
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
-        let led = (l + this_frame_shift) % LEDS;
-        wheel_leds.set(Side::Left, led, col);
-        wheel_leds.set(Side::Right, led, col);
+        let led = l + this_frame_shift;
+        if led < LEDS {
+            wheel_leds.set(Side::Left, led, col);
+            wheel_leds.set(Side::Right, led, col);
+        }
     };
 
-    for offset in 0..6 {
+    set(0, (0, 0, 0));
+
+    for offset in 1..7 {
         set(offset, (255, 0, 0));
     }
-    for offset in 6..12 {
-        set(offset, (0, 0, 0));
+    for offset in 7..13 {
         set(offset, (0, 0, 0));
     }
-    for offset in 12..18 {
-        set(offset, (255, 128, 0));
-        set(offset, (255, 128, 0));
+    for offset in 13..19 {
+        set(offset, (255, 64, 0));
     }
-    for offset in 18..LEDS {
-        set(offset, (0, 0, 0));
+    for offset in 19..LEDS {
         set(offset, (0, 0, 0));
     }
 
