@@ -1,12 +1,15 @@
-use std::io;
 use rand::Rng;
+use std::io;
 
 use crate::leds::{Side, WheelLEDs, SIDES};
 use crate::structs::FrameState;
 
 const MODE_CHANGE_SEC: u64 = 60;
 
-pub fn render_stopped_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, framestate: &FrameState) -> io::Result<()> {
+pub fn render_stopped_mode<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
     let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 4;
     match t {
         // 0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
@@ -44,7 +47,6 @@ fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-
     let this_frame_shift = ((framestate.now.as_millis() / 32) % (LEDS as u128)) as usize;
 
     let mut set = |l: usize, col: (u8, u8, u8)| {
@@ -79,7 +81,7 @@ fn render_stopped_mode_full_quick_pulse<const LEDS: usize>(
 ) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
     let now_secs = framestate.now.as_secs();
-    let flicker = (now_millis / 25) % 4 == 0 && (now_millis / 250) %2 == 0;
+    let flicker = (now_millis / 25) % 4 == 0 && (now_millis / 250) % 2 == 0;
     let topside = now_secs % 2 == 0;
     for side in &SIDES {
         if topside ^ (*side == Side::Left) {
@@ -99,7 +101,6 @@ fn render_stopped_mode_full_quick_pulse<const LEDS: usize>(
 
     Ok(())
 }
-
 
 fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,

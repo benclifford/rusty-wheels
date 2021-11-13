@@ -2,7 +2,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 
 pub struct Jumbler<T> {
-    content: Vec<T>
+    content: Vec<T>,
 }
 
 impl<T> Jumbler<T> {

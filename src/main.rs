@@ -135,7 +135,10 @@ fn run_leds<const LEDS: usize>(
 
                 let stats_duration = stats_start_time.elapsed();
                 let stats_fps = (stats_num_frames as f32) / (stats_duration.as_secs() as f32);
-                println!("Frame rate statistics: {} frames over {:?} seconds = {} frames/sec", stats_num_frames, stats_duration, stats_fps);
+                println!(
+                    "Frame rate statistics: {} frames over {:?} seconds = {} frames/sec",
+                    stats_num_frames, stats_duration, stats_fps
+                );
                 stats_num_frames = 0;
                 stats_start_time = Instant::now();
             }
@@ -176,7 +179,10 @@ fn run_leds<const LEDS: usize>(
     Ok(())
 }
 
-fn render_floodlight_mode<const LEDS: usize>(wheel_leds: &mut WheelLEDs<LEDS>, _framestate: &FrameState) -> io::Result<()> {
+fn render_floodlight_mode<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    _framestate: &FrameState,
+) -> io::Result<()> {
     for side in SIDES.iter() {
         for led in 0..LEDS {
             wheel_leds.set(*side, led, (32, 32, 32));

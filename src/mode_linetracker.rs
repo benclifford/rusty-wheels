@@ -35,7 +35,9 @@ impl<const LEDS: usize> Mode<LEDS> for LineTracker {
 }
 
 fn spiral_out<const LEDS: usize>(frame: &FrameState) -> usize {
-    (frame.spin_pos * (LEDS as f32)).min((LEDS - 1) as f32).max(0.0) as usize
+    (frame.spin_pos * (LEDS as f32))
+        .min((LEDS - 1) as f32)
+        .max(0.0) as usize
 }
 
 pub fn construct_spiral_out<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {

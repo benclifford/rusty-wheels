@@ -26,7 +26,12 @@ pub struct FrameState {
 /// render will be called to render each side
 /// then step will be called to allow any state advancing to happen
 pub trait Mode<const LEDS: usize> {
-    fn render(&self, side: Side, leds: &mut leds::WheelLEDs<LEDS>, frame: &FrameState) -> io::Result<()>;
+    fn render(
+        &self,
+        side: Side,
+        leds: &mut leds::WheelLEDs<LEDS>,
+        frame: &FrameState,
+    ) -> io::Result<()>;
 
     /// runs before render calls on a frame
     fn pre_step(&mut self, _frame: &FrameState) -> io::Result<()> {
@@ -44,7 +49,12 @@ pub struct StatelessMode<const LEDS: usize> {
 }
 
 impl<const LEDS: usize> Mode<LEDS> for StatelessMode<LEDS> {
-    fn render(&self, side: Side, leds: &mut leds::WheelLEDs<{LEDS}>, frame: &FrameState) -> io::Result<()> {
+    fn render(
+        &self,
+        side: Side,
+        leds: &mut leds::WheelLEDs<{ LEDS }>,
+        frame: &FrameState,
+    ) -> io::Result<()> {
         (self.render_fn)(leds.side_slice(side), frame)
     }
 }

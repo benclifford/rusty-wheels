@@ -71,7 +71,7 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
     pub fn set(&mut self, side: Side, pixel: usize, rgb: (u8, u8, u8)) {
-        assert!(pixel <= LEDS-1, "pixel number too large");
+        assert!(pixel <= LEDS - 1, "pixel number too large");
         match side {
             Side::Left => self.left_leds[pixel] = rgb,
             Side::Right => self.right_leds[pixel] = rgb,
