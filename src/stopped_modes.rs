@@ -1,4 +1,3 @@
-use rand::Rng;
 use std::io;
 
 use crate::leds::{Side, WheelLEDs, SIDES};
@@ -12,35 +11,11 @@ pub fn render_stopped_mode<const LEDS: usize>(
 ) -> io::Result<()> {
     let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 4;
     match t {
-        // 0 => render_stopped_mode_red_yellow_one_random(wheel_leds, framestate),
         0 => render_stopped_mode_amber_swap(wheel_leds, framestate),
         1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
         2 => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate),
         _ => render_stopped_mode_full_quick_pulse(wheel_leds, framestate),
     }
-}
-
-fn render_stopped_mode_red_yellow_one_random<const LEDS: usize>(
-    wheel_leds: &mut WheelLEDs<LEDS>,
-    _framestate: &FrameState,
-) -> io::Result<()> {
-    let rand_led = rand::thread_rng().gen_range(0, LEDS);
-    let ran_col = rand::thread_rng().gen_range(0, 2);
-    for led in 0..LEDS {
-        wheel_leds.set(Side::Left, led, (0, 0, 0));
-        wheel_leds.set(Side::Right, led, (0, 0, 0));
-    }
-
-    let rcol = if ran_col == 0 {
-        (255, 0, 0)
-    } else {
-        (255, 128, 0)
-    };
-
-    wheel_leds.set(Side::Left, rand_led, rcol);
-    wheel_leds.set(Side::Right, rand_led, rcol);
-
-    Ok(())
 }
 
 fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
