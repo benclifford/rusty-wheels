@@ -64,6 +64,7 @@ impl<const LEDS: usize> Mode<LEDS> for CellularState {
     }
 }
 
+/// These look good in rotating mode
 const PRETTY_AUTOMATA: &[u8] = &[73, 105, 146];
 
 pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
