@@ -5,37 +5,23 @@ use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::io;
 
-struct CellularState {
+struct CellularState<const LEDS: usize> {
     automata_number: u8,
     rgb: (u8, u8, u8),
-    cells: [bool; 23],
+    cells: [bool; LEDS],
 }
 
-impl<const LEDS: usize> Mode<LEDS> for CellularState {
-    fn render(
-        &self,
-        side: leds::Side,
-        leds: &mut leds::WheelLEDs<LEDS>,
-        _frame: &FrameState,
-    ) -> io::Result<()> {
-        for led in 0..23 {
-            let colour = if self.cells[led] { self.rgb } else { (0, 0, 0) };
-            leds.set(side, led, colour);
-        }
-
-        Ok(())
-    }
-
-    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
+impl<const LEDS: usize> CellularState<LEDS> {
+    fn step_cells(&mut self) {
         let mut new_cells = self.cells;
 
-        for cell in 0..23 {
+        for cell in 0..LEDS {
             let downcell = if cell < 1 {
-                self.cells[22]
+                self.cells[LEDS - 1]
             } else {
                 self.cells[cell - 1]
             };
-            let upcell = if cell > 21 {
+            let upcell = if cell >= LEDS - 1 {
                 self.cells[0]
             } else {
                 self.cells[cell + 1]
@@ -59,7 +45,29 @@ impl<const LEDS: usize> Mode<LEDS> for CellularState {
         }
 
         self.cells = new_cells;
+    }
 
+    fn render_leds(&self, side: leds::Side, leds: &mut leds::WheelLEDs<LEDS>) {
+        for led in 0..LEDS {
+            let colour = if self.cells[led] { self.rgb } else { (0, 0, 0) };
+            leds.set(side, led, colour);
+        }
+    }
+}
+
+impl<const LEDS: usize> Mode<LEDS> for CellularState<LEDS> {
+    fn render(
+        &self,
+        side: leds::Side,
+        leds: &mut leds::WheelLEDs<LEDS>,
+        _frame: &FrameState,
+    ) -> io::Result<()> {
+        self.render_leds(side, leds);
+        Ok(())
+    }
+
+    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
+        self.step_cells();
         Ok(())
     }
 }
@@ -68,9 +76,9 @@ impl<const LEDS: usize> Mode<LEDS> for CellularState {
 const PRETTY_AUTOMATA: &[u8] = &[73, 105, 146];
 
 pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
-    let mut cells = [false; 23];
+    let mut cells = [false; LEDS];
 
-    for n in 0..23 {
+    for n in 0..LEDS {
         let r = rand::thread_rng().gen_range(0, 2);
         cells[n] = r == 1;
     }
