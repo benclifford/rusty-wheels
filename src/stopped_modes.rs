@@ -6,8 +6,8 @@ use crate::structs::FrameState;
 const MODE_CHANGE_SEC: u64 = 60;
 
 fn stopped_modes<const LEDS: usize>(
-) -> [for<'r, 's> fn(&'r mut WheelLEDs<LEDS>, &'s FrameState) -> Result<(), std::io::Error>; 4] {
-    [
+) -> &'static [for<'r, 's> fn(&'r mut WheelLEDs<LEDS>, &'s FrameState) -> Result<(), std::io::Error>] {
+    &[
         render_stopped_mode_amber_swap,
         render_stopped_mode_red_yellow_slide,
         render_stopped_mode_red_yellow_centre_pulse,
