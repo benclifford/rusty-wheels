@@ -10,6 +10,7 @@ fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
     &[
+        amber_quarters_fader,
         amber_quarters,
         amber_swap,
         red_yellow_slide,
@@ -175,6 +176,52 @@ fn amber_quarters<const LEDS: usize>(
         }
         for led in 11..LEDS {
             wheel_leds.set(Side::Left, led, (255, 64, 0));
+            wheel_leds.set(Side::Right, led, (0, 0, 0));
+        }
+    }
+
+    Ok(())
+}
+
+fn amber_quarters_fader<const LEDS: usize>(
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    let now_ms = framestate.now.as_millis();
+
+    let a = now_ms % 2000; // 0 .. 2000
+
+    let quarter = a / 1000; // 0 .. 1
+    let cycle = a % 1000;
+
+    let updown = cycle / 500;
+    let fadecycle = cycle % 500;
+
+    let s2 = (fadecycle * 255 / 500) as u8; // rescale to 0..255
+    let s3 = (fadecycle * 64 / 500) as u8; // rescale to 0..64
+
+    let on_col = if updown == 0 {
+        (s2, s3, 0)
+    } else {
+        (255 - s2, 64 - s3, 0)
+    };
+
+    if quarter == 0 {
+        for led in 0..11 {
+            wheel_leds.set(Side::Left, led, on_col);
+            wheel_leds.set(Side::Right, led, (0, 0, 0));
+        }
+        for led in 11..LEDS {
+            wheel_leds.set(Side::Right, led, on_col);
+            wheel_leds.set(Side::Left, led, (0, 0, 0));
+        }
+    } else {
+        for led in 0..11 {
+            wheel_leds.set(Side::Right, led, on_col);
+            wheel_leds.set(Side::Left, led, (0, 0, 0));
+        }
+        for led in 11..LEDS {
+            wheel_leds.set(Side::Left, led, on_col);
             wheel_leds.set(Side::Right, led, (0, 0, 0));
         }
     }
