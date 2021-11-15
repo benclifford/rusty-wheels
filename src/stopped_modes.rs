@@ -10,10 +10,10 @@ fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
     &[
-        render_stopped_mode_amber_swap,
-        render_stopped_mode_red_yellow_slide,
-        render_stopped_mode_red_yellow_centre_pulse,
-        render_stopped_mode_full_quick_pulse,
+        amber_swap,
+        red_yellow_slide,
+        red_yellow_centre_pulse,
+        full_quick_pulse,
     ]
 }
 
@@ -29,7 +29,7 @@ pub fn render_stopped_mode<const LEDS: usize>(
     mode(wheel_leds, framestate)
 }
 
-fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
+fn red_yellow_slide<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -61,7 +61,7 @@ fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
     Ok(())
 }
 
-fn render_stopped_mode_full_quick_pulse<const LEDS: usize>(
+fn full_quick_pulse<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -88,7 +88,7 @@ fn render_stopped_mode_full_quick_pulse<const LEDS: usize>(
     Ok(())
 }
 
-fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
+fn red_yellow_centre_pulse<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -148,7 +148,7 @@ fn render_stopped_mode_red_yellow_centre_pulse<const LEDS: usize>(
     Ok(())
 }
 
-fn render_stopped_mode_amber_swap<const LEDS: usize>(
+fn amber_swap<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
