@@ -5,17 +5,26 @@ use crate::structs::FrameState;
 
 const MODE_CHANGE_SEC: u64 = 60;
 
+fn stopped_modes<const LEDS: usize>(
+) -> [for<'r, 's> fn(&'r mut WheelLEDs<LEDS>, &'s FrameState) -> Result<(), std::io::Error>; 4] {
+    [
+        render_stopped_mode_amber_swap,
+        render_stopped_mode_red_yellow_slide,
+        render_stopped_mode_red_yellow_centre_pulse,
+        render_stopped_mode_full_quick_pulse,
+    ]
+}
+
 pub fn render_stopped_mode<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    let t = framestate.now.as_secs() / MODE_CHANGE_SEC % 4;
-    match t {
-        0 => render_stopped_mode_amber_swap(wheel_leds, framestate),
-        1 => render_stopped_mode_red_yellow_slide(wheel_leds, framestate),
-        2 => render_stopped_mode_red_yellow_centre_pulse(wheel_leds, framestate),
-        _ => render_stopped_mode_full_quick_pulse(wheel_leds, framestate),
-    }
+    let modes = stopped_modes();
+    let t = (framestate.now.as_secs() / MODE_CHANGE_SEC % (modes.len() as u64)) as usize;
+
+    let mode = modes[t];
+
+    mode(wheel_leds, framestate)
 }
 
 fn render_stopped_mode_red_yellow_slide<const LEDS: usize>(
