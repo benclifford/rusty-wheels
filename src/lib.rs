@@ -16,6 +16,6 @@ pub mod mode_rgb_dither;
 pub mod mode_speckles;
 pub mod mode_stepper;
 pub mod mode_trails;
-pub mod modes;
+pub mod moving_modes;
 pub mod stopped_modes;
 pub mod structs;

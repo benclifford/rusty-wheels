@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 use rusty_wheels::leds;
 use rusty_wheels::leds::{WheelLEDs, SIDES};
 use rusty_wheels::magnet::Magnet;
-use rusty_wheels::modes::modes;
+use rusty_wheels::moving_modes::modes;
 use rusty_wheels::stopped_modes::render_stopped_mode;
 use rusty_wheels::structs::{FrameState, Mode};
 
