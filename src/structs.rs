@@ -66,3 +66,28 @@ macro_rules! stateless_mode {
         || Box::new(crate::structs::StatelessMode { render_fn: $x })
     };
 }
+
+
+pub struct StatelessModeB<const LEDS: usize> {
+    pub render_fn: fn(side: Side, leds: &mut [(u8, u8, u8); LEDS], frame: &FrameState) -> io::Result<()>,
+}
+
+impl<const LEDS: usize> Mode<LEDS> for StatelessModeB<LEDS> {
+    fn render(
+        &self,
+        side: Side,
+        leds: &mut leds::WheelLEDs<{ LEDS }>,
+        frame: &FrameState,
+    ) -> io::Result<()> {
+        (self.render_fn)(side, leds.side_slice_b(side), frame)
+    }
+}
+
+/// Lifts a render function into a mode which has no state
+/// but will have sides and maybe some more nuanced leds structure
+#[macro_export]
+macro_rules! stateless_mode_b {
+    ( $x:expr ) => {
+        || Box::new(crate::structs::StatelessModeB { render_fn: $x })
+    };
+}

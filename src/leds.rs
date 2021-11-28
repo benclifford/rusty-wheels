@@ -85,6 +85,13 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
         }
     }
 
+    pub fn side_slice_b(&mut self, side: Side) -> &mut [(u8, u8, u8); LEDS] {
+        match side {
+            Side::Left => &mut self.left_leds,
+            Side::Right => &mut self.right_leds,
+        }
+    }
+
     /// Writes the stored LED values to the physical strip over SPI
     pub fn show(&mut self) -> io::Result<()> {
         // initialise LED strip to recieve values from the start

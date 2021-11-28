@@ -1,4 +1,5 @@
 use crate::stateless_mode;
+use crate::stateless_mode_b;
 use crate::structs::Mode;
 
 use crate::mode_bitmap_text;
@@ -19,7 +20,7 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
     &[
         mode_randomwalk::create_fork_lightning,
         mode_randomwalk::create_lightning,
-        stateless_mode!(mode_misc::render_spin_rim),
+        stateless_mode_b!(mode_misc::render_spin_rim::<LEDS>),
         stateless_mode!(mode_misc::render_rainbow_rim_spaced2),
         stateless_mode!(mode_misc::render_rainbow_rim_spaced),
         stateless_mode!(mode_misc::render_rainbow_rim_sine_overlay),

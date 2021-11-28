@@ -1,4 +1,5 @@
 use crate::helpers::{fraction_to_rgb, spinpos_to_rgb};
+use crate::leds::Side;
 use crate::structs::FrameState;
 use rand::Rng;
 use std::cmp;
@@ -267,7 +268,7 @@ pub fn render_random_rim_red_yellow(
     Ok(())
 }
 
-pub fn render_spin_rim(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_spin_rim<const LEDS: usize>(_side: Side, wheel_leds: &mut [(u8, u8, u8); LEDS], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }
