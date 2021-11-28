@@ -268,7 +268,11 @@ pub fn render_random_rim_red_yellow(
     Ok(())
 }
 
-pub fn render_spin_rim<const LEDS: usize>(_side: Side, wheel_leds: &mut [(u8, u8, u8); LEDS], framestate: &FrameState) -> io::Result<()> {
+pub fn render_spin_rim<const LEDS: usize>(
+    _side: Side,
+    wheel_leds: &mut [(u8, u8, u8); LEDS],
+    framestate: &FrameState,
+) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }

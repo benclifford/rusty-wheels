@@ -67,9 +67,9 @@ macro_rules! stateless_mode {
     };
 }
 
-
 pub struct StatelessModeB<const LEDS: usize> {
-    pub render_fn: fn(side: Side, leds: &mut [(u8, u8, u8); LEDS], frame: &FrameState) -> io::Result<()>,
+    pub render_fn:
+        fn(side: Side, leds: &mut [(u8, u8, u8); LEDS], frame: &FrameState) -> io::Result<()>,
 }
 
 impl<const LEDS: usize> Mode<LEDS> for StatelessModeB<LEDS> {
