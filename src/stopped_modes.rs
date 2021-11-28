@@ -1,11 +1,12 @@
 use std::io;
 
-use crate::leds::{Side, WheelLEDs, SIDES};
+use crate::leds::{Side, WheelLEDs};
 use crate::structs::FrameState;
 
 const MODE_CHANGE_SEC: u64 = 60;
 
 fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
+    side: Side,
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
@@ -28,10 +29,13 @@ pub fn render_stopped_mode<const LEDS: usize>(
 
     let mode = modes[t];
 
-    mode(wheel_leds, framestate)
+    mode(Side::Left, wheel_leds, framestate)?;
+    mode(Side::Right, wheel_leds, framestate)?;
+    Ok(())
 }
 
 fn red_yellow_slide<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -40,8 +44,7 @@ fn red_yellow_slide<const LEDS: usize>(
     let mut set = |l: usize, col: (u8, u8, u8)| {
         let led = l + this_frame_shift;
         if led < LEDS {
-            wheel_leds.set(Side::Left, led, col);
-            wheel_leds.set(Side::Right, led, col);
+            wheel_leds.set(side, led, col);
         }
     };
 
@@ -64,6 +67,7 @@ fn red_yellow_slide<const LEDS: usize>(
 }
 
 fn full_quick_pulse<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -71,19 +75,17 @@ fn full_quick_pulse<const LEDS: usize>(
     let now_secs = framestate.now.as_secs();
     let flicker = (now_millis / 25) % 4 == 0 && (now_millis / 250) % 2 == 0;
     let topside = now_secs % 2 == 0;
-    for side in &SIDES {
-        if topside ^ (*side == Side::Left) {
-            for led in 0..LEDS {
-                if flicker {
-                    wheel_leds.set(*side, led, (255, 64, 0));
-                } else {
-                    wheel_leds.set(*side, led, (0, 0, 0));
-                }
+    if topside ^ (side == Side::Left) {
+        for led in 0..LEDS {
+            if flicker {
+                wheel_leds.set(side, led, (255, 64, 0));
+            } else {
+                wheel_leds.set(side, led, (0, 0, 0));
             }
-        } else {
-            for led in 9..14 {
-                wheel_leds.set(*side, led, (0, 0, 0));
-            }
+        }
+    } else {
+        for led in 9..14 {
+            wheel_leds.set(side, led, (0, 0, 0));
         }
     }
 
@@ -91,6 +93,7 @@ fn full_quick_pulse<const LEDS: usize>(
 }
 
 fn red_yellow_centre_pulse<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -98,59 +101,58 @@ fn red_yellow_centre_pulse<const LEDS: usize>(
     let now_secs = framestate.now.as_secs();
     let flicker = (now_millis / 25) % 4 == 0;
     let topside = now_secs % 2 == 0;
-    for side in &SIDES {
-        for led in 0..2 {
-            wheel_leds.set(*side, led, (2, 0, 0));
-        }
-        for led in 2..4 {
-            wheel_leds.set(*side, led, (8, 0, 0));
-        }
-        for led in 4..6 {
-            wheel_leds.set(*side, led, (64, 0, 0));
-        }
+    for led in 0..2 {
+        wheel_leds.set(side, led, (2, 0, 0));
+    }
+    for led in 2..4 {
+        wheel_leds.set(side, led, (8, 0, 0));
+    }
+    for led in 4..6 {
+        wheel_leds.set(side, led, (64, 0, 0));
+    }
 
-        for led in 6..8 {
-            wheel_leds.set(*side, led, (255, 0, 0));
-        }
+    for led in 6..8 {
+        wheel_leds.set(side, led, (255, 0, 0));
+    }
 
-        for led in 8..9 {
-            wheel_leds.set(*side, led, (0, 0, 0));
-        }
+    for led in 8..9 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
 
-        if topside ^ (*side == Side::Left) {
-            for led in 9..14 {
-                if flicker {
-                    wheel_leds.set(*side, led, (255, 255, 0));
-                } else {
-                    wheel_leds.set(*side, led, (0, 0, 0));
-                }
-            }
-        } else {
-            for led in 9..14 {
-                wheel_leds.set(*side, led, (0, 0, 0));
+    if topside ^ (side == Side::Left) {
+        for led in 9..14 {
+            if flicker {
+                wheel_leds.set(side, led, (255, 255, 0));
+            } else {
+                wheel_leds.set(side, led, (0, 0, 0));
             }
         }
-        for led in 14..15 {
-            wheel_leds.set(*side, led, (0, 0, 0));
+    } else {
+        for led in 9..14 {
+            wheel_leds.set(side, led, (0, 0, 0));
         }
-        for led in 15..17 {
-            wheel_leds.set(*side, led, (255, 0, 0));
-        }
-        for led in 17..19 {
-            wheel_leds.set(*side, led, (64, 0, 0));
-        }
-        for led in 19..21 {
-            wheel_leds.set(*side, led, (8, 0, 0));
-        }
-        for led in 21..LEDS {
-            wheel_leds.set(*side, led, (2, 0, 0));
-        }
+    }
+    for led in 14..15 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
+    for led in 15..17 {
+        wheel_leds.set(side, led, (255, 0, 0));
+    }
+    for led in 17..19 {
+        wheel_leds.set(side, led, (64, 0, 0));
+    }
+    for led in 19..21 {
+        wheel_leds.set(side, led, (8, 0, 0));
+    }
+    for led in 21..LEDS {
+        wheel_leds.set(side, led, (2, 0, 0));
     }
 
     Ok(())
 }
 
 fn amber_quarters<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -158,25 +160,23 @@ fn amber_quarters<const LEDS: usize>(
 
     let a = now_ms % 2000;
 
-    let segs = a / 1000;
+    let segs = a / 1000; // range: 0 .. 1
 
-    if segs == 0 {
+    let flip = (segs == 0) ^ (side == Side::Left);
+
+    if flip {
         for led in 0..11 {
-            wheel_leds.set(Side::Left, led, (255, 64, 0));
-            wheel_leds.set(Side::Right, led, (0, 0, 0));
+            wheel_leds.set(side, led, (255, 64, 0));
         }
         for led in 11..LEDS {
-            wheel_leds.set(Side::Right, led, (255, 64, 0));
-            wheel_leds.set(Side::Left, led, (0, 0, 0));
+            wheel_leds.set(side, led, (0, 0, 0));
         }
     } else {
         for led in 0..11 {
-            wheel_leds.set(Side::Right, led, (255, 64, 0));
-            wheel_leds.set(Side::Left, led, (0, 0, 0));
+            wheel_leds.set(side, led, (0, 0, 0));
         }
         for led in 11..LEDS {
-            wheel_leds.set(Side::Left, led, (255, 64, 0));
-            wheel_leds.set(Side::Right, led, (0, 0, 0));
+            wheel_leds.set(side, led, (255, 64, 0));
         }
     }
 
@@ -184,6 +184,7 @@ fn amber_quarters<const LEDS: usize>(
 }
 
 fn amber_quarters_fader<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
@@ -206,23 +207,21 @@ fn amber_quarters_fader<const LEDS: usize>(
         (255 - s2, 64 - s3, 0)
     };
 
-    if quarter == 0 {
+    let flip = (quarter == 0) ^ (side == Side::Left);
+
+    if flip {
         for led in 0..11 {
-            wheel_leds.set(Side::Left, led, on_col);
-            wheel_leds.set(Side::Right, led, (0, 0, 0));
+            wheel_leds.set(side, led, on_col);
         }
         for led in 11..LEDS {
-            wheel_leds.set(Side::Right, led, on_col);
-            wheel_leds.set(Side::Left, led, (0, 0, 0));
+            wheel_leds.set(side, led, (0, 0, 0));
         }
     } else {
         for led in 0..11 {
-            wheel_leds.set(Side::Right, led, on_col);
-            wheel_leds.set(Side::Left, led, (0, 0, 0));
+            wheel_leds.set(side, led, (0, 0, 0));
         }
         for led in 11..LEDS {
-            wheel_leds.set(Side::Left, led, on_col);
-            wheel_leds.set(Side::Right, led, (0, 0, 0));
+            wheel_leds.set(side, led, on_col);
         }
     }
 
@@ -230,28 +229,27 @@ fn amber_quarters_fader<const LEDS: usize>(
 }
 
 fn amber_swap<const LEDS: usize>(
+    side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
     let now_secs = framestate.now.as_secs();
     let topside = now_secs % 2 == 0;
-    for side in &SIDES {
-        for led in 0..8 {
-            wheel_leds.set(*side, led, (0, 0, 0));
-        }
+    for led in 0..8 {
+        wheel_leds.set(side, led, (0, 0, 0));
+    }
 
-        if topside ^ (*side == Side::Left) {
-            for led in 9..14 {
-                wheel_leds.set(*side, led, (255, 64, 0));
-            }
-        } else {
-            for led in 9..14 {
-                wheel_leds.set(*side, led, (0, 0, 0));
-            }
+    if topside ^ (side == Side::Left) {
+        for led in 9..14 {
+            wheel_leds.set(side, led, (255, 64, 0));
         }
-        for led in 14..LEDS {
-            wheel_leds.set(*side, led, (0, 0, 0));
+    } else {
+        for led in 9..14 {
+            wheel_leds.set(side, led, (0, 0, 0));
         }
+    }
+    for led in 14..LEDS {
+        wheel_leds.set(side, led, (0, 0, 0));
     }
 
     Ok(())
