@@ -16,6 +16,7 @@ fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
         amber_swap,
         red_yellow_slide,
         red_yellow_centre_pulse,
+        full_quick_ry_pulse,
         full_quick_pulse,
     ]
 }
@@ -66,6 +67,36 @@ fn red_yellow_slide<const LEDS: usize>(
     Ok(())
 }
 
+fn full_quick_ry_pulse<const LEDS: usize>(
+    side: Side,
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    let now_millis = framestate.now.as_millis();
+    let now_secs = framestate.now.as_secs();
+    let flicker = (now_millis / 25) % 4 == 0 && (now_millis / 250) % 2 == 0;
+    let topside = now_secs % 2 == 0;
+    if topside ^ (side == Side::Left) {
+        for led in 0..LEDS {
+            if flicker {
+                if led % 2 == 0 {
+                    wheel_leds.set(side, led, (255, 0, 0));
+                } else {
+                    wheel_leds.set(side, led, (128, 64, 0));
+                }
+            } else {
+                wheel_leds.set(side, led, (0, 0, 0));
+            }
+        }
+    } else {
+        for led in 0..LEDS {
+            wheel_leds.set(side, led, (0, 0, 0));
+        }
+    }
+
+    Ok(())
+}
+
 fn full_quick_pulse<const LEDS: usize>(
     side: Side,
     wheel_leds: &mut WheelLEDs<LEDS>,
@@ -84,7 +115,7 @@ fn full_quick_pulse<const LEDS: usize>(
             }
         }
     } else {
-        for led in 9..14 {
+        for led in 0..LEDS {
             wheel_leds.set(side, led, (0, 0, 0));
         }
     }
