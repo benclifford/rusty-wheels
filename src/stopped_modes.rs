@@ -266,7 +266,7 @@ fn amber_swap<const LEDS: usize>(
 ) -> io::Result<()> {
     let now_secs = framestate.now.as_secs();
     let topside = now_secs % 2 == 0;
-    for led in 0..8 {
+    for led in 0..9 {
         wheel_leds.set(side, led, (0, 0, 0));
     }
 
