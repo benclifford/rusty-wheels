@@ -4,11 +4,13 @@ use crate::structs::{FrameState, Mode};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::io;
+use std::time::Duration;
 
 struct CellularState<const LEDS: usize> {
     automata_number: u8,
     rgb: (u8, u8, u8),
     cells: [bool; LEDS],
+    last_now: Duration,
 }
 
 impl<const LEDS: usize> CellularState<LEDS> {
@@ -66,14 +68,21 @@ impl<const LEDS: usize> Mode<LEDS> for CellularState<LEDS> {
         Ok(())
     }
 
-    fn step(&mut self, _frame: &FrameState) -> io::Result<()> {
-        self.step_cells();
+    fn step(&mut self, frame: &FrameState) -> io::Result<()> {
+        let timestep = frame.spin_length / 128;
+
+        let next_now = self.last_now + timestep;
+
+        if frame.now > next_now {
+            self.step_cells();
+            self.last_now = frame.now;
+        }
         Ok(())
     }
 }
 
 /// These look good in rotating mode
-const PRETTY_AUTOMATA: &[u8] = &[73, 105, 146];
+const PRETTY_AUTOMATA: &[u8] = &[18, 73, 105, 146];
 
 pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     let mut cells = [false; LEDS];
@@ -95,5 +104,6 @@ pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
         rgb: rgb,
         automata_number: a_n,
         cells: cells,
+        last_now: Default::default(),
     })
 }
