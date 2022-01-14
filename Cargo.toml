@@ -2,7 +2,7 @@
 name = "rusty-wheels"
 version = "0.1.0"
 authors = ["Ben Clifford <benc@hawaga.org.uk>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 lazy_static = "1.4.0"
