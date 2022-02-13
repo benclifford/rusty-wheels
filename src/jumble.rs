@@ -16,7 +16,11 @@ impl<T: Copy> Iterator for Jumbler<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        let next_index = rand::thread_rng().gen_range(0, self.content.len() / 2);
+        let next_index = if self.content.len() == 1 {
+            0
+        } else {
+            rand::thread_rng().gen_range(0, self.content.len() / 2)
+        };
 
         let entry = self.content.remove(next_index);
 
