@@ -82,7 +82,7 @@ fn run_leds<const LEDS: usize>(
 
     // floodlight mode: when false, stopped mode should be a floodlight
     // when true, stopped mode should be animated traffic caution modes
-    let mut p: bool = true;
+    let mut floodlight: bool = true;
 
     let mut next_mode_time = Instant::now();
 
@@ -107,7 +107,7 @@ fn run_leds<const LEDS: usize>(
 
         if push_button.pulsed() {
             println!("push button pulse");
-            p = !p;
+            floodlight = !floodlight;
         }
 
         let spin_length = spin_start_time - last_spin_start_time;
@@ -123,7 +123,7 @@ fn run_leds<const LEDS: usize>(
         };
 
         if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
-            if p {
+            if floodlight {
                 render_stopped_mode(&mut wheel_leds, &framestate)?;
             } else {
                 render_floodlight_mode(&mut wheel_leds, &framestate)?;
