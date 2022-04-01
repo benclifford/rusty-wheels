@@ -56,7 +56,7 @@ fn main() {
 }
 
 fn run_leds<const LEDS: usize>(
-    mut m: Magnet,
+    mut magnet: Magnet,
     mut wheel_leds: WheelLEDs<LEDS>,
     mut push_button: PushButton,
     shutdown_flag: Arc<AtomicBool>,
@@ -100,7 +100,7 @@ fn run_leds<const LEDS: usize>(
     let mut stats_start_time = Instant::now();
 
     while !(shutdown_flag.load(Ordering::Relaxed)) {
-        if m.pulsed() {
+        if magnet.pulsed() {
             last_spin_start_time = spin_start_time;
             spin_start_time = Instant::now()
         };
