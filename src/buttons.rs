@@ -1,23 +1,38 @@
+use std::time::{Duration, Instant};
 use sysfs_gpio::{Direction, Edge, Pin};
+
+// debounce duration is between main calling "pulsed", not when
+// the system detects actual rising edges.
+const DEBOUNCE_DURATION: Duration = Duration::from_secs(1);
 
 // this is the same as Magnet now but maybe I will want
 // eg debounce beheviour or other mode behaviour in here?
 
 pub struct PushButton {
     poller: sysfs_gpio::PinPoller,
+    debounce_start: Instant,
 }
 
 impl PushButton {
     pub fn new() -> std::result::Result<PushButton, sysfs_gpio::Error> {
         let poller = setup_buttons()?;
-        Ok(PushButton { poller: poller })
+        Ok(PushButton {
+            poller: poller,
+            debounce_start: Instant::now(),
+        })
     }
 
     pub fn pulsed(&mut self) -> bool {
         match self.poller.poll(0) {
             Ok(Some(value)) => {
-                println!("Poll got a value {}", value);
-                true
+                if Instant::now() - self.debounce_start > DEBOUNCE_DURATION {
+                    println!("Poll got a value {} which will be ignored", value);
+                    self.debounce_start = Instant::now();
+                    true
+                } else {
+                    println!("Debounce");
+                    false
+                }
             }
             _ => false,
         }
