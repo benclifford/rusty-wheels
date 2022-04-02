@@ -11,7 +11,7 @@ fn chill_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
-    &[rainbow, complement_sides]
+    &[rainbow, complement_sides, complement_alternates]
 }
 
 pub fn render_chill_mode<const LEDS: usize>(
@@ -65,6 +65,29 @@ fn complement_sides<const LEDS: usize>(
     let rgb = fraction_to_rgb(phase, Some(0.5));
 
     for led in 0..LEDS {
+        wheel_leds.set(side, led, rgb);
+    }
+
+    Ok(())
+}
+
+fn complement_alternates<const LEDS: usize>(
+    side: Side,
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+
+    let side_phase = if side == Side::Left { 0.0 } else { 0.5 };
+
+    let now_ms = framestate.now.as_millis();
+    let now_steps = (now_ms as f32) / 30000.0;
+
+    let time_phase = now_steps % 1.0;
+
+    for led in 0..LEDS {
+        let pos_phase = if (led / 3) % 2 == 0 { 0.0 } else { 0.5 };
+        let phase = (time_phase + side_phase + pos_phase) % 1.0;
+        let rgb = fraction_to_rgb(phase, Some(0.25));
         wheel_leds.set(side, led, rgb);
     }
 
