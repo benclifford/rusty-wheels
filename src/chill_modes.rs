@@ -35,7 +35,7 @@ fn rainbow<const LEDS: usize>(
 ) -> io::Result<()> {
     for led in 0..LEDS {
         let phase = (led as f32) / (LEDS as f32);
-        let rgb = fraction_to_rgb(phase, None);
+        let rgb = fraction_to_rgb(phase, Some(0.5));
         wheel_leds.set(side, led, rgb);
     }
 
