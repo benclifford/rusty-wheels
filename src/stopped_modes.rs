@@ -5,7 +5,7 @@ use crate::structs::FrameState;
 
 const MODE_CHANGE_SEC: u64 = 60;
 
-fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
+fn caution_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     side: Side,
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
@@ -21,11 +21,11 @@ fn stopped_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     ]
 }
 
-pub fn render_stopped_mode<const LEDS: usize>(
+pub fn render_caution_mode<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-    let modes = stopped_modes();
+    let modes = caution_modes();
     let t = (framestate.now.as_secs() / MODE_CHANGE_SEC % (modes.len() as u64)) as usize;
 
     let mode = modes[t];

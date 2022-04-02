@@ -13,7 +13,7 @@ use rusty_wheels::leds;
 use rusty_wheels::leds::{WheelLEDs, SIDES};
 use rusty_wheels::magnet::Magnet;
 use rusty_wheels::moving_modes::modes;
-use rusty_wheels::stopped_modes::render_stopped_mode;
+use rusty_wheels::stopped_modes::render_caution_mode;
 use rusty_wheels::structs::{FrameState, Mode};
 
 use rusty_wheels::jumble::Jumbler;
@@ -124,7 +124,7 @@ fn run_leds<const LEDS: usize>(
 
         if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
             if floodlight {
-                render_stopped_mode(&mut wheel_leds, &framestate)?;
+                render_caution_mode(&mut wheel_leds, &framestate)?;
             } else {
                 render_floodlight_mode(&mut wheel_leds, &framestate)?;
             }
