@@ -18,6 +18,7 @@ fn caution_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
         red_yellow_centre_pulse,
         full_quick_ry_pulse,
         full_quick_pulse,
+        fade_across,
     ]
 }
 
@@ -283,5 +284,27 @@ fn amber_swap<const LEDS: usize>(
         wheel_leds.set(side, led, (0, 0, 0));
     }
 
+    Ok(())
+}
+
+fn fade_across<const LEDS: usize>(
+    side: Side,
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+    let phase_step_ms = 100;
+    let max_phase = (LEDS as u128) * phase_step_ms;
+    let now_ms = framestate.now.as_millis();
+    let phase = now_ms % max_phase;
+    let led_phase = phase / phase_step_ms;
+    for led in 0..LEDS {
+        let state = ((led as u128) > led_phase) ^ (side == Side::Left);
+
+        if state {
+            wheel_leds.set(side, led, (255, 64, 0));
+        } else {
+            wheel_leds.set(side, led, (1, 0, 0));
+        }
+    }
     Ok(())
 }
