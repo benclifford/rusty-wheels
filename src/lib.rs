@@ -1,4 +1,5 @@
 pub mod buttons;
+pub mod chill_modes;
 pub mod helpers;
 pub mod jumble;
 pub mod leds;

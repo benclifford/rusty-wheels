@@ -9,6 +9,7 @@ use std::thread;
 
 use std::time::{Duration, Instant};
 
+use rusty_wheels::chill_modes::render_chill_mode;
 use rusty_wheels::leds;
 use rusty_wheels::leds::{WheelLEDs, SIDES};
 use rusty_wheels::magnet::Magnet;
@@ -29,6 +30,23 @@ const MODE_CHANGE_SEC: u64 = 20;
 
 /// The number of LEDs on each side
 const N_LEDS: usize = 23;
+
+#[derive(PartialEq)]
+enum StoppedMode {
+    StoppedCaution,
+    StoppedWhite,
+    StoppedChill,
+}
+
+impl StoppedMode {
+    fn next(&self) -> StoppedMode {
+        match self {
+            StoppedMode::StoppedCaution => StoppedMode::StoppedWhite,
+            StoppedMode::StoppedWhite => StoppedMode::StoppedChill,
+            StoppedMode::StoppedChill => StoppedMode::StoppedCaution,
+        }
+    }
+}
 
 fn main() {
     println!("Starting rusty-wheels");
@@ -80,9 +98,7 @@ fn run_leds<const LEDS: usize>(
     flag::register(signal_hook::SIGTERM, Arc::clone(&shutdown_flag))?;
     flag::register(signal_hook::SIGINT, Arc::clone(&shutdown_flag))?;
 
-    // floodlight mode: when false, stopped mode should be a floodlight
-    // when true, stopped mode should be animated traffic caution modes
-    let mut floodlight: bool = true;
+    let mut floodlight: StoppedMode = StoppedMode::StoppedCaution;
 
     let mut next_mode_time = Instant::now();
 
@@ -107,7 +123,7 @@ fn run_leds<const LEDS: usize>(
 
         if push_button.pulsed() {
             println!("push button pulse");
-            floodlight = !floodlight;
+            floodlight = floodlight.next();
         }
 
         let spin_length = spin_start_time - last_spin_start_time;
@@ -123,11 +139,11 @@ fn run_leds<const LEDS: usize>(
         };
 
         if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
-            if floodlight {
-                render_caution_mode(&mut wheel_leds, &framestate)?;
-            } else {
-                render_floodlight_mode(&mut wheel_leds, &framestate)?;
-            }
+            match floodlight {
+                StoppedMode::StoppedCaution => render_caution_mode(&mut wheel_leds, &framestate),
+                StoppedMode::StoppedWhite => render_floodlight_mode(&mut wheel_leds, &framestate),
+                StoppedMode::StoppedChill => render_chill_mode(&mut wheel_leds, &framestate),
+            }?;
         } else {
             if next_mode_time <= Instant::now() && args.len() <= 1 {
                 mode = (jumbler.next().unwrap())();
