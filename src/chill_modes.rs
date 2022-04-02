@@ -76,7 +76,6 @@ fn complement_alternates<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-
     let side_phase = if side == Side::Left { 0.0 } else { 0.5 };
 
     let now_ms = framestate.now.as_millis();
@@ -94,14 +93,15 @@ fn complement_alternates<const LEDS: usize>(
     Ok(())
 }
 
-fn sawtooth(x: f32) -> f32
-{
-    if x < 0.5 {x * 2.0}
-    else {(1.0 - x) * 2.0}
+fn sawtooth(x: f32) -> f32 {
+    if x < 0.5 {
+        x * 2.0
+    } else {
+        (1.0 - x) * 2.0
+    }
 }
 
-fn gamma(x: f32) -> f32
-{
+fn gamma(x: f32) -> f32 {
     x.powf(2.5)
 }
 
@@ -110,7 +110,6 @@ fn rgb<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-
     let now_ms = framestate.now.as_millis();
 
     let r_steps = (now_ms as f32) / 19000.0;
@@ -138,8 +137,6 @@ fn rgb<const LEDS: usize>(
     for led in 16..23 {
         wheel_leds.set(side, led, (0, 0, b));
     }
-
-
 
     Ok(())
 }
