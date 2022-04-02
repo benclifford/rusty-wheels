@@ -1,5 +1,6 @@
 use std::io;
 
+use crate::helpers::fraction_to_rgb;
 use crate::leds::{Side, WheelLEDs};
 use crate::structs::FrameState;
 
@@ -33,7 +34,9 @@ fn rainbow<const LEDS: usize>(
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..LEDS {
-        wheel_leds.set(side, led, (0, 64, 0));
+        let phase = (led as f32) / (LEDS as f32);
+        let rgb = fraction_to_rgb(phase, None);
+        wheel_leds.set(side, led, rgb);
     }
 
     Ok(())
