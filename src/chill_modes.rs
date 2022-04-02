@@ -11,8 +11,7 @@ fn chill_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
-    &[rainbow,
-      complement_sides]
+    &[rainbow, complement_sides]
 }
 
 pub fn render_chill_mode<const LEDS: usize>(
@@ -34,7 +33,6 @@ fn rainbow<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
-
     let now_ms = framestate.now.as_millis();
     let now_steps = (now_ms as f32) / 30000.0;
 
