@@ -11,7 +11,7 @@ fn chill_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
 ) -> Result<(), std::io::Error>] {
-    &[rainbow, complement_sides, complement_alternates]
+    &[rainbow, complement_sides, complement_alternates, rgb]
 }
 
 pub fn render_chill_mode<const LEDS: usize>(
@@ -90,6 +90,56 @@ fn complement_alternates<const LEDS: usize>(
         let rgb = fraction_to_rgb(phase, Some(0.25));
         wheel_leds.set(side, led, rgb);
     }
+
+    Ok(())
+}
+
+fn sawtooth(x: f32) -> f32
+{
+    if x < 0.5 {x * 2.0}
+    else {(1.0 - x) * 2.0}
+}
+
+fn gamma(x: f32) -> f32
+{
+    x.powf(2.5)
+}
+
+fn rgb<const LEDS: usize>(
+    side: Side,
+    wheel_leds: &mut WheelLEDs<LEDS>,
+    framestate: &FrameState,
+) -> io::Result<()> {
+
+    let now_ms = framestate.now.as_millis();
+
+    let r_steps = (now_ms as f32) / 19000.0;
+    let r_phase = gamma(sawtooth(r_steps % 1.0));
+    let r = (r_phase * 255.0) as u8;
+
+    for led in 0..7 {
+        wheel_leds.set(side, led, (r, 0, 0));
+    }
+
+    wheel_leds.set(side, 7, (0, 0, 0));
+    let g_steps = (now_ms as f32) / 23836.0;
+    let g_phase = gamma(sawtooth(g_steps % 1.0));
+    let g = (g_phase * 255.0) as u8;
+
+    for led in 8..15 {
+        wheel_leds.set(side, led, (0, g, 0));
+    }
+
+    wheel_leds.set(side, 15, (0, 0, 0));
+    let b_steps = (now_ms as f32) / 27777.0;
+    let b_phase = gamma(sawtooth(b_steps % 1.0));
+    let b = (b_phase * 255.0) as u8;
+
+    for led in 16..23 {
+        wheel_leds.set(side, led, (0, 0, b));
+    }
+
+
 
     Ok(())
 }
