@@ -34,8 +34,15 @@ fn rainbow<const LEDS: usize>(
     wheel_leds: &mut WheelLEDs<LEDS>,
     framestate: &FrameState,
 ) -> io::Result<()> {
+
+    let now_ms = framestate.now.as_millis();
+    let now_steps = (now_ms as f32) / 30000.0;
+
+    let time_phase = now_steps % 1.0;
+
     for led in 0..LEDS {
-        let phase = (led as f32) / (LEDS as f32);
+        let pos_phase = (led as f32) / (LEDS as f32);
+        let phase = (pos_phase + time_phase) % 1.0;
         let rgb = fraction_to_rgb(phase, Some(0.5));
         wheel_leds.set(side, led, rgb);
     }
