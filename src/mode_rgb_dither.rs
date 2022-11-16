@@ -31,7 +31,7 @@ impl Add for V {
 }
 
 impl AddAssign for V {
-    fn add_assign(&mut self, other: Self) -> () {
+    fn add_assign(&mut self, other: Self) {
         *self = *self + other;
     }
 }
