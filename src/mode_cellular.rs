@@ -101,9 +101,9 @@ pub fn construct_cellular<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     let rgb = fraction_to_rgb(hue, Some(0.25));
 
     Box::new(CellularState {
-        rgb: rgb,
+        rgb,
         automata_number: a_n,
-        cells: cells,
+        cells,
         last_now: Default::default(),
     })
 }

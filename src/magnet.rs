@@ -7,7 +7,7 @@ pub struct Magnet {
 impl Magnet {
     pub fn new() -> std::result::Result<Magnet, sysfs_gpio::Error> {
         let poller = setup_magnet()?;
-        Ok(Magnet { poller: poller })
+        Ok(Magnet { poller })
     }
 
     pub fn pulsed(&mut self) -> bool {

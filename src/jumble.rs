@@ -8,7 +8,7 @@ pub struct Jumbler<T> {
 impl<T> Jumbler<T> {
     pub fn new(mut content: Vec<T>) -> Jumbler<T> {
         content.shuffle(&mut rand::thread_rng());
-        Jumbler { content: content }
+        Jumbler { content }
     }
 }
 

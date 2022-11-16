@@ -17,7 +17,7 @@ impl PushButton {
     pub fn new() -> std::result::Result<PushButton, sysfs_gpio::Error> {
         let poller = setup_buttons()?;
         Ok(PushButton {
-            poller: poller,
+            poller,
             debounce_start: Instant::now(),
         })
     }

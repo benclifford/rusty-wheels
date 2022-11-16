@@ -22,7 +22,7 @@ pub fn construct_phrase_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
 
     println!("Initialised phrase bitmap");
 
-    Box::new(PhraseMode { bitmap: bitmap })
+    Box::new(PhraseMode { bitmap })
 }
 
 pub fn construct_phrase_mode_hello<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
@@ -33,7 +33,7 @@ pub fn construct_phrase_mode_hello<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
 
     println!("Initialised phrase bitmap");
 
-    Box::new(PhraseMode { bitmap: bitmap })
+    Box::new(PhraseMode { bitmap })
 }
 
 pub fn construct_phrase_fuck_boris<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
@@ -44,7 +44,7 @@ pub fn construct_phrase_fuck_boris<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
 
     println!("Initialised phrase bitmap");
 
-    Box::new(PhraseMode { bitmap: bitmap })
+    Box::new(PhraseMode { bitmap })
 }
 
 impl<const LEDS: usize> Mode<LEDS> for PhraseMode {
@@ -75,7 +75,7 @@ pub fn construct_speedo_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Initialising speedo phrase bitmap: complete");
 
     Box::new(SpeedoMode {
-        canvas: PhraseMode { bitmap: bitmap },
+        canvas: PhraseMode { bitmap },
         last_change: Default::default(),
         last_spin_pos: 0.0,
         counter: 0,

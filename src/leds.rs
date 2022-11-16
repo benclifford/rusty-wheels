@@ -123,7 +123,7 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
         };
 
         WheelLEDs {
-            led_stream: led_stream,
+            led_stream,
             left_leds: [(0, 0, 0); LEDS],
             right_leds: [(0, 0, 0); LEDS],
         }
