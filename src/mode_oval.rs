@@ -29,7 +29,5 @@ fn led_from_spinpos(pos: f32) -> usize {
 
     let radius = 0.2 + frac_radius * 0.8;
 
-    let led = ((radius * 23.0) as usize).min(22);
-
-    led
+    ((radius * 23.0) as usize).min(22)
 }
