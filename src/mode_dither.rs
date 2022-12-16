@@ -66,7 +66,7 @@ impl<const LEDS: usize> Mode<LEDS> for Dither {
             }
 
             const GAMMA: f32 = 2.0;
-            let gamma_corrected_render_amount = render_amount.min(1.0).max(0.0).powf(GAMMA);
+            let gamma_corrected_render_amount = render_amount.clamp(0.0, 1.0).powf(GAMMA);
             let colour = (
                 (255.0 * gamma_corrected_render_amount) as u8,
                 (255.0 * gamma_corrected_render_amount) as u8,

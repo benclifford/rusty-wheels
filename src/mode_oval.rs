@@ -6,7 +6,7 @@ pub fn render_oval(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Res
         wheel_leds[led] = (0, 0, 0);
     }
 
-    let clipped_spin_pos = framestate.spin_pos.max(0.0).min(1.0);
+    let clipped_spin_pos = framestate.spin_pos.clamp(0.0, 1.0);
 
     let red_led = led_from_spinpos(clipped_spin_pos);
     wheel_leds[red_led] = (255, 0, 0);
