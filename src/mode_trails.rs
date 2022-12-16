@@ -1,11 +1,11 @@
 use crate::helpers::fraction_to_rgb;
 use crate::leds;
-use crate::structs::{FrameState, Mode};
+use crate::structs::{FrameState, Mode, RGB24};
 use rand::Rng;
 use std::io;
 
 struct Trails {
-    leds: [(u8, u8, u8); 23],
+    leds: [RGB24; 23],
 }
 
 impl<const LEDS: usize> Mode<LEDS> for Trails {

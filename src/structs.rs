@@ -3,6 +3,8 @@ use crate::leds::Side;
 use std::io;
 use std::time::Duration;
 
+pub type RGB24 = (u8, u8, u8);
+
 /// A FrameState contains information about the position and timing of
 /// the bike wheel useful for rendering a frame.
 pub struct FrameState {
@@ -45,7 +47,7 @@ pub trait Mode<const LEDS: usize> {
 }
 
 pub struct StatelessMode<const LEDS: usize> {
-    pub render_fn: fn(leds: &mut [(u8, u8, u8)], frame: &FrameState) -> io::Result<()>,
+    pub render_fn: fn(leds: &mut [RGB24], frame: &FrameState) -> io::Result<()>,
 }
 
 impl<const LEDS: usize> Mode<LEDS> for StatelessMode<LEDS> {
@@ -68,8 +70,7 @@ macro_rules! stateless_mode {
 }
 
 pub struct StatelessModeB<const LEDS: usize> {
-    pub render_fn:
-        fn(side: Side, leds: &mut [(u8, u8, u8); LEDS], frame: &FrameState) -> io::Result<()>,
+    pub render_fn: fn(side: Side, leds: &mut [RGB24; LEDS], frame: &FrameState) -> io::Result<()>,
 }
 
 impl<const LEDS: usize> Mode<LEDS> for StatelessModeB<LEDS> {

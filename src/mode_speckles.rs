@@ -3,10 +3,9 @@ use crate::structs::FrameState;
 use rand::Rng;
 use std::io;
 
-pub fn render_mod_speckle(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+use crate::structs::RGB24;
+
+pub fn render_mod_speckle(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         let m = framestate.loop_counter % (2 + (22 - led) as u32);
         if m == 0 {
@@ -19,10 +18,7 @@ pub fn render_mod_speckle(
     Ok(())
 }
 
-pub fn render_speckle_onepix(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_speckle_onepix(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     let mut done = false;
     for led in 0..23 {
         let m = framestate.loop_counter % (2 + (22 - led) as u32);
@@ -37,10 +33,7 @@ pub fn render_speckle_onepix(
     Ok(())
 }
 
-pub fn render_speckle_random(
-    wheel_leds: &mut [(u8, u8, u8)],
-    _framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_speckle_random(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -57,10 +50,7 @@ pub fn render_speckle_random(
     Ok(())
 }
 
-pub fn render_rainbow_speckle(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_rainbow_speckle(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);

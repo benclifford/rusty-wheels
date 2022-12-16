@@ -1,6 +1,6 @@
 use crate::helpers::fraction_to_rgb;
 use crate::leds;
-use crate::structs::{FrameState, Mode};
+use crate::structs::{FrameState, Mode, RGB24};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::io;
@@ -8,7 +8,7 @@ use std::time::Duration;
 
 struct CellularState<const LEDS: usize> {
     automata_number: u8,
-    rgb: (u8, u8, u8),
+    rgb: RGB24,
     cells: [bool; LEDS],
     last_now: Duration,
 }

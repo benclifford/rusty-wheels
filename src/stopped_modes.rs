@@ -1,7 +1,7 @@
 use std::io;
 
 use crate::leds::{Side, WheelLEDs};
-use crate::structs::FrameState;
+use crate::structs::{FrameState, RGB24};
 
 const MODE_CHANGE_SEC: u64 = 60;
 
@@ -43,7 +43,7 @@ fn red_yellow_slide<const LEDS: usize>(
 ) -> io::Result<()> {
     let this_frame_shift = ((framestate.now.as_millis() / 32) % (LEDS as u128)) as usize;
 
-    let mut set = |l: usize, col: (u8, u8, u8)| {
+    let mut set = |l: usize, col: RGB24| {
         let led = l + this_frame_shift;
         if led < LEDS {
             wheel_leds.set(side, led, col);

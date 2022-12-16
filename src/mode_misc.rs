@@ -1,6 +1,6 @@
 use crate::helpers::{fraction_to_rgb, spinpos_to_rgb};
 use crate::leds::Side;
-use crate::structs::FrameState;
+use crate::structs::{FrameState, RGB24};
 use rand::Rng;
 use std::cmp;
 use std::f32::consts::TAU;
@@ -11,7 +11,7 @@ use std::io;
 ///  * a constant blue LED
 ///  * green and purple LEDs that tick once per frame
 ///    to show the size of a rotational-pixel
-pub fn render_rainbows(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_rainbows(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..8 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -51,10 +51,7 @@ pub fn render_rainbows(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState)
 
 /// This renders a 3 pixel rainbox rim, using the
 /// three LEDs as separate RGB channels
-pub fn render_rainbow_rgb_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_rainbow_rgb_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -68,7 +65,7 @@ pub fn render_rainbow_rgb_rim(
 }
 
 pub fn render_rainbow_rgb_speckle_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..23 {
@@ -93,7 +90,7 @@ pub fn render_rainbow_rgb_speckle_rim(
 /// each LED being one of the six possible
 /// subsets of RGB.
 pub fn render_rainbow_rgb_plus_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..23 {
@@ -113,10 +110,7 @@ pub fn render_rainbow_rgb_plus_rim(
 
 /// This renders the first side of the wheel with
 /// an 8 pixel rainbow around the rim of wheel
-pub fn render_rainbow_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_rainbow_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..15 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -131,7 +125,7 @@ pub fn render_rainbow_rim(
 }
 
 pub fn render_rainbow_rim_sine(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..15 {
@@ -150,7 +144,7 @@ pub fn render_rainbow_rim_sine(
 }
 
 pub fn render_rainbow_rim_sine_overlay(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..15 {
@@ -173,7 +167,7 @@ pub fn render_rainbow_rim_sine_overlay(
 }
 
 pub fn render_rainbow_rim_spaced(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..15 {
@@ -195,7 +189,7 @@ pub fn render_rainbow_rim_spaced(
 }
 
 pub fn render_rainbow_rim_spaced2(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..15 {
@@ -219,10 +213,7 @@ pub fn render_rainbow_rim_spaced2(
     Ok(())
 }
 
-pub fn render_random_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
-    _framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_random_rim(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
     for led in 0..20 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -244,7 +235,7 @@ pub fn render_random_rim(
 }
 
 pub fn render_random_rim_red_yellow(
-    wheel_leds: &mut [(u8, u8, u8)],
+    wheel_leds: &mut [RGB24],
     _framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..20 {
@@ -270,7 +261,7 @@ pub fn render_random_rim_red_yellow(
 
 pub fn render_spin_rim<const LEDS: usize>(
     _side: Side,
-    wheel_leds: &mut [(u8, u8, u8); LEDS],
+    wheel_leds: &mut [RGB24; LEDS],
     framestate: &FrameState,
 ) -> io::Result<()> {
     for led in 0..23 {
@@ -293,10 +284,7 @@ pub fn render_spin_rim<const LEDS: usize>(
     Ok(())
 }
 
-pub fn render_pulsed_rainbow(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_pulsed_rainbow(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..15 {
         wheel_leds[led] = (0, 0, 0);
     }
@@ -317,7 +305,7 @@ pub fn render_pulsed_rainbow(
 /// This renders the second side of the wheel two overlaid patterns:
 ///  * a green time-based line
 ///  * a magenta spin position line
-pub fn render_sliders(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_sliders(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     let now_millis = framestate.now.as_millis();
 
     // this should range from 0..23 over the period of 1 second, which is
@@ -352,13 +340,13 @@ pub fn render_sliders(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) 
 
 /// This renders three slices with black between them, each slice being one
 /// of red, green or blue
-pub fn render_rgb_trio(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_rgb_trio(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         // led 0 should be dimmest
         // led 22 the brightest
         // this will exponentially scale up to 128 max
         let brightness = 1 << (led / 3);
-        let colour: (u8, u8, u8);
+        let colour: RGB24;
 
         if framestate.spin_pos < 0.16 {
             colour = (brightness, 0, 0);
@@ -382,10 +370,7 @@ pub fn render_rgb_trio(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState)
 
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
-pub fn render_centre_red(
-    wheel_leds: &mut [(u8, u8, u8)],
-    _framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_centre_red(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -402,10 +387,7 @@ pub fn render_centre_red(
 
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
-pub fn render_fib_concentric(
-    wheel_leds: &mut [(u8, u8, u8)],
-    _framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_fib_concentric(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -423,7 +405,7 @@ pub fn render_fib_concentric(
     Ok(())
 }
 
-pub fn render_sine(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_sine(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -440,7 +422,7 @@ pub fn render_sine(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> 
     Ok(())
 }
 
-pub fn render_helix(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_helix(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -459,10 +441,7 @@ pub fn render_helix(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) ->
     Ok(())
 }
 
-pub fn render_sine_full(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_sine_full(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -487,10 +466,7 @@ pub fn render_sine_full(
     Ok(())
 }
 
-pub fn render_graycode_rim(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_graycode_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -523,10 +499,7 @@ pub fn render_graycode_rim(
     Ok(())
 }
 
-pub fn render_radial_stripes(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_radial_stripes(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
@@ -543,7 +516,7 @@ pub fn render_radial_stripes(
     Ok(())
 }
 
-pub fn render_europa(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_europa(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blue canvas
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 32);
@@ -562,10 +535,7 @@ pub fn render_europa(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -
     Ok(())
 }
 
-pub fn render_fade_spirals(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_fade_spirals(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     // establish a blank canvas
 
     let s1 = cmp::min(22, (23.0 * framestate.spin_pos) as i8);
@@ -594,10 +564,7 @@ pub fn render_fade_spirals(
     Ok(())
 }
 
-pub fn render_fade_quarters(
-    wheel_leds: &mut [(u8, u8, u8)],
-    framestate: &FrameState,
-) -> io::Result<()> {
+pub fn render_fade_quarters(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     let fade_frac = (framestate.spin_pos * 4.0) % 1.0;
 
     // some gamma correction

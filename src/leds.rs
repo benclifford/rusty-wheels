@@ -8,6 +8,8 @@ use std::io;
 use std::io::BufWriter;
 use std::io::Write;
 
+use crate::structs::RGB24;
+
 fn setup_leds() -> io::Result<BufWriter<Spidev>> {
     println!("Configuring LEDs");
     let spi = create_spi()?;
@@ -31,7 +33,7 @@ fn send_led(w: &mut BufWriter<Spidev>, m: u8, r: u8, g: u8, b: u8) -> io::Result
     w.write(&[m, b, g, r])
 }
 
-fn send_rgb(w: &mut BufWriter<Spidev>, rgb: (u8, u8, u8)) -> io::Result<usize> {
+fn send_rgb(w: &mut BufWriter<Spidev>, rgb: RGB24) -> io::Result<usize> {
     let (r, g, b) = rgb;
     send_led(w, 255, r, g, b)
 }
@@ -58,19 +60,19 @@ pub struct WheelLEDs<const LEDS: usize> {
 
     /// left_leds stores RGB values for the left side of the wheel,
     /// starting at the centre.
-    left_leds: [(u8, u8, u8); LEDS],
+    left_leds: [RGB24; LEDS],
 
     /// right_leds stores RGB values for the right side fo the wheel,
     /// starting at the centre. This is the reverse of the order
     /// that right-side LEDs need to be sent down SPI.
-    right_leds: [(u8, u8, u8); LEDS],
+    right_leds: [RGB24; LEDS],
 }
 
 impl<const LEDS: usize> WheelLEDs<LEDS> {
     /// set a pixel, side 0 or 1, pixel 0 ... LEDS-1
     /// pixel number starts at the centre of the wheel, on both
     /// sides.
-    pub fn set(&mut self, side: Side, pixel: usize, rgb: (u8, u8, u8)) {
+    pub fn set(&mut self, side: Side, pixel: usize, rgb: RGB24) {
         assert!(pixel <= LEDS - 1, "pixel number too large");
         match side {
             Side::Left => self.left_leds[pixel] = rgb,
@@ -78,14 +80,14 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
         }
     }
 
-    pub fn side_slice(&mut self, side: Side) -> &mut [(u8, u8, u8)] {
+    pub fn side_slice(&mut self, side: Side) -> &mut [RGB24] {
         match side {
             Side::Left => &mut self.left_leds,
             Side::Right => &mut self.right_leds,
         }
     }
 
-    pub fn side_slice_b(&mut self, side: Side) -> &mut [(u8, u8, u8); LEDS] {
+    pub fn side_slice_b(&mut self, side: Side) -> &mut [RGB24; LEDS] {
         match side {
             Side::Left => &mut self.left_leds,
             Side::Right => &mut self.right_leds,

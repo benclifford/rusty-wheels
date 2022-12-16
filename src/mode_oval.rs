@@ -1,7 +1,7 @@
-use crate::structs::FrameState;
+use crate::structs::{FrameState, RGB24};
 use std::io;
 
-pub fn render_oval(wheel_leds: &mut [(u8, u8, u8)], framestate: &FrameState) -> io::Result<()> {
+pub fn render_oval(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
     for led in 0..23 {
         wheel_leds[led] = (0, 0, 0);
     }

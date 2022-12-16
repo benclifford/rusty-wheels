@@ -1,5 +1,5 @@
 use crate::leds;
-use crate::structs::{FrameState, Mode};
+use crate::structs::{FrameState, Mode, RGB24};
 use std::io;
 
 struct Dither {
@@ -8,7 +8,7 @@ struct Dither {
     /// This will contain the errors propagated to the next frame
     next_errors: [f32; 23],
     /// pre-step will render into here
-    rgb: [(u8, u8, u8); 23],
+    rgb: [RGB24; 23],
 }
 
 impl<const LEDS: usize> Mode<LEDS> for Dither {

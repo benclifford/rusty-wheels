@@ -1,5 +1,5 @@
 use crate::leds;
-use crate::structs::{FrameState, Mode};
+use crate::structs::{FrameState, Mode, RGB24};
 use std::io;
 
 use std::ops::Add;
@@ -63,7 +63,7 @@ struct Dither {
     /// This will contain the errors propagated to the next frame
     next_errors: [V; 23],
     /// pre-step will render into here
-    rgb: [(u8, u8, u8); 23],
+    rgb: [RGB24; 23],
     /// selection of pixel colours that can be used
     available_colours: Vec<(f32, f32, f32)>,
 }

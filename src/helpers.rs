@@ -3,13 +3,15 @@ use palette::encoding::pixel::Pixel;
 use palette::Hsv;
 use palette::Srgb;
 
+use crate::structs::RGB24;
+
 /// Turns spin position into a saturated rainbow wheel
-pub fn spinpos_to_rgb(framestate: &FrameState) -> (u8, u8, u8) {
+pub fn spinpos_to_rgb(framestate: &FrameState) -> RGB24 {
     fraction_to_rgb(framestate.spin_pos, None)
 }
 
 /// turns a value from 0..1 into RGB
-pub fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> (u8, u8, u8) {
+pub fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> RGB24 {
     let hue = (fraction * 360.0).min(360.0);
 
     let real_value = match value {
