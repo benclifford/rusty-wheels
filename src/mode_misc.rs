@@ -315,23 +315,17 @@ pub fn render_sliders(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::
     let spin_back_led: usize = (framestate.spin_pos * 23.0) as usize;
 
     for l in 0..23 {
-        let g;
-        if l == back_led {
-            g = 255
-        } else {
-            g = 0
-        }
+        let g = if l == back_led { 255 } else { 0 };
 
-        let r;
-        if l == spin_back_led {
-            r = 255
+        let r = if l == spin_back_led {
+            255
         } else if l == (spin_back_led + 8) % 23 {
-            r = 255
+            255
         } else if l == (spin_back_led + 16) % 23 {
-            r = 255
+            255
         } else {
-            r = 0
-        }
+            0
+        };
 
         wheel_leds[l] = (r, g, r);
     }
