@@ -5,11 +5,13 @@ use crate::structs::{FrameState, RGB24};
 
 const MODE_CHANGE_SEC: u64 = 60;
 
-fn caution_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
+type CautionFunction<const LEDS: usize> = for<'r, 's> fn(
     side: Side,
     &'r mut WheelLEDs<LEDS>,
     &'s FrameState,
-) -> Result<(), std::io::Error>] {
+) -> Result<(), std::io::Error>;
+
+fn caution_modes<const LEDS: usize>() -> &'static [CautionFunction<LEDS>] {
     &[
         amber_quarters_fader,
         amber_quarters,
