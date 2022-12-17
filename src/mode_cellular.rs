@@ -31,13 +31,13 @@ impl<const LEDS: usize> CellularState<LEDS> {
 
             let mut bit: u8 = 0;
             if downcell {
-                bit = bit | 0b001;
+                bit |= 0b001;
             }
             if self.cells[cell] {
-                bit = bit | 0b010;
+                bit |= 0b010;
             }
             if upcell {
-                bit = bit | 0b100;
+                bit |= 0b100;
             }
 
             // bit now identifies a bit number in the automata number
