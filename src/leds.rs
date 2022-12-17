@@ -121,7 +121,7 @@ impl<const LEDS: usize> WheelLEDs<LEDS> {
     pub fn new() -> WheelLEDs<LEDS> {
         let led_stream = match setup_leds() {
             Ok(leds) => leds,
-            Err(e) => panic!("LED setup returned an error: {}", e),
+            Err(e) => panic!("LED setup returned an error: {e}"),
         };
 
         WheelLEDs {

@@ -127,7 +127,7 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
                 let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
 
-                let phrase = format!("{:>3.0} km/h", kmh);
+                let phrase = format!("{kmh:>3.0} km/h");
                 self.canvas.bitmap = str_to_bitmap(&phrase);
                 self.counter += 1;
                 self.last_change = frame.now;

@@ -26,7 +26,7 @@ impl PushButton {
         match self.poller.poll(0) {
             Ok(Some(value)) => {
                 if Instant::now() - self.debounce_start > DEBOUNCE_DURATION {
-                    println!("Poll got a value {} which will be ignored", value);
+                    println!("Poll got a value {value} which will be ignored");
                     self.debounce_start = Instant::now();
                     true
                 } else {
@@ -48,7 +48,7 @@ fn setup_buttons() -> std::result::Result<sysfs_gpio::PinPoller, sysfs_gpio::Err
     let mut poller: sysfs_gpio::PinPoller = pin.get_poller()?;
     println!("Making first pin poll");
     match poller.poll(0)? {
-        Some(value) => println!("Poll got first value {} - ignoring", value),
+        Some(value) => println!("Poll got first value {value} - ignoring"),
         None => (),
     }
     println!("Done configuring button(s)");
