@@ -545,13 +545,11 @@ pub fn render_fade_spirals(wheel_leds: &mut [RGB24], framestate: &FrameState) ->
                 let v = (2 as u8).pow((7 - dist_s1) as u32);
                 wheel_leds[led as usize] = (0, v, 0);
             }
+        } else if dist_s2 > 7 {
+            wheel_leds[led as usize] = (0, 0, 0);
         } else {
-            if dist_s2 > 7 {
-                wheel_leds[led as usize] = (0, 0, 0);
-            } else {
-                let v = (2 as u8).pow((7 - dist_s2) as u32);
-                wheel_leds[led as usize] = (v, 0, v);
-            }
+            let v = (2 as u8).pow((7 - dist_s2) as u32);
+            wheel_leds[led as usize] = (v, 0, v);
         }
     }
 
