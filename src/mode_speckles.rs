@@ -34,9 +34,7 @@ pub fn render_speckle_onepix(wheel_leds: &mut [RGB24], framestate: &FrameState) 
 }
 
 pub fn render_speckle_random(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
     let rand_led = rand::thread_rng().gen_range(0, 23);
     let rand_rgb = rand::thread_rng().gen_range(0, 3);
     let colour = match rand_rgb {
@@ -51,10 +49,7 @@ pub fn render_speckle_random(wheel_leds: &mut [RGB24], _framestate: &FrameState)
 }
 
 pub fn render_rainbow_speckle(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let colour = spinpos_to_rgb(framestate);
 
@@ -72,4 +67,10 @@ pub fn render_rainbow_speckle(wheel_leds: &mut [RGB24], framestate: &FrameState)
     // otherwise don't set any pixels
 
     Ok(())
+}
+
+fn blank_leds(wheel_leds: &mut [RGB24]) {
+    for l in wheel_leds.iter_mut() {
+        *l = (0, 0, 0);
+    }
 }
