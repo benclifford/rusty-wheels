@@ -1,4 +1,4 @@
-use crate::helpers::{fraction_to_rgb, spinpos_to_rgb};
+use crate::helpers::{blank_leds, fraction_to_rgb, spinpos_to_rgb};
 use crate::leds::Side;
 use crate::structs::{FrameState, RGB24};
 use rand::Rng;
@@ -52,9 +52,7 @@ pub fn render_rainbows(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io:
 /// This renders a 3 pixel rainbox rim, using the
 /// three LEDs as separate RGB channels
 pub fn render_rainbow_rgb_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let (r, g, b) = spinpos_to_rgb(framestate);
     wheel_leds[20] = (r, 0, 0);
@@ -68,9 +66,7 @@ pub fn render_rainbow_rgb_speckle_rim(
     wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let (r, g, b) = spinpos_to_rgb(framestate);
     wheel_leds[18] = (r, g, b);
@@ -93,9 +89,7 @@ pub fn render_rainbow_rgb_plus_rim(
     wheel_leds: &mut [RGB24],
     framestate: &FrameState,
 ) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let (r, g, b) = spinpos_to_rgb(framestate);
     wheel_leds[17] = (r, 0, b);
@@ -264,9 +258,7 @@ pub fn render_spin_rim<const LEDS: usize>(
     wheel_leds: &mut [RGB24; LEDS],
     framestate: &FrameState,
 ) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     // one rotation every 4 seconds
     // which, with 3-way symmetry, means
@@ -365,10 +357,7 @@ pub fn render_rgb_trio(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io:
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
 pub fn render_centre_red(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     for n in 0..8 {
         let colour = (1 << (7 - n), 0, 0);
@@ -382,10 +371,7 @@ pub fn render_centre_red(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> 
 // renders the middle pixels on each side bright red, with the
 // edges (outer and hubwards) fading down to black
 pub fn render_fib_concentric(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let amber = (128, 16, 0);
     wheel_leds[23 - 1] = amber;
@@ -400,10 +386,7 @@ pub fn render_fib_concentric(wheel_leds: &mut [RGB24], _framestate: &FrameState)
 }
 
 pub fn render_sine(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let phase = (framestate.spin_pos * TAU * 10.0).sin();
 
@@ -417,10 +400,7 @@ pub fn render_sine(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Res
 }
 
 pub fn render_helix(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let phase = (framestate.spin_pos * TAU * 10.0).sin();
 
@@ -436,10 +416,7 @@ pub fn render_helix(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Re
 }
 
 pub fn render_sine_full(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let phase = (framestate.spin_pos * TAU * 10.0).sin();
 
@@ -461,10 +438,7 @@ pub fn render_sine_full(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io
 }
 
 pub fn render_graycode_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let segment = (framestate.spin_pos * 8.0) as u8; // could go over 8 because spinpos can go over 1
 
@@ -494,10 +468,7 @@ pub fn render_graycode_rim(wheel_leds: &mut [RGB24], framestate: &FrameState) ->
 }
 
 pub fn render_radial_stripes(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    // establish a blank canvas
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let segment = (framestate.spin_pos * 32.0) as u8; // could go over 32 because spinpos can go over 1
 
