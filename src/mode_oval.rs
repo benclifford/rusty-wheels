@@ -1,10 +1,9 @@
+use crate::helpers::blank_leds;
 use crate::structs::{FrameState, RGB24};
 use std::io;
 
 pub fn render_oval(wheel_leds: &mut [RGB24], framestate: &FrameState) -> io::Result<()> {
-    for led in 0..23 {
-        wheel_leds[led] = (0, 0, 0);
-    }
+    blank_leds(wheel_leds);
 
     let clipped_spin_pos = framestate.spin_pos.clamp(0.0, 1.0);
 
