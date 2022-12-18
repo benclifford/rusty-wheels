@@ -29,3 +29,9 @@ pub fn fraction_to_rgb(fraction: f32, value: Option<f32>) -> RGB24 {
 
     (red, green, blue)
 }
+
+pub fn blank_leds(wheel_leds: &mut [RGB24]) {
+    for l in wheel_leds.iter_mut() {
+        *l = (0, 0, 0);
+    }
+}

@@ -1,4 +1,4 @@
-use crate::helpers::spinpos_to_rgb;
+use crate::helpers::{blank_leds, spinpos_to_rgb};
 use crate::structs::FrameState;
 use rand::Rng;
 use std::io;
@@ -67,10 +67,4 @@ pub fn render_rainbow_speckle(wheel_leds: &mut [RGB24], framestate: &FrameState)
     // otherwise don't set any pixels
 
     Ok(())
-}
-
-fn blank_leds(wheel_leds: &mut [RGB24]) {
-    for l in wheel_leds.iter_mut() {
-        *l = (0, 0, 0);
-    }
 }
