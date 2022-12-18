@@ -115,7 +115,7 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
             if rot_per_hour.is_infinite() {
                 // println!("infinity path");
-                let phrase = format!("XXX km/h");
+                let phrase = "XXX km/h".to_string();
                 self.canvas.bitmap = str_to_bitmap(&phrase);
                 self.counter += 1;
                 self.last_change = frame.now;
