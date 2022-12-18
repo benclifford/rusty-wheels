@@ -92,3 +92,9 @@ macro_rules! stateless_mode_b {
         || Box::new(crate::structs::StatelessModeB { render_fn: $x })
     };
 }
+
+pub type StatelessStoppedMode<const LEDS: usize> = for<'r, 's> fn(
+    side: Side,
+    &'r mut leds::WheelLEDs<LEDS>,
+    &'s FrameState,
+) -> Result<(), std::io::Error>;

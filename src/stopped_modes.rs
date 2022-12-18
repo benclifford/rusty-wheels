@@ -1,17 +1,11 @@
 use std::io;
 
 use crate::leds::{Side, WheelLEDs};
-use crate::structs::{FrameState, RGB24};
+use crate::structs::{FrameState, StatelessStoppedMode, RGB24};
 
 const MODE_CHANGE_SEC: u64 = 60;
 
-type CautionFunction<const LEDS: usize> = for<'r, 's> fn(
-    side: Side,
-    &'r mut WheelLEDs<LEDS>,
-    &'s FrameState,
-) -> Result<(), std::io::Error>;
-
-fn caution_modes<const LEDS: usize>() -> &'static [CautionFunction<LEDS>] {
+fn caution_modes<const LEDS: usize>() -> &'static [StatelessStoppedMode<LEDS>] {
     &[
         amber_quarters_fader,
         amber_quarters,

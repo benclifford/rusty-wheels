@@ -2,15 +2,11 @@ use std::io;
 
 use crate::helpers::fraction_to_rgb;
 use crate::leds::{Side, WheelLEDs};
-use crate::structs::FrameState;
+use crate::structs::{StatelessStoppedMode, FrameState};
 
 const MODE_CHANGE_SEC: u64 = 60;
 
-fn chill_modes<const LEDS: usize>() -> &'static [for<'r, 's> fn(
-    side: Side,
-    &'r mut WheelLEDs<LEDS>,
-    &'s FrameState,
-) -> Result<(), std::io::Error>] {
+fn chill_modes<const LEDS: usize>() -> &'static [StatelessStoppedMode<LEDS>] {
     &[rainbow, complement_sides, complement_alternates, rgb]
 }
 
