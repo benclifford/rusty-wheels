@@ -178,7 +178,7 @@ pub fn create_dither<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     })
 }
 
-fn find_closest_colour(rgb: (f32, f32, f32), available: &Vec<(f32, f32, f32)>) -> V {
+fn find_closest_colour(rgb: (f32, f32, f32), available: &[(f32, f32, f32)]) -> V {
     let (r, g, b) = rgb;
     let mut best_distance = 1000.0; // "very big"
     let mut best_colour = (0.0, 0.0, 0.0);
