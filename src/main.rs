@@ -152,7 +152,7 @@ fn run_leds<const LEDS: usize>(
                 let stats_duration = stats_start_time.elapsed();
                 let stats_fps = (stats_num_frames as f32) / (stats_duration.as_secs() as f32);
                 println!(
-                    "Frame rate statistics: {} frames over {:?} seconds = {} frames/sec",
+                    "Frame rate statistics: {} frames over {:?} = {} frames/s",
                     stats_num_frames, stats_duration, stats_fps
                 );
                 stats_num_frames = 0;
