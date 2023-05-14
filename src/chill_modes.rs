@@ -2,7 +2,7 @@ use std::io;
 
 use crate::helpers::fraction_to_rgb;
 use crate::leds::{Side, WheelLEDs};
-use crate::structs::{StatelessStoppedMode, FrameState};
+use crate::structs::{FrameState, StatelessStoppedMode};
 
 const MODE_CHANGE_SEC: u64 = 60;
 
