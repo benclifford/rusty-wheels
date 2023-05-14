@@ -30,7 +30,7 @@ impl PushButton {
                     self.debounce_start = Instant::now();
                     true
                 } else {
-                    println!("Debounce");
+                    println!("Ignoring pulse because of debounce of previous pulse");
                     false
                 }
             }
