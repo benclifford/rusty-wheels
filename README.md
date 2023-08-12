@@ -9,6 +9,20 @@ Software
 
 This repo, on top of Raspberry Pi OS.
 
+Build with cargo.
+
+Turn on spi in /boot/config.txt and reboot:
+
+```
+dtparam=spi=on
+```
+
+This should make these device files exist:
+
+```
+/dev/spidev0.0  /dev/spidev0.1
+```
+
 Download this font
 gttps://gitlab.freedesktop.org/xorg/font/misc-misc/-/blob/master/5x7.bdf and
 save it as font.bdf in the working directory where the code runs.
