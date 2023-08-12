@@ -7,7 +7,7 @@ RGB LEDs.
 Software
 --------
 
-This repo, on top of Raspbian.
+This repo, on top of Raspberry Pi OS.
 
 Download this font
 gttps://gitlab.freedesktop.org/xorg/font/misc-misc/-/blob/master/5x7.bdf and
