@@ -27,6 +27,17 @@ Download this font
 gttps://gitlab.freedesktop.org/xorg/font/misc-misc/-/blob/master/5x7.bdf and
 save it as font.bdf in the working directory where the code runs.
 
+Each time before running
+------------------------
+
+Run this to make GPIO27 be an input with pullup: this is for the magnet
+sensor.
+
+```
+raspi-gpio set 27 ip pu
+```
+
+
 Hardware
 --------
 
