@@ -8,6 +8,7 @@ pub mod mode_bitmap_text;
 pub mod mode_cellular;
 pub mod mode_dither;
 pub mod mode_edge_strobe;
+pub mod mode_flames;
 pub mod mode_linetracker;
 pub mod mode_misc;
 pub mod mode_oval;

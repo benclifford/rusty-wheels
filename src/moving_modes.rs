@@ -15,6 +15,7 @@ use crate::mode_rgb_dither;
 use crate::mode_speckles;
 use crate::mode_stepper;
 use crate::mode_trails;
+use crate::mode_flames;
 
 pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
     &[
@@ -74,5 +75,6 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
         stateless_mode!(mode_misc::render_sliders),
         mode_rainbow::construct_rainbow_on_off,
         stateless_mode!(mode_misc::render_fib_concentric),
+        stateless_mode!(mode_flames::render_hub_white),
     ]
 }
