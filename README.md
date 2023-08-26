@@ -23,6 +23,12 @@ This should make these device files exist:
 /dev/spidev0.0  /dev/spidev0.1
 ```
 
+Configure the default mode of the magnet GPIO pin, in /boot/config.txt:
+
+```
+gpio=27=ip,pu
+```
+
 Configure the power off button on GPIO3, in /boot/config.txt:
 
 ```
