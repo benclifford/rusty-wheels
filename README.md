@@ -11,7 +11,7 @@ This repo, on top of Raspberry Pi OS.
 
 Build with cargo.
 
-Turn on spi in /boot/config.txt and reboot:
+Turn on spi in /boot/config.txt:
 
 ```
 dtparam=spi=on
@@ -23,9 +23,17 @@ This should make these device files exist:
 /dev/spidev0.0  /dev/spidev0.1
 ```
 
+Configure the power off button on GPIO3, in /boot/config.txt:
+
+```
+dtoverlay=gpio-shutdown
+```
+
+
 Download this font
 gttps://gitlab.freedesktop.org/xorg/font/misc-misc/-/blob/master/5x7.bdf and
 save it as font.bdf in the working directory where the code runs.
+
 
 Each time before running
 ------------------------
@@ -55,8 +63,8 @@ GPIO connections:
 
 * Hall effect sensor: GPIO27
 * DotStar LEDs (SPI) (via level shifter in v1 and v2) MOSI and CLK
-* Buttons: Smart power button: between SCL and 0v. Other two buttons to GPIO12,
-  GPIO13
+* Buttons: Smart power button: between SCL (aka GPIO3) and 0v. Other
+  two buttons to GPIO12, GPIO13
 
 Screw terminals:
 
