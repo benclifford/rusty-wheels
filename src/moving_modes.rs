@@ -76,5 +76,6 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
         mode_rainbow::construct_rainbow_on_off,
         stateless_mode!(mode_misc::render_fib_concentric),
         stateless_mode!(mode_flames::render_hub_white),
+        mode_flames::create_hub_rainbow,
     ]
 }
