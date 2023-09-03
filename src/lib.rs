@@ -5,6 +5,7 @@ pub mod jumble;
 pub mod leds;
 pub mod magnet;
 pub mod mode_bitmap_text;
+pub mod mode_cellblobs;
 pub mod mode_cellular;
 pub mod mode_dither;
 pub mod mode_edge_strobe;

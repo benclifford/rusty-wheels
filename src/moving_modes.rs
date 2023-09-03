@@ -3,6 +3,7 @@ use crate::stateless_mode_b;
 use crate::structs::Mode;
 
 use crate::mode_bitmap_text;
+use crate::mode_cellblobs;
 use crate::mode_cellular;
 use crate::mode_dither;
 use crate::mode_edge_strobe;
@@ -47,6 +48,7 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
         stateless_mode!(mode_misc::render_graycode_rim),
         stateless_mode!(mode_misc::render_random_rim),
         stateless_mode!(mode_misc::render_random_rim_red_yellow),
+        mode_cellblobs::create_cellblobs,
         // pulsing modes
         mode_edge_strobe::construct_edge_strobe,
         stateless_mode!(mode_misc::render_fade_quarters),
