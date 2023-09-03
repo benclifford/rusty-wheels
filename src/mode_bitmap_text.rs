@@ -108,11 +108,8 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
             // there could be an infinity here... if duration is 0
             let rot_per_hour = 1.0 / h_per_rot;
 
-            if rot_per_hour.is_infinite() {
-                let phrase = "XXX km/h".to_string();
-                self.canvas.bitmap = str_to_bitmap(&phrase);
-                self.counter += 1;
-                self.last_change = frame.now;
+            let phrase = if rot_per_hour.is_infinite() {
+                "XXX km/h".to_string()
             } else {
                 // this is based on characteristics of the bike wheel
                 // which is 20" for my bike
@@ -121,11 +118,12 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
                 let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
 
-                let phrase = format!("{kmh:>3.0} km/h");
-                self.canvas.bitmap = str_to_bitmap(&phrase);
-                self.counter += 1;
-                self.last_change = frame.now;
-            }
+                format!("{kmh:>3.0} km/h")
+            };
+
+            self.canvas.bitmap = str_to_bitmap(&phrase);
+            self.counter += 1;
+            self.last_change = frame.now;
         }
         self.last_spin_pos = frame.spin_pos;
         Ok(())
