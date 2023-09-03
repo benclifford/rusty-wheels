@@ -101,25 +101,7 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
             let time_per_rot = frame.spin_length;
 
-            let s_per_rot: f32 = (time_per_rot.as_millis() as f32) / 1000.0;
-
-            let h_per_rot: f32 = s_per_rot / 60.0 / 60.0;
-
-            // there could be an infinity here... if duration is 0
-            let rot_per_hour = 1.0 / h_per_rot;
-
-            let phrase = if rot_per_hour.is_infinite() {
-                "XXX km/h".to_string()
-            } else {
-                // this is based on characteristics of the bike wheel
-                // which is 20" for my bike
-                const WHEEL_M_PER_ROT: f32 = 1.59;
-                const WHEEL_KM_PER_ROT: f32 = WHEEL_M_PER_ROT / 1000.0;
-
-                let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
-
-                format!("{kmh:>3.0} km/h")
-            };
+            let phrase = speedo_text_kmh(time_per_rot);
 
             self.canvas.bitmap = str_to_bitmap(&phrase);
             self.counter += 1;
@@ -128,6 +110,30 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
         self.last_spin_pos = frame.spin_pos;
         Ok(())
     }
+}
+
+fn speedo_text_kmh(time_per_rot: Duration) -> String {
+    let s_per_rot: f32 = (time_per_rot.as_millis() as f32) / 1000.0;
+
+    let h_per_rot: f32 = s_per_rot / 60.0 / 60.0;
+
+    // there could be an infinity here... if duration is 0
+    let rot_per_hour = 1.0 / h_per_rot;
+
+    let phrase = if rot_per_hour.is_infinite() {
+        "XXX km/h".to_string()
+    } else {
+        // this is based on characteristics of the bike wheel
+        // which is 20" for my bike
+        const WHEEL_M_PER_ROT: f32 = 1.59;
+        const WHEEL_KM_PER_ROT: f32 = WHEEL_M_PER_ROT / 1000.0;
+
+        let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
+
+        format!("{kmh:>3.0} km/h")
+    };
+
+    return phrase;
 }
 
 /// This can render a 128 pixel wide, 7 bit pixel high bitmap
