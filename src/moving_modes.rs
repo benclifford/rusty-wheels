@@ -6,6 +6,7 @@ use crate::mode_bitmap_text;
 use crate::mode_cellular;
 use crate::mode_dither;
 use crate::mode_edge_strobe;
+use crate::mode_flames;
 use crate::mode_linetracker;
 use crate::mode_misc;
 use crate::mode_oval;
@@ -15,7 +16,6 @@ use crate::mode_rgb_dither;
 use crate::mode_speckles;
 use crate::mode_stepper;
 use crate::mode_trails;
-use crate::mode_flames;
 
 pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
     &[

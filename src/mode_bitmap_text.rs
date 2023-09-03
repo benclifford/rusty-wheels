@@ -6,8 +6,7 @@ use std::io;
 use std::time::Duration;
 
 lazy_static! {
-    static ref FONT: bdf::Font =
-        bdf::open("./font.bdf").expect("Valid font");
+    static ref FONT: bdf::Font = bdf::open("./font.bdf").expect("Valid font");
 }
 
 struct PhraseMode {

@@ -10,7 +10,7 @@ pub fn render_hub_white(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> i
 
     let mut n = 0;
 
-    while (n < 22) && rand::thread_rng().gen_range(0, 1000) > 250  {
+    while (n < 22) && rand::thread_rng().gen_range(0, 1000) > 250 {
         n += 1;
     }
 
@@ -20,4 +20,3 @@ pub fn render_hub_white(wheel_leds: &mut [RGB24], _framestate: &FrameState) -> i
 
     Ok(())
 }
-
