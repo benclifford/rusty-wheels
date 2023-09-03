@@ -62,9 +62,10 @@ struct SpeedoMode {
     last_change: Duration,
     last_spin_pos: f32,
     counter: u32,
+    render_text: fn(Duration) -> String,
 }
 
-pub fn construct_speedo_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
+pub fn construct_speedo_mode_kmh<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
     println!("Initialising speedo phrase bitmap: constructing phrase");
     let phrase = "  - KM/H";
 
@@ -78,8 +79,28 @@ pub fn construct_speedo_mode<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
         last_change: Default::default(),
         last_spin_pos: 0.0,
         counter: 0,
+        render_text: speedo_text_kmh,
     })
 }
+
+pub fn construct_speedo_mode_hz<const LEDS: usize>() -> Box<dyn Mode<LEDS>> {
+    println!("Initialising speedo phrase bitmap: constructing phrase");
+    let phrase = " - ";
+
+    println!("Initialising speedo phrase bitmap: rendering text");
+    let bitmap = str_to_bitmap(phrase);
+
+    println!("Initialising speedo phrase bitmap: complete");
+
+    Box::new(SpeedoMode {
+        canvas: PhraseMode { bitmap },
+        last_change: Default::default(),
+        last_spin_pos: 0.0,
+        counter: 0,
+        render_text: speedo_text_hz,
+    })
+}
+
 
 impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
     fn render(
@@ -101,7 +122,7 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
             let time_per_rot = frame.spin_length;
 
-            let phrase = speedo_text_kmh(time_per_rot);
+            let phrase = (self.render_text)(time_per_rot);
 
             self.canvas.bitmap = str_to_bitmap(&phrase);
             self.counter += 1;
@@ -131,6 +152,20 @@ fn speedo_text_kmh(time_per_rot: Duration) -> String {
         let kmh = WHEEL_KM_PER_ROT * rot_per_hour;
 
         format!("{kmh:>3.0} km/h")
+    };
+
+    return phrase;
+}
+
+fn speedo_text_hz(time_per_rot: Duration) -> String {
+    let s_per_rot: f32 = (time_per_rot.as_millis() as f32) / 1000.0;
+
+    let rot_per_s = 1.0 / s_per_rot;
+
+    let phrase = if rot_per_s.is_infinite() {
+        "XXX Hz".to_string()
+    } else {
+        format!("{rot_per_s:>3.2} Hz")
     };
 
     return phrase;

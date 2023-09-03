@@ -62,7 +62,8 @@ pub fn modes<const LEDS: usize>() -> &'static [fn() -> Box<dyn Mode<LEDS>>] {
         // text modes
         mode_bitmap_text::construct_phrase_fuck_boris,
         mode_bitmap_text::construct_phrase_mode,
-        mode_bitmap_text::construct_speedo_mode,
+        mode_bitmap_text::construct_speedo_mode_kmh,
+        mode_bitmap_text::construct_speedo_mode_hz,
         // solid image-like modes
         stateless_mode!(mode_misc::render_centre_red),
         // stateless_mode!(mode_misc::render_europa),
