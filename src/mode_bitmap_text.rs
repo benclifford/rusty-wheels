@@ -103,17 +103,12 @@ impl<const LEDS: usize> Mode<LEDS> for SpeedoMode {
 
             let s_per_rot: f32 = (time_per_rot.as_millis() as f32) / 1000.0;
 
-            // println!("s_per_rot = {}", s_per_rot);
-
             let h_per_rot: f32 = s_per_rot / 60.0 / 60.0;
-            // println!("h_per_rot = {}", h_per_rot);
 
             // there could be an infinity here... if duration is 0
             let rot_per_hour = 1.0 / h_per_rot;
-            // println!("rot_per_hour = {}", rot_per_hour);
 
             if rot_per_hour.is_infinite() {
-                // println!("infinity path");
                 let phrase = "XXX km/h".to_string();
                 self.canvas.bitmap = str_to_bitmap(&phrase);
                 self.counter += 1;
