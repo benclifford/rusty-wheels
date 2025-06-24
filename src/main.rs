@@ -109,7 +109,8 @@ fn run_leds<const LEDS: usize>(
     let mut mode: Box<dyn Mode<LEDS>> = if args.len() <= 1 {
         jumbler.next().unwrap()()
     } else {
-        (modes()[0])()
+        let forced_mode: usize = args[1].parse().expect("parseable mode on command line");
+        (modes()[forced_mode])()
     };
 
     let mut stats_num_frames: u32 = 0;
