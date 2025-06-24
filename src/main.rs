@@ -138,7 +138,7 @@ fn run_leds<const LEDS: usize>(
             spin_length: spin_length,
         };
 
-        if mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0 {
+        if (mode_duration.as_millis() > STOP_TIME_MS || mode_duration.as_millis() == 0) && args.len() <= 1 {
             match floodlight {
                 StoppedMode::StoppedCaution => render_caution_mode(&mut wheel_leds, &framestate),
                 StoppedMode::StoppedWhite => render_floodlight_mode(&mut wheel_leds, &framestate),
